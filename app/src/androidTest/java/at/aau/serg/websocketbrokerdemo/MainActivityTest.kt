@@ -19,8 +19,8 @@ class MainActivityTest {
 
         scenario.onActivity { activity ->
             val statusView = activity.findViewById<TextView>(R.id.statusText)
-            // Erwartung: Status ist initial leer oder Standardtext
-            assertEquals("", statusView.text.toString())
+            // Der initiale Status ist tatsächlich "Status: Getrennt"
+            assertEquals("Status: Getrennt", statusView.text.toString())
         }
     }
 
