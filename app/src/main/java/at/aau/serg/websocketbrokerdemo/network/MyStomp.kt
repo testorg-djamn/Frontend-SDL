@@ -16,7 +16,7 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 
-private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-example-broker/websocket" // Für Emulator! – anpassen bei echtem Gerät
+private const val WEBSOCKET_URI = ""//"ws://10.0.2.2:8080/websocket-example-broker/websocket" // Für Emulator! – anpassen bei echtem Gerät
 
 class MyStomp(private val callbacks: Callbacks) {
 
