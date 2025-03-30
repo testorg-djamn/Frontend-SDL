@@ -10,7 +10,7 @@ import com.example.myapplication.R
 
 class MainActivity : ComponentActivity(), Callbacks {
 
-    private lateinit var stomp: MyStomp
+    lateinit var stomp: MyStomp
 
 
     override fun onCreate(savedInstanceState: Bundle?) {

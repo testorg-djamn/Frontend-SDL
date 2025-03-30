@@ -46,11 +46,17 @@ android {
     }
 
     testOptions {
-        unitTests {
-            all {
-                it.useJUnitPlatform()
-                it.finalizedBy(tasks.named("jacocoTestReport"))
-            }
+        unitTests.apply {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+            // KEIN useJUnitPlatform() hier!
+        }
+    }
+
+    sourceSets {
+        getByName("test") {
+            // Stellt sicher, dass die Source-Sets korrekt konfiguriert sind
+            java.srcDir("src/test/java")
         }
     }
 }
@@ -110,10 +116,33 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    debugImplementation("androidx.fragment:fragment-testing:1.6.1")
+
+    // Unit Tests mit JUnit 4 für Robolectric
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("org.robolectric:robolectric:4.11.1")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+
+    // Mockito für Unit-Tests
+    testImplementation("org.mockito:mockito-core:5.2.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+
+    // JUnit 5
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+
+    // Mockito für androidTest
+    androidTestImplementation("org.mockito:mockito-android:5.2.0")
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+
+    // Coroutines Testing
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+    debugImplementation("androidx.fragment:fragment-testing:1.6.1")
     implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.builtin)
@@ -132,11 +161,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.recyclerview:recyclerview:1.3.1")
-    testImplementation("org.mockito:mockito-core:5.2.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
 }
