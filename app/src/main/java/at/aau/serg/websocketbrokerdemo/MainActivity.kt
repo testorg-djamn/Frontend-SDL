@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import com.example.myapplication.R
+
 
 class MainActivity : ComponentActivity(), Callbacks {
 

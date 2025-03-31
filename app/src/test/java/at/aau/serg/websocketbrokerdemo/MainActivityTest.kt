@@ -2,10 +2,8 @@ package at.aau.serg.websocketbrokerdemo
 
 import android.widget.Button
 import android.widget.TextView
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ActivityScenario
 import at.aau.serg.websocketbrokerdemo.network.MyStomp
-import com.example.myapplication.R
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -14,12 +12,13 @@ import org.mockito.Mockito.*
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class MainActivityTest {
 
     private lateinit var scenario: ActivityScenario<MainActivity>
-    private lateinit var fakeStomp: MyStomp
+
 
     @Before
     fun setup() {
