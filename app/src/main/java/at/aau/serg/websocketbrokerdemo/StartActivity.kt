@@ -29,6 +29,7 @@ class StartActivity : ComponentActivity() {
             }
         }
 
+
         // Einstellungen öffnen
         settingsBtn.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)

@@ -9,7 +9,7 @@
     <!-- Eingabe für Spielername -->
     <EditText
         android:id="@+id/nameInput"
-        android:layout_width="400dp"
+        android:layout_width="200dp"
         android:layout_height="40dp"
         android:hint="Dein Name"
         android:textColor="#000000"
@@ -24,7 +24,7 @@
     <!-- Spiel starten Button -->
     <Button
         android:id="@+id/startGameBtn"
-        android:layout_width="400dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Spiel starten"
         android:textAllCaps="false"
@@ -36,16 +36,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="24dp"/>
 
+
+
     <!-- Zahnrad-Symbol (größer) -->
     <ImageButton
         android:id="@+id/settingsBtn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:background="@android:color/transparent"
         android:src="@drawable/ic_settings"
         android:contentDescription="Einstellungen"
         app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp"/>
+        android:layout_margin="10dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
