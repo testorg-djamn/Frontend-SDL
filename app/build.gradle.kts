@@ -1,5 +1,4 @@
 plugins {
-    // Verwende die von dir definierten Aliase und Plugins
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
@@ -7,19 +6,21 @@ plugins {
     id("org.sonarqube") version "5.1.0.4882"
 }
 
+jacoco {
+    toolVersion = "0.8.8" // Ältere Version mit besserer Java-Kompatibilität
+}
+
 android {
     namespace = "at.aau.serg.websocketbrokerdemo"
     compileSdk = 35
 
     defaultConfig {
-        // Verwende den gleichen Namespace wie die Package-Struktur
         applicationId = "at.aau.serg.websocketbrokerdemo"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
-        // Für Instrumentierungstests notwendig
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -32,43 +33,48 @@ android {
             )
         }
         debug {
-            // Aktiviert Coverage für Unit-Tests und Instrumentierungstests
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
         viewBinding = true
     }
+
     testOptions {
         unitTests {
-            all {
-                // Nutzt den JUnit Platform Ansatz
-                it.useJUnitPlatform()
-                it.finalizedBy(tasks.named("jacocoTestReport"))
-            }
             isIncludeAndroidResources = true
+            isReturnDefaultValues = true
+            all { test ->
+                test.useJUnitPlatform()
+                test.systemProperty("robolectric.logging", "stdout")
+                test.systemProperty("robolectric.graphicsMode", "NATIVE")
+                test.finalizedBy(tasks.named("jacocoTestReport"))
+            }
         }
     }
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
     group = "verification"
-    description = "Generiert einen Code Coverage Report für den Test-Task."
+    description = "Generiert einen Code Coverage Report für Unit-Tests"
     dependsOn("testDebugUnitTest")
 
     reports {
         xml.required.set(true)
         html.required.set(true)
-        xml.outputLocation.set(file("${project.projectDir}/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
     val fileFilter = listOf(
@@ -77,30 +83,35 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/BuildConfig.*",
         "**/Manifest*.*",
         "**/*Test*.*",
-        "android/**/*.*"
+        "android/**/*.*",
+        "**/di/**/*.*",
+        "**/*_Factory.*",
+        "**/*_MembersInjector.*",
+        "**/*_Provide*Factory.*",
+        "**/*_ViewBinding.*"
     )
 
-    val debugTree =
-        fileTree("${project.layout.buildDirectory.get().asFile}/tmp/kotlin-classes/debug") {
-            exclude(fileFilter)
-        }
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        exclude(fileFilter)
+    }
 
-    val javaDebugTree =
-        fileTree("${project.layout.buildDirectory.get().asFile}/intermediates/javac/debug") {
-            exclude(fileFilter)
-        }
+    val javaDebugTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug")) {
+        exclude(fileFilter)
+    }
 
-    val mainSrc = listOf(
-        "${project.projectDir}/src/main/java",
-        "${project.projectDir}/src/main/kotlin"
-    )
+    val mainSrc = listOf("${project.projectDir}/src/main/java", "${project.projectDir}/src/main/kotlin")
 
     sourceDirectories.setFrom(files(mainSrc))
     classDirectories.setFrom(files(debugTree, javaDebugTree))
-    executionData.setFrom(fileTree(project.layout.buildDirectory.get().asFile) {
-        include("jacoco/testDebugUnitTest.exec")
-        include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
-    })
+    executionData.setFrom(files(
+        "${layout.buildDirectory.get()}/jacoco/testDebugUnitTest.exec",
+        "${layout.buildDirectory.get()}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+    ))
+}
+
+// Garantieren, dass der Report nach der Test-Ausführung erstellt wird
+tasks.withType<Test> {
+    finalizedBy(tasks.named("jacocoTestReport"))
 }
 
 sonar {
@@ -109,14 +120,12 @@ sonar {
         property("sonar.organization", "se2-ss25-spieldeslebens")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
-        property(
-            "sonar.coverage.jacoco.xmlReportPaths",
-            "${project.projectDir}/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
-        )
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
     }
 }
 
 dependencies {
+    // Core App Dependencies
     implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.builtin)
@@ -130,23 +139,23 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.constraintlayout)
     implementation("androidx.recyclerview:recyclerview:1.3.2")
-
-    // Gson für JSON-Verarbeitung
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // Test-Abhängigkeiten
+    // Unit-Test (JVM) Dependencies
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
-    // JUnit Vintage Engine hinzufügen, um JUnit 4 Tests (z. B. Robolectric) auszuführen
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.9.2")
-
-    testImplementation("androidx.test:core:1.5.0")
-    testImplementation("androidx.test:core-ktx:1.5.0")
     testImplementation("org.mockito:mockito-core:5.7.0")
     testImplementation("org.robolectric:robolectric:4.11.1")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test:core-ktx:1.5.0")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 
+
+    // Instrumentation Tests (laufen nicht bei Sonar)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)

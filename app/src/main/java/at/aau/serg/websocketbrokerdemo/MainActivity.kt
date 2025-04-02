@@ -14,10 +14,10 @@ class MainActivity : ComponentActivity(), Callbacks {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_fullscreen)
 
+        val playerName = intent.getStringExtra("playerName") ?: "Spieler"
 
         stomp = MyStomp(this)
 
@@ -26,11 +26,11 @@ class MainActivity : ComponentActivity(), Callbacks {
         }
 
         findViewById<Button>(R.id.hellobtn).setOnClickListener {
-            stomp.sendMove("Anna", "würfelt 6")
+            stomp.sendMove(playerName, "würfelt 6")
         }
 
         findViewById<Button>(R.id.jsonbtn).setOnClickListener {
-            stomp.sendChat("Anna", "Hallo an alle!")
+            stomp.sendChat(playerName, "Hallo an alle!")
         }
     }
 

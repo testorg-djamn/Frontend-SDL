@@ -1,61 +1,91 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.os.Looper.getMainLooper
 import android.widget.Button
 import android.widget.TextView
-import androidx.test.core.app.ActivityScenario
 import at.aau.serg.websocketbrokerdemo.network.MyStomp
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.*
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-
+import org.robolectric.shadows.ShadowToast
+import org.junit.Assert.*
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
 class MainActivityTest {
 
-    private lateinit var scenario: ActivityScenario<MainActivity>
-
+    private lateinit var activity: MainActivity
+    private lateinit var mockStomp: MyStomp
+    private lateinit var connectBtn: Button
+    private lateinit var helloBtn: Button
+    private lateinit var jsonBtn: Button
+    private lateinit var statusText: TextView
 
     @Before
-    fun setup() {
-        scenario = ActivityScenario.launch(MainActivity::class.java)
+    fun setUp() {
+        activity = Robolectric.buildActivity(MainActivity::class.java)
+            .create()
+            .resume()
+            .get()
+
+        mockStomp = mock(MyStomp::class.java)
+        activity.stomp = mockStomp
+
+        connectBtn = activity.findViewById(R.id.connectbtn)
+        helloBtn = activity.findViewById(R.id.hellobtn)
+        jsonBtn = activity.findViewById(R.id.jsonbtn)
+        statusText = activity.findViewById(R.id.statusText)
     }
 
     @Test
-    fun testButtonClickConnect_callsConnect() {
-        scenario.onActivity { activity ->
-            val mockStomp = mock(MyStomp::class.java)
-            activity.javaClass.getDeclaredField("stomp").apply {
-                isAccessible = true
-                set(activity, mockStomp)
-            }
-
-            val connectButton = activity.findViewById<Button>(R.id.connectbtn)
-            connectButton.performClick()
-
-            verify(mockStomp).connect()
-        }
+    fun testConnectButtonClick_callsConnect() {
+        connectBtn.performClick()
+        verify(mockStomp).connect()
     }
 
     @Test
-    fun testOnResponse_ConnectedStatus() {
-        scenario.onActivity { activity ->
-            val statusView = activity.findViewById<TextView>(R.id.statusText)
-            activity.onResponse("✅ Verbunden mit Server")
-            assertEquals("🟢 ✅ Verbunden mit Server", statusView.text)
-        }
+    fun testHelloButtonClick_callsSendMove() {
+        helloBtn.performClick()
+        verify(mockStomp).sendMove("Anna", "würfelt 6")
     }
 
     @Test
-    fun testOnResponse_ErrorStatus() {
-        scenario.onActivity { activity ->
-            val statusView = activity.findViewById<TextView>(R.id.statusText)
-            activity.onResponse("❌ Fehler beim Verbinden")
-            assert(statusView.text.contains("🟠"))
-        }
+    fun testJsonButtonClick_callsSendChat() {
+        jsonBtn.performClick()
+        verify(mockStomp).sendChat("Anna", "Hallo an alle!")
+    }
+
+    @Test
+    fun testOnResponse_connectedStatus() {
+        activity.onResponse("✅ Verbunden mit Server")
+        shadowOf(getMainLooper()).idle()
+        assertTrue(statusText.text.contains("🟢"))
+    }
+
+    @Test
+    fun testOnResponse_disconnectedStatus() {
+        activity.onResponse("Nicht verbunden")
+        shadowOf(getMainLooper()).idle()
+        assertTrue(statusText.text.contains("🔴"))
+    }
+
+    @Test
+    fun testOnResponse_errorStatus_showsToast() {
+        activity.onResponse("Fehler beim Senden")
+        shadowOf(getMainLooper()).idle()
+        assertTrue(statusText.text.contains("🟠"))
+        assertEquals("Fehler beim Senden", ShadowToast.getTextOfLatestToast())
+    }
+
+    @Test
+    fun testOnResponse_otherStatus() {
+        activity.onResponse("Hallo Welt")
+        shadowOf(getMainLooper()).idle()
+        assertTrue(statusText.text.contains("ℹ️"))
     }
 }

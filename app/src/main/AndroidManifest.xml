@@ -15,17 +15,35 @@
         android:theme="@style/Theme.MyApplication"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <!-- Startscreen im Querformat -->
         <activity
-            android:name="at.aau.serg.websocketbrokerdemo.MainActivity"
+            android:name="at.aau.serg.websocketbrokerdemo.StartActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.MyApplication">
+            android:theme="@style/Theme.MyApplication"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name="at.aau.serg.websocketbrokerdemo.SettingsActivity"
+            android:exported="false"
+            android:label="Einstellungen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Spielbildschirm ebenfalls im Querformat -->
+        <activity
+            android:name="at.aau.serg.websocketbrokerdemo.MainActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MyApplication"
+            android:screenOrientation="landscape" />
+
+
     </application>
 
 </manifest>
