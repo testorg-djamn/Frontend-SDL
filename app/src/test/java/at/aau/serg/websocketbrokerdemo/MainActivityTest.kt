@@ -17,7 +17,7 @@ import org.junit.Assert.*
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33])
-class MainActivityTest {
+class MainActivityTest {//hallo
 
     private lateinit var activity: MainActivity
     private lateinit var mockStomp: MyStomp
