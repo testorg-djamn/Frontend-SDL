@@ -1,63 +1,51 @@
 package at.aau.serg.websocketbrokerdemo
 
-import at.aau.serg.websocketbrokerdemo.network.MyStomp
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-
+import at.aau.serg.websocketbrokerdemo.network.MyStomp
 
 class MainActivity : ComponentActivity(), Callbacks {
 
-    lateinit var stomp: MyStomp
-
+    private lateinit var stomp: MyStomp
+    private lateinit var playerName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_fullscreen)
 
-        val playerName = intent.getStringExtra("playerName") ?: "Spieler"
-
+        playerName = intent.getStringExtra("playerName") ?: "Spieler"
         stomp = MyStomp(this)
 
-        findViewById<Button>(R.id.connectbtn).setOnClickListener {
+        val connectBtn = findViewById<Button>(R.id.connectbtn)
+        val moveBtn = findViewById<Button>(R.id.hellobtn)
+
+        connectBtn.setOnClickListener {
             stomp.connect()
         }
 
-        findViewById<Button>(R.id.hellobtn).setOnClickListener {
+        moveBtn.setOnClickListener {
             stomp.sendMove(playerName, "würfelt 6")
-        }
-
-        findViewById<Button>(R.id.jsonbtn).setOnClickListener {
-            stomp.sendChat(playerName, "Hallo an alle!")
         }
     }
 
     override fun onResponse(res: String) {
         runOnUiThread {
+            val status = findViewById<TextView>(R.id.statusText)
+            status.text = res
+
             when {
-                res.contains("Verbunden") -> {
-                    updateStatus("🟢 $res", R.color.status_connected)
-                }
-                res.contains("Nicht verbunden") || res.contains("Getrennt") -> {
-                    updateStatus("🔴 $res", R.color.status_disconnected)
-                }
+                res.contains("Verbunden") -> status.setTextColor(getColor(R.color.status_connected))
+                res.contains("Nicht verbunden") || res.contains("Getrennt") ->
+                    status.setTextColor(getColor(R.color.status_disconnected))
                 res.contains("Fehler") -> {
-                    updateStatus("🟠 $res", R.color.status_error)
+                    status.setTextColor(getColor(R.color.status_error))
                     Toast.makeText(this, res, Toast.LENGTH_SHORT).show()
                 }
-                else -> {
-                    updateStatus("ℹ️ $res", R.color.black)
-                }
+                else -> status.setTextColor(getColor(R.color.black))
             }
         }
     }
-
-    private fun updateStatus(text: String, colorResId: Int) {
-        val status = findViewById<TextView>(R.id.statusText)
-        status.text = text
-        status.setTextColor(resources.getColor(colorResId, theme))
-    }
 }
-

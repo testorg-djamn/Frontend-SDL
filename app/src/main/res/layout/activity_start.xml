@@ -38,7 +38,7 @@
 
 
 
-    <!-- Zahnrad-Symbol (größer) -->
+    <!-- Zahnrad-Symbol  -->
     <ImageButton
         android:id="@+id/settingsBtn"
         android:layout_width="64dp"
