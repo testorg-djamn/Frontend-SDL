@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity(), Callbacks {
                     status.setTextColor(getColor(R.color.status_error))
                     Toast.makeText(this, res, Toast.LENGTH_SHORT).show()
                 }
-                else -> status.setTextColor(getColor(R.color.black))
+                else -> status.setTextColor(getColor(R.color.white))
             }
         }
     }

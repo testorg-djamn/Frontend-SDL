@@ -13,7 +13,7 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 
-// Nutze deinen richtigen Port!
+
 private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
 
 class MyStomp(private val callbacks: Callbacks) {
