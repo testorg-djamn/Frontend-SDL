@@ -1,11 +1,12 @@
-package at.aau.serg.websocketbrokerdemo
+package at.aau.serg.sdlapp
 
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import at.aau.serg.websocketbrokerdemo.network.MyStomp
+import at.aau.serg.sdlapp.network.MyStomp
+
 
 class MainActivity : ComponentActivity(), Callbacks {
 

@@ -1,8 +1,8 @@
-package at.aau.serg.websocketbrokerdemo.network
+package at.aau.serg.sdlapp.network
 
-import at.aau.serg.websocketbrokerdemo.Callbacks
-import at.aau.serg.websocketbrokerdemo.model.OutputMessage
-import at.aau.serg.websocketbrokerdemo.model.StompMessage
+import at.aau.serg.sdlapp.Callbacks
+import at.aau.serg.sdlapp.model.OutputMessage
+import at.aau.serg.sdlapp.model.StompMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
