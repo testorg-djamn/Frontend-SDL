@@ -1,6 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
-class ActionCard (
+data class ActionCard (
     val headline : String,
     val action : String,
     val imageName : String
