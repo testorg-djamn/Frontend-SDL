@@ -7,8 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.network.MyStomp
 
-
-class MainActivity : ComponentActivity(), Callbacks {
+class MainActivity : ComponentActivity() {
 
     private lateinit var stomp: MyStomp
     private lateinit var playerName: String
@@ -18,7 +17,8 @@ class MainActivity : ComponentActivity(), Callbacks {
         setContentView(R.layout.fragment_fullscreen)
 
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
-        stomp = MyStomp(this)
+
+        stomp = MyStomp { res -> handleResponse(res) }
 
         val connectBtn = findViewById<Button>(R.id.connectbtn)
         val moveBtn = findViewById<Button>(R.id.hellobtn)
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity(), Callbacks {
         }
     }
 
-    override fun onResponse(res: String) {
+    private fun handleResponse(res: String) {
         runOnUiThread {
             val status = findViewById<TextView>(R.id.statusText)
             status.text = res
