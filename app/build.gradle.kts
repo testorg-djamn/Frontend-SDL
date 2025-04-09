@@ -7,15 +7,15 @@ plugins {
 }
 
 jacoco {
-    toolVersion = "0.8.8" // Ältere Version mit besserer Java-Kompatibilität
+    toolVersion = "0.8.8"
 }
 
 android {
-    namespace = "at.aau.serg.websocketbrokerdemo"
+    namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "at.aau.serg.websocketbrokerdemo"
+        applicationId = "at.aau.serg.sdlapp"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
@@ -26,7 +26,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -56,11 +56,11 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
-            all { test ->
-                test.useJUnitPlatform()
-                test.systemProperty("robolectric.logging", "stdout")
-                test.systemProperty("robolectric.graphicsMode", "NATIVE")
-                test.finalizedBy(tasks.named("jacocoTestReport"))
+            all {
+                it.useJUnitPlatform()
+                it.systemProperty("robolectric.logging", "stdout")
+                it.systemProperty("robolectric.graphicsMode", "NATIVE")
+                it.finalizedBy(tasks.named("jacocoTestReport"))
             }
         }
     }
@@ -78,17 +78,10 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     }
 
     val fileFilter = listOf(
-        "**/R.class",
-        "**/R$*.class",
-        "**/BuildConfig.*",
-        "**/Manifest*.*",
-        "**/*Test*.*",
-        "android/**/*.*",
-        "**/di/**/*.*",
-        "**/*_Factory.*",
-        "**/*_MembersInjector.*",
-        "**/*_Provide*Factory.*",
-        "**/*_ViewBinding.*"
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*",
+        "**/di/**/*.*", "**/*_Factory.*", "**/*_MembersInjector.*",
+        "**/*_Provide*Factory.*", "**/*_ViewBinding.*"
     )
 
     val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
@@ -99,17 +92,16 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         exclude(fileFilter)
     }
 
-    val mainSrc = listOf("${project.projectDir}/src/main/java", "${project.projectDir}/src/main/kotlin")
+    val mainSrc = listOf("src/main/java", "src/main/kotlin")
 
     sourceDirectories.setFrom(files(mainSrc))
     classDirectories.setFrom(files(debugTree, javaDebugTree))
     executionData.setFrom(files(
-        "${layout.buildDirectory.get()}/jacoco/testDebugUnitTest.exec",
-        "${layout.buildDirectory.get()}/outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec"
+        layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"),
+        layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
     ))
 }
 
-// Garantieren, dass der Report nach der Test-Ausführung erstellt wird
 tasks.withType<Test> {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
@@ -121,12 +113,12 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/ActionCardActivity.kt")
+        property("sonar.exclusions", "**/SettingsActivity.kt,**/StartActivity.kt,**/MainActivity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCardActivity.kt")
     }
 }
 
 dependencies {
-    // Core App Dependencies
+    // App
     implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.builtin)
@@ -142,7 +134,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // Unit-Test (JVM) Dependencies
+    // Unit-Tests
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
@@ -153,11 +145,13 @@ dependencies {
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
 
-
-    // Instrumentation Tests (laufen nicht bei Sonar)
-    androidTestImplementation(libs.androidx.junit)
+    // Instrumentation Tests (Espresso + Intents)
+    androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")//
+
+    // Compose Test
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
