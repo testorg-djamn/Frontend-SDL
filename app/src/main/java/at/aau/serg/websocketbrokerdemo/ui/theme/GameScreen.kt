@@ -19,10 +19,19 @@ fun GameScreen() {
 
     // Spieler aus dem Backend laden
     LaunchedEffect(Unit) {
-        val fetchedPlayers = PlayerRepository.fetchPlayers()
-        playerStats.clear()
-        playerStats.addAll(fetchedPlayers)
+        try {
+            val fetchedPlayers = PlayerRepository.fetchPlayers()
+            val coloredPlayers = fetchedPlayers.mapIndexed { index, player ->
+                player.copy(color = if (index % 2 == 0) Color.Blue else Color.Red)
+            }
+            playerStats.clear()
+            playerStats.addAll(coloredPlayers)
+        } catch (e: Exception) {
+            // Fehler beim Laden der Spieler
+            println("Fehler beim Laden der Spieler: ${e.message}")
+        }
     }
+
 
     Column(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
         Text(
@@ -45,7 +54,3 @@ fun GameScreen() {
         }
     }
 }
-
-
-
-

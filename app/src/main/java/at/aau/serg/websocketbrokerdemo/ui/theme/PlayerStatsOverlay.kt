@@ -23,10 +23,12 @@ data class PlayerModell (
     var children: Int,
     var education: String,
     var relationship: String,
-    var career: String,
-    val color: Color
+    var career: String = "Unbekannt",
 
+    @kotlinx.serialization.Transient
+    val color: Color = Color.Blue // z.B. default
 )
+
 
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
