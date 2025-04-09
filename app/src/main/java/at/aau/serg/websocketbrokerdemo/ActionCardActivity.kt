@@ -2,11 +2,12 @@ package at.aau.serg.websocketbrokerdemo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.ComponentActivity
+import at.aau.serg.websocketbrokerdemo.model.ActionCard
 import at.aau.serg.websocketbrokerdemo.network.MyStomp
 import com.google.gson.Gson
 
@@ -22,11 +23,6 @@ class ActionCardActivity : ComponentActivity(), Callbacks {
 
         stomp = MyStomp(this)
         stomp.sendMove(playerName, "zieht Action Card")
-
-        findViewById<Button?>(R.id.button).setOnClickListener {
-            Toast.makeText(this, "Button clicked!", Toast.LENGTH_SHORT).show()
-            //TODO: Switch to different view
-        }
     }
 
     @SuppressLint("DiscouragedApi")
@@ -41,6 +37,22 @@ class ActionCardActivity : ComponentActivity(), Callbacks {
             if (resId != 0) findViewById<ImageView>(R.id.picture).setImageResource(resId)
 
             findViewById<TextView>(R.id.description).text = card.action
+
+            findViewById<Button?>(R.id.button).setOnClickListener {
+                //TODO: Execute button action
+            }
+
+            //Remove second button if action is inevitable
+            if(card.choices.size == 1) {
+                val button2 = findViewById<Button>(R.id.button2)
+                val parent = button2.parent as? ViewGroup
+                parent?.removeView(button2)
+
+            } else {
+                findViewById<Button?>(R.id.button2).setOnClickListener {
+                    //TODO: Execute button action
+                }
+            }
         }
     }
 }

@@ -10,11 +10,10 @@
         android:id="@+id/description"
         android:layout_width="309dp"
         android:layout_height="147dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="40dp"
         android:ems="10"
         android:gravity="start|top"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/picture" />
 
@@ -22,10 +21,9 @@
         android:id="@+id/headline"
         android:layout_width="293dp"
         android:layout_height="36dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="144dp"
         android:text=""
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,7 +33,6 @@
         android:layout_height="49dp"
         android:layout_marginBottom="84dp"
         android:backgroundTint="#FF5722"
-        android:text="@string/action_card_button_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -45,12 +42,38 @@
         android:id="@+id/picture"
         android:layout_width="251dp"
         android:layout_height="160dp"
-        android:layout_marginTop="50dp"
-        android:contentDescription="@string/action_card_image_descr_nothing_loaded"
+        android:layout_marginTop="40dp"
+        android:contentDescription="@string/action_card_image_descr"
         android:src="@drawable/ic_launcher_foreground"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/headline"
         tools:ignore="ImageContrastCheck" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="182dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/action_card_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="322dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="40dp"
+        android:fontFamily="@font/arialroundedmtbold"
+        android:gravity="center"
+        android:text="@string/action_card_title"
+        android:textColor="@color/action_card_blue"
+        android:textSize="39sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
