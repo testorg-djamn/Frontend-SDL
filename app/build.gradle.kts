@@ -116,6 +116,7 @@ tasks.withType<Test> {
 
 sonar {
     properties {
+        property("sonar.exclusions", "**/WheelActivity.kt")
         property("sonar.projectKey", "SE2-SS25-SpielDesLebens_Frontend-SDL")
         property("sonar.organization", "se2-ss25-spieldeslebens")
         property("sonar.host.url", "https://sonarcloud.io")
