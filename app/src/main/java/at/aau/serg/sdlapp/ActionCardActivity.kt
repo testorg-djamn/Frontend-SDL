@@ -1,4 +1,4 @@
-package at.aau.serg.websocketbrokerdemo
+package at.aau.serg.sdlapp
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,11 +7,11 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import at.aau.serg.sdlapp.network.MyStomp
 import at.aau.serg.websocketbrokerdemo.model.ActionCard
-import at.aau.serg.websocketbrokerdemo.network.MyStomp
 import com.google.gson.Gson
 
-class ActionCardActivity : ComponentActivity(), Callbacks {
+class ActionCardActivity : ComponentActivity(){
 
     private lateinit var stomp: MyStomp
 
@@ -21,12 +21,12 @@ class ActionCardActivity : ComponentActivity(), Callbacks {
 
         val playerName = intent.getStringExtra("playerName") ?: "Spieler"
 
-        stomp = MyStomp(this)
+        stomp = MyStomp { res -> handleResponse(res) }
         stomp.sendMove(playerName, "zieht Action Card")
     }
 
     @SuppressLint("DiscouragedApi")
-    override fun onResponse(res: String) {
+    private fun handleResponse(res: String) {
         runOnUiThread {
             val gson = Gson()
             val card = gson.fromJson(res, ActionCard::class.java)
