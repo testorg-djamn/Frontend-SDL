@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("jacoco")
     id("org.sonarqube") version "5.1.0.4882"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
 android {

@@ -1,6 +1,5 @@
 package at.aau.serg.websocketbrokerdemo.ui.theme
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -12,24 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.serialization.Serializable
 
-
-@Serializable
-data class PlayerModell (
-    val name: String,
-    val id: Int,
-    var money: Int,
-    var investments: Int,
-    var salary: Int,
-    var children: Int,
-    var education: String,
-    var relationship: String,
-    var career: String = "Unbekannt",
-
-    @kotlinx.serialization.Transient
-    val color: Color = Color.Blue // z.B. default
-)
-
-
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
     Card(
@@ -38,7 +19,6 @@ fun PlayerStatsOverlay(player: PlayerModell) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .background(player.color)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -46,24 +26,42 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Spieler ${player.id} Statistiken", fontSize = 30.sp, color = Color.Blue)
-            StatRow("Geld", "${player.money}$")
-            StatRow("Gehalt", "${player.salary}$")
-            StatRow("Beruf", player.career)
-            StatRow("Bildung", player.education)
-            StatRow("Beziehung", player.relationship)
-            StatRow("Investitionen", player.investments.toString())
-            StatRow("Kinder", player.children.toString())
+            StatRow("Geld", "${player.money}$", getMoneyColor(player.money))
+            StatRow("Gehalt", "${player.salary}$", getSalaryColor(player.salary))
+            StatRow("Beruf", player.career, Color.White)
+            StatRow("Bildung", player.education, Color.White)
+            StatRow("Beziehung", player.relationship, Color.White)
+            StatRow("Investitionen", player.investments.toString(), Color.White)
+            StatRow("Kinder", player.children.toString(), Color.White)
         }
     }
 }
 
 @Composable
-fun StatRow(label: String, value: String) {
+fun StatRow(label: String, value: String, color: Color) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = label, fontSize = 16.sp, color = Color.White)
-        Text(text = value, fontSize = 16.sp, color = Color.White)
+        Text(text = label, fontSize = 16.sp, color = color)
+        Text(text = value, fontSize = 16.sp, color = color)
+    }
+}
+
+// Funktion zur Bestimmung der Farbe für Geld basierend auf dem Wert
+fun getMoneyColor(money: Int): Color {
+    return when {
+        money > 10000 -> Color.Green   // Viel Geld -> grün
+        money > 5000  -> Color.Yellow  // Mittelviel Geld -> gelb
+        else           -> Color.Red     // Wenig Geld -> rot
+    }
+}
+
+// Funktion zur Bestimmung der Farbe für Gehalt basierend auf dem Wert
+fun getSalaryColor(salary: Int): Color {
+    return when {
+        salary > 5000 -> Color.Green   // Hoher Gehalt -> grün
+        salary > 2500 -> Color.Yellow  // Mittlerer Gehalt -> gelb
+        else          -> Color.Red     // Niedriges Gehalt -> rot
     }
 }

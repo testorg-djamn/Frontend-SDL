@@ -3,6 +3,7 @@ package at.aau.serg.websocketbrokerdemo.ui.theme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,16 +22,14 @@ fun GameScreen() {
     LaunchedEffect(Unit) {
         try {
             val fetchedPlayers = PlayerRepository.fetchPlayers()
-            val coloredPlayers = fetchedPlayers.mapIndexed { index, player ->
-                player.copy(color = if (index % 2 == 0) Color.Blue else Color.Red)
-            }
+            println("Fetched players: $fetchedPlayers")
             playerStats.clear()
-            playerStats.addAll(coloredPlayers)
+            playerStats.addAll(fetchedPlayers)
         } catch (e: Exception) {
-            // Fehler beim Laden der Spieler
             println("Fehler beim Laden der Spieler: ${e.message}")
         }
     }
+
 
 
     Column(modifier = Modifier.fillMaxSize().background(Color.LightGray)) {
@@ -43,8 +42,9 @@ fun GameScreen() {
         if (playerStats.isNotEmpty()) {
             PlayerStatsOverlay(playerStats[currentPlayerIndex])
         } else {
-            Text("Lade Spieler...", modifier = Modifier.padding(16.dp))
+            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
         }
+
 
         Button(
             onClick = { currentPlayerIndex = (currentPlayerIndex + 1) % playerStats.size },
@@ -52,5 +52,7 @@ fun GameScreen() {
         ) {
             Text("Nächster Spieler")
         }
+
+
     }
 }

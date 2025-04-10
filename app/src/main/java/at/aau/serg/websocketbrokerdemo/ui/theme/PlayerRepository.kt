@@ -11,7 +11,7 @@ import java.net.URL
 object PlayerRepository {
     suspend fun fetchPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
-            val url = URL("http://192.168.178.38:8080/players") // Backend URL
+            val url = URL("http://143.205.196.195:8080/players")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
 
