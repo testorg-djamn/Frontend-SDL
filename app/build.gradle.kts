@@ -1,9 +1,17 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("jacoco")
     id("org.sonarqube") version "5.1.0.4882"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(19)) // or 21 depending on what you want
+    }
 }
 
 jacoco {
@@ -13,6 +21,11 @@ jacoco {
 android {
     namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
+
+    sourceSets.getByName("main").apply {
+        java.srcDirs("src/main/java", "src/main/kotlin")
+        // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
+    }
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -50,6 +63,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
 
     testOptions {
@@ -156,4 +170,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
