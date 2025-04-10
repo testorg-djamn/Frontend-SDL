@@ -29,10 +29,10 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             StatRow("Geld", "${player.money}$", getMoneyColor(player.money))
             StatRow("Gehalt", "${player.salary}$", getSalaryColor(player.salary))
             StatRow("Beruf", player.career, Color.White)
-            StatRow("Bildung", player.education, Color.White)
-            StatRow("Beziehung", player.relationship, Color.White)
-            StatRow("Investitionen", player.investments.toString(), Color.White)
-            StatRow("Kinder", player.children.toString(), Color.White)
+            StatRow("Bildung", player.education, Color.Green)
+            StatRow("Beziehung", player.relationship, Color.Blue)
+            StatRow("Investitionen", player.investments.toString(), Color.Yellow)
+            StatRow("Kinder", player.children.toString(), Color.Black)
         }
     }
 }
@@ -52,7 +52,7 @@ fun StatRow(label: String, value: String, color: Color) {
 fun getMoneyColor(money: Int): Color {
     return when {
         money > 10000 -> Color.Green   // Viel Geld -> grün
-        money > 5000  -> Color.Yellow  // Mittelviel Geld -> gelb
+        money > 5000  -> Color.Yellow  // Mittelwert -> gelb
         else           -> Color.Red     // Wenig Geld -> rot
     }
 }

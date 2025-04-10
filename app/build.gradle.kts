@@ -130,4 +130,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+    testImplementation("org.mockito:mockito-core:4.2.0")
 }
