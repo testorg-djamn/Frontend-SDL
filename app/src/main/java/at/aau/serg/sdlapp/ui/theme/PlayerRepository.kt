@@ -1,6 +1,5 @@
 package at.aau.serg.sdlapp.ui.theme
 
-import at.aau.serg.websocketbrokerdemo.ui.theme.PlayerModell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json

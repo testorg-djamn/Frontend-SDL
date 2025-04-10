@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import at.aau.serg.websocketbrokerdemo.ui.theme.PlayerModell
 
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
