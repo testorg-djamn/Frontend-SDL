@@ -10,7 +10,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(19)) // or 21 depending on what you want
+        languageVersion.set(JavaLanguageVersion.of(17)) // or 21 depending on what you want
     }
 }
 
