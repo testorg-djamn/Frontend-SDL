@@ -1,9 +1,8 @@
-package at.aau.serg.websocketbrokerdemo.data
+package at.aau.serg.sdlapp.ui.theme
 
 import at.aau.serg.websocketbrokerdemo.ui.theme.PlayerModell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL

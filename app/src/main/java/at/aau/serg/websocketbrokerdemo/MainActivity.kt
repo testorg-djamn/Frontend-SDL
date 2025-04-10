@@ -1,6 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
-import at.aau.serg.websocketbrokerdemo.ui.theme.GameScreen
+import at.aau.serg.sdlapp.ui.theme.GameScreen
 import MyStomp
 import android.os.Bundle
 import android.widget.Button
@@ -26,11 +26,11 @@ class MainActivity : ComponentActivity(), Callbacks {
         // Set up buttons and their click listeners
         findViewById<Button>(R.id.connectbtn).setOnClickListener { mystomp.connect() }
         findViewById<Button>(R.id.hellobtn).setOnClickListener { mystomp.sendHello() }
-        findViewById<Button>(R.id.jsonbtn).setOnClickListener { mystomp.sendJson() }
-
+        //findViewById<Button>(R.id.jsonbtn).setOnClickListener { mystomp.sendJson() }
+        //Todo Muss noch angesehen werden
         // Initialize the response view
-        response = findViewById(R.id.response_view)
-
+        //response = findViewById(R.id.response_view)
+            //Todo Muss noch angesehen werden
         // Set Compose UI content
         setContent {
             GameScreen()  // Ruft die game.GameScreen-Komponente auf

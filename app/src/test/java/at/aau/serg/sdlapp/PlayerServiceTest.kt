@@ -1,7 +1,7 @@
 import androidx.compose.ui.graphics.Color
 import at.aau.serg.websocketbrokerdemo.ui.theme.PlayerModell
-import at.aau.serg.websocketbrokerdemo.ui.theme.getMoneyColor
-import at.aau.serg.websocketbrokerdemo.ui.theme.getSalaryColor
+import at.aau.serg.sdlapp.ui.theme.getMoneyColor
+import at.aau.serg.sdlapp.ui.theme.getSalaryColor
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

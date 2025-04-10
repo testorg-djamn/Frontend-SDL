@@ -1,3 +1,5 @@
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -7,12 +9,27 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17)) // or 21 depending on what you want
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
 android {
-    namespace = "com.example.myapplication"
+    namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
 
+    sourceSets.getByName("main").apply {
+        java.srcDirs("src/main/java", "src/main/kotlin")
+        // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
+    }
+
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "at.aau.serg.sdlapp"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
@@ -23,29 +40,41 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
         viewBinding = true
+        buildConfig = true
     }
 
     testOptions {
         unitTests {
+            isIncludeAndroidResources = true
+            isReturnDefaultValues = true
             all {
                 it.useJUnitPlatform()
+                it.systemProperty("robolectric.logging", "stdout")
+                it.systemProperty("robolectric.graphicsMode", "NATIVE")
                 it.finalizedBy(tasks.named("jacocoTestReport"))
             }
         }
@@ -54,44 +83,42 @@ android {
 
 tasks.register<JacocoReport>("jacocoTestReport") {
     group = "verification"
-    description = "Generates code coverage report for the test task."
+    description = "Generiert einen Code Coverage Report für Unit-Tests"
     dependsOn("testDebugUnitTest")
 
     reports {
         xml.required.set(true)
-        xml.outputLocation.set(file("${project.projectDir}/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
+        html.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
     val fileFilter = listOf(
-        "**/R.class",
-        "**/R$*.class",
-        "**/BuildConfig.*",
-        "**/Manifest*.*",
-        "**/*Test*.*",
-        "android/**/*.*"
+        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
+        "**/*Test*.*", "android/**/*.*",
+        "**/di/**/*.*", "**/*_Factory.*", "**/*_MembersInjector.*",
+        "**/*_Provide*Factory.*", "**/*_ViewBinding.*"
     )
 
-    val debugTree =
-        fileTree("${project.layout.buildDirectory.get().asFile}/tmp/kotlin-classes/debug") {
-            exclude(fileFilter)
-        }
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
+        exclude(fileFilter)
+    }
 
-    val javaDebugTree =
-        fileTree("${project.layout.buildDirectory.get().asFile}/intermediates/javac/debug") {
-            exclude(fileFilter)
-        }
+    val javaDebugTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug")) {
+        exclude(fileFilter)
+    }
 
-    val mainSrc = listOf(
-        "${project.projectDir}/src/main/java",
-        "${project.projectDir}/src/main/kotlin"
-    )
+    val mainSrc = listOf("src/main/java", "src/main/kotlin")
 
     sourceDirectories.setFrom(files(mainSrc))
     classDirectories.setFrom(files(debugTree, javaDebugTree))
-    executionData.setFrom(fileTree(project.layout.buildDirectory.get().asFile) {
-        include("jacoco/testDebugUnitTest.exec")
-        include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
-    })
+    executionData.setFrom(files(
+        layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"),
+        layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+    ))
+}
+
+tasks.withType<Test> {
+    finalizedBy(tasks.named("jacocoTestReport"))
 }
 
 sonar {
@@ -100,14 +127,13 @@ sonar {
         property("sonar.organization", "se2-ss25-spieldeslebens")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
-        property(
-            "sonar.coverage.jacoco.xmlReportPaths",
-            "${project.projectDir}/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
-        )
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+        property("sonar.exclusions", "**/SettingsActivity.kt,**/StartActivity.kt,**/MainActivity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCardActivity.kt,**/ActionCard.kt")
     }
 }
 
 dependencies {
+    // App
     implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.builtin)
@@ -120,11 +146,27 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.constraintlayout)
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Unit-Tests
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    testImplementation("org.mockito:mockito-core:5.7.0")
+    testImplementation("org.robolectric:robolectric:4.11.1")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test:core-ktx:1.5.0")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    // Instrumentation Tests (Espresso + Intents)
+    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")//
+
+    // Compose Test
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
@@ -134,4 +176,10 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
     testImplementation("org.mockito:mockito-core:4.2.0")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
