@@ -13,29 +13,46 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp) // Abstand zwischen den Karten
+    ) {
+        Text(text = "Spieler ${player.id} Statistiken", fontSize = 30.sp, color = Color.Blue, modifier = Modifier.align(Alignment.CenterHorizontally))
+
+        // Jede Statistik in einer eigenen Karte
+        StatCard("Geld", "${player.money}$", getMoneyColor(player.money))
+        StatCard("Gehalt", "${player.salary}$", getSalaryColor(player.salary))
+        StatCard("Beruf", player.career, Color.White)
+        StatCard("Bildung", player.education, Color.Green)
+        StatCard("Beziehung", player.relationship, Color.Blue)
+        StatCard("Investitionen", player.investments.toString(), Color.Yellow)
+        StatCard("Kinder", player.children.toString(), Color.Black)
+    }
+}
+
+@Composable
+fun StatCard(label: String, value: String, color: Color) {
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Spieler ${player.id} Statistiken", fontSize = 30.sp, color = Color.Blue)
-            StatRow("Geld", "${player.money}$", getMoneyColor(player.money))
-            StatRow("Gehalt", "${player.salary}$", getSalaryColor(player.salary))
-            StatRow("Beruf", player.career, Color.White)
-            StatRow("Bildung", player.education, Color.Green)
-            StatRow("Beziehung", player.relationship, Color.Blue)
-            StatRow("Investitionen", player.investments.toString(), Color.Yellow)
-            StatRow("Kinder", player.children.toString(), Color.Black)
+            Text(text = label, fontSize = 18.sp, color = color)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = value, fontSize = 20.sp, color = color)
         }
     }
 }
+
 
 @Composable
 fun StatRow(label: String, value: String, color: Color) {
