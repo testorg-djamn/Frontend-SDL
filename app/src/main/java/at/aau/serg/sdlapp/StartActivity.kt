@@ -17,18 +17,17 @@ class StartActivity : ComponentActivity() {
         val startBtn = findViewById<Button>(R.id.startGameBtn)
         val settingsBtn = findViewById<ImageButton>(R.id.settingsBtn)
 
-        // Spiel starten
+        // Spiel starten → NEU: Öffnet BoardActivity
         startBtn.setOnClickListener {
             val name = nameInput.text.toString().trim()
             if (name.isNotEmpty()) {
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, BoardActivity::class.java) // statt MainActivity
                 intent.putExtra("playerName", name)
                 startActivity(intent)
             } else {
                 Toast.makeText(this, "Bitte Namen eingeben", Toast.LENGTH_SHORT).show()
             }
         }
-
 
         // Einstellungen öffnen
         settingsBtn.setOnClickListener {

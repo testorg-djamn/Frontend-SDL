@@ -1,18 +1,9 @@
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("jacoco")
     id("org.sonarqube") version "5.1.0.4882"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17)) // or 21 depending on what you want
-    }
 }
 
 jacoco {
@@ -22,11 +13,6 @@ jacoco {
 android {
     namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
-
-    sourceSets.getByName("main").apply {
-        java.srcDirs("src/main/java", "src/main/kotlin")
-        // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
-    }
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -64,7 +50,6 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
-        buildConfig = true
     }
 
     testOptions {
@@ -128,7 +113,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/SettingsActivity.kt,**/StartActivity.kt,**/MainActivity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCardActivity.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt")
+        property("sonar.exclusions", "**/SettingsActivity.kt,**/StartActivity.kt,**/MainActivity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt")
     }
 }
 
@@ -148,6 +133,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.otaliastudios:zoomlayout:1.9.0")
 
     // Unit-Tests
     testImplementation(libs.junit)
@@ -171,15 +157,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-    testImplementation(libs.junit)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-    testImplementation("org.mockito:mockito-core:4.2.0")
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "11"
-    }
 }

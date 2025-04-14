@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="at.aau.serg.sdlapp">  <!-- ✅ HIER eingefügt -->
+    package="at.aau.serg.sdlapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -17,7 +17,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- Startscreen im Querformat -->
+        <!-- Startscreen -->
         <activity
             android:name="at.aau.serg.sdlapp.StartActivity"
             android:exported="true"
@@ -37,13 +37,21 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- Spielbildschirm ebenfalls im Querformat -->
         <activity
             android:name="at.aau.serg.sdlapp.MainActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
+
+        <!-- ✅ NEU: Spielbrett-Activity -->
+        <activity
+            android:name="at.aau.serg.sdlapp.BoardActivity"
+            android:exported="false"
+            android:label="Spielbrett"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
     </application>
 
 </manifest>
