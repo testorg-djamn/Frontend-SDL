@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:zoom="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/black">
-
-    <com.otaliastudios.zoom.ZoomLayout
-        android:id="@+id/zoomLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="0dp"
-        zoom:zoomEnabled="true"
-        zoom:transformation="centerInside"
-        zoom:overScrollHorizontal="true"
-        zoom:overScrollVertical="true">
-
-        <ImageView
-            android:id="@+id/boardImag"
+        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:zoom="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true"
-            android:src="@drawable/board" />
+            android:background="@android:color/holo_blue_bright">
 
-    </com.otaliastudios.zoom.ZoomLayout>
-</FrameLayout>
+            <com.otaliastudios.zoom.ZoomLayout
+                android:id="@+id/zoomLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="0dp"
+                zoom:alignment="right"
+                zoom:transformationGravity="right"
+                zoom:transformation="centerInside"
+                zoom:zoomEnabled="true"
+                zoom:minZoom="0.7"
+                zoom:maxZoom="3.0"
+                zoom:overScrollHorizontal="true"
+                zoom:overScrollVertical="true"
+                zoom:horizontalPanEnabled="true"
+                zoom:verticalPanEnabled="true">
+
+                <ImageView
+                    android:id="@+id/boardImag"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/board2" />
+
+            </com.otaliastudios.zoom.ZoomLayout>
+        </FrameLayout>
