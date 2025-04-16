@@ -5,29 +5,29 @@
             android:layout_height="match_parent"
             android:background="@android:color/holo_blue_bright">
 
-            <com.otaliastudios.zoom.ZoomLayout
-                android:id="@+id/zoomLayout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="0dp"
-                zoom:alignment="right"
-                zoom:transformationGravity="right"
-                zoom:transformation="centerInside"
-                zoom:zoomEnabled="true"
-                zoom:minZoom="0.7"
-                zoom:maxZoom="3.0"
-                zoom:overScrollHorizontal="true"
-                zoom:overScrollVertical="true"
-                zoom:horizontalPanEnabled="true"
-                zoom:verticalPanEnabled="true">
+    <com.otaliastudios.zoom.ZoomLayout
+        android:id="@+id/zoomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="0dp"
+        zoom:alignment="center"
+        zoom:transformationGravity="center"
+        zoom:transformation="centerCrop"  
+    zoom:zoomEnabled="true"
+    zoom:minZoom="1.0"
+    zoom:maxZoom="4.0"
+    zoom:overScrollHorizontal="false"
+    zoom:overScrollVertical="false"
+    zoom:horizontalPanEnabled="true"
+    zoom:verticalPanEnabled="true">
 
-                <ImageView
-                    android:id="@+id/boardImag"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/board2" />
+    <ImageView
+        android:id="@+id/boardImag"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/board6" />
 
-            </com.otaliastudios.zoom.ZoomLayout>
-        </FrameLayout>
+</com.otaliastudios.zoom.ZoomLayout>
+
+    </FrameLayout>

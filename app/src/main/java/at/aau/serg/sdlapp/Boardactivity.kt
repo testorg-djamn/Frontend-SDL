@@ -1,6 +1,7 @@
 package at.aau.serg.sdlapp
 
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -13,20 +14,25 @@ class BoardActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
 
-        // Vollbildmodus aktivieren (mit stabilerer Implementierung)
+        // Vollbildmodus aktivieren
         enableFullscreen()
 
         val zoomLayout = findViewById<ZoomLayout>(R.id.zoomLayout)
 
-// Zoom über die Engine setzen
-        zoomLayout.zoomTo(3.0f, false)
-
-// ZoomLayout-Einstellungen mit Java-Syntax anpassen
+        // ZoomLayout-Einstellungen anpassen
         zoomLayout.setMaxZoom(4.0f)
         zoomLayout.setMinZoom(1.0f)
         zoomLayout.setZoomEnabled(true)
         zoomLayout.setHorizontalPanEnabled(true)
         zoomLayout.setVerticalPanEnabled(true)
+
+
+
+        // Initial auf 1.0 zoomen (füllt den Bildschirm)
+        zoomLayout.zoomTo(1.0f, false)
+
+        // Optional: Das ImageView selbst auch konfigurieren
+        findViewById<ImageView>(R.id.boardImag)?.scaleType = ImageView.ScaleType.CENTER_CROP
     }
 
     private fun enableFullscreen() {
