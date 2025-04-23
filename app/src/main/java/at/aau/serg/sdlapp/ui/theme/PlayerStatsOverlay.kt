@@ -3,12 +3,82 @@ package at.aau.serg.sdlapp.ui.theme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+
+@Composable
+fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var money by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val scope = rememberCoroutineScope()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("🧍 Neuen Spieler erstellen", fontSize = 26.sp)
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Name") },
+            isError = name.isBlank()
+        )
+
+        OutlinedTextField(
+            value = money,
+            onValueChange = { money = it },
+            label = { Text("Startgeld") },
+            isError = money.toIntOrNull() == null
+        )
+
+        errorMessage?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+        }
+
+        Button(
+            onClick = {
+                if (name.isNotBlank() && money.toIntOrNull() != null) {
+                    val newPlayer = PlayerModell(
+                        id = 0, // Backend setzt ID
+                        name = name,
+                        money = money.toInt(),
+                        investments = 0,
+                        salary = 0,
+                        children = 0,
+                        education = "Keine",
+                        relationship = "Single",
+                        career = "Arbeitslos"
+                    )
+
+                    // Erstelle den Spieler in der Datenbank
+                    scope.launch {
+                        try {
+                            PlayerRepository.createPlayer(newPlayer)
+                            onPlayerCreated()
+                        } catch (e: Exception) {
+                            errorMessage = "Fehler beim Erstellen: ${e.message}"
+                        }
+                    }
+                } else {
+                    errorMessage = "Bitte gültige Werte eingeben!"
+                }
+            },
+            enabled = name.isNotBlank() && money.toIntOrNull() != null
+        ) {
+            Text("🎲 Spieler erstellen")
+        }
+    }
+}
 
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
@@ -25,6 +95,7 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
+        // Stats Cards
         StatCard("💰 Geld", "${player.money}$", getMoneyColor(player.money))
         StatCard("💼 Gehalt", "${player.salary}$", getSalaryColor(player.salary))
         StatCard("🧑‍🍳 Beruf", player.career, Color(0xFFFAFAFA))
@@ -37,20 +108,19 @@ fun PlayerStatsOverlay(player: PlayerModell) {
 
 fun getMoneyColor(money: Int): Color {
     return when {
-        money > 10000 -> Color(0xFF2E7D32)
-        money > 5000 -> Color(0xFFF9A825)
-        else -> Color(0xFFD32F2F)
+        money > 10000 -> Color(0xFF2E7D32) // grün
+        money > 5000 -> Color(0xFFF9A825) // gelb
+        else -> Color(0xFFD32F2F) // rot
     }
 }
 
 fun getSalaryColor(salary: Int): Color {
     return when {
-        salary > 5000 -> Color(0xFF388E3C)
-        salary > 2500 -> Color(0xFFFBC02D)
-        else -> Color(0xFFC62828)
+        salary > 5000 -> Color(0xFF388E3C) // grün
+        salary > 2500 -> Color(0xFFFBC02D) // gelb
+        else -> Color(0xFFC62828) // rot
     }
 }
-
 
 @Composable
 fun StatCard(label: String, value: String, color: Color) {
@@ -75,4 +145,3 @@ fun StatCard(label: String, value: String, color: Color) {
         }
     }
 }
-
