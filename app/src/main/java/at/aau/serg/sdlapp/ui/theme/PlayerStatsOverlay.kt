@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
     var name by remember { mutableStateOf("") }
@@ -83,6 +84,7 @@ fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
     Column(
+
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
@@ -145,3 +147,4 @@ fun StatCard(label: String, value: String, color: Color) {
         }
     }
 }
+

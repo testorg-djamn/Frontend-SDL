@@ -1,4 +1,5 @@
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.kotlin.dsl.androidTestImplementation
 
 plugins {
     alias(libs.plugins.android.application)
@@ -20,13 +21,16 @@ jacoco {
 }
 
 android {
+
     namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
+
 
     sourceSets.getByName("main").apply {
         java.srcDirs("src/main/java", "src/main/kotlin")
         // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
     }
+
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -159,6 +163,13 @@ dependencies {
     testImplementation("androidx.test:core-ktx:1.5.0")
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
+
+    //UI-Test
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.8")
+    androidTestImplementation("androidx.compose.ui:ui-tooling:1.7.8")
+    androidTestImplementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
+    androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.7.8")
+
 
     // Instrumentation Tests (Espresso + Intents)
     androidTestImplementation("androidx.test:runner:1.5.2")
