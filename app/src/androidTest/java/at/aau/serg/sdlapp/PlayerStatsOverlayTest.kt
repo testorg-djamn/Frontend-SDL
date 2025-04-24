@@ -1,5 +1,6 @@
+package at.aau.serg.sdlapp
+
 import androidx.compose.ui.test.*
-import androidx.compose.ui.unit.dp
 import at.aau.serg.sdlapp.ui.theme.PlayerModell
 import at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlay
 import androidx.compose.material3.*
@@ -46,6 +47,7 @@ class PlayerStatsOverlayTest {
 
 
         composeTestRule.onNodeWithText("Spieler #1").assertExists()
+        Thread.sleep(5000)
 
 
         composeTestRule.onNodeWithText("💰 Geld").assertExists()
