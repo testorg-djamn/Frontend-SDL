@@ -47,6 +47,7 @@
         android:background="@drawable/rounded_blue_button"
         android:textColor="#FFFFFF" />
 
+
     <!-- Statusanzeige mit Hintergrund -->
     <TextView
         android:id="@+id/statusText"
@@ -64,5 +65,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp" />
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

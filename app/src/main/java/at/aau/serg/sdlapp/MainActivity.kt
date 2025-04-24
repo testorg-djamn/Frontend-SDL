@@ -13,6 +13,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var playerName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fragment_fullscreen)
 
