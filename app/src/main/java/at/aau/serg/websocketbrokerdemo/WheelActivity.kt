@@ -18,6 +18,9 @@ import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.launch
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+
+
 
 
 @Composable
@@ -25,6 +28,7 @@ fun WheelScreen() {
     var rotationAnim = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     var isEnabled by remember { mutableStateOf(true) }
+    var isSpinning by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -54,10 +58,10 @@ fun WheelScreen() {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            enabled = isEnabled,
+            enabled = !isSpinning,
             onClick = {
-                isEnabled = false
-                spinWheel(scope, rotationAnim)
+                isSpinning = true
+                spinWheel(scope, rotationAnim, onSpinEnd = { isSpinning = false})
             }
         ) {
             Text("Drehen")
@@ -65,7 +69,11 @@ fun WheelScreen() {
     }
 }
 
-fun spinWheel(scope: CoroutineScope, rotationAnim: Animatable<Float, AnimationVector1D>) {
+fun spinWheel(
+    scope: CoroutineScope,
+    rotationAnim: Animatable<Float, AnimationVector1D>,
+    onSpinEnd: () -> Unit,
+) {
     scope.launch {
         val angles =
             floatArrayOf(144f, 108f, 72f, 36f, 0f, 324f, 288f, 252f, 216f, 180f)
@@ -79,7 +87,33 @@ fun spinWheel(scope: CoroutineScope, rotationAnim: Animatable<Float, AnimationVe
                 easing = FastOutSlowInEasing
             )
         )
+        delay(3000)
+        resetWheel(rotationAnim)
+        onSpinEnd()
     }
+
+}
+
+suspend fun resetWheel(rotationAngle: Animatable<Float, AnimationVector1D>) {
+    var resetAngle = rotationAngle.value.toInt() / 360 +1
+    if(rotationAngle.value.toInt() % 360 == 0){
+        rotationAngle.animateTo(
+            targetValue = 360f * resetAngle - 360f,
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }else{
+        rotationAngle.animateTo(
+            targetValue = 360f * resetAngle,
+            animationSpec = tween(
+                durationMillis = 1000,
+                easing = FastOutSlowInEasing
+            )
+        )
+    }
+
 }
 
 @Preview(showBackground = true)
