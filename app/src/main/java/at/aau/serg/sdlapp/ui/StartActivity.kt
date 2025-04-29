@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import at.aau.serg.sdlapp.R
 
 class StartActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
