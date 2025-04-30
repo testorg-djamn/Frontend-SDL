@@ -1,60 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
-    android:layout_height="wrap_content"
-    android:background="@drawable/job_popup_background"
-    android:padding="16dp">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:id="@+id/jobTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Jobtitel"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#000000"
-        android:textAlignment="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TextView
-        android:id="@+id/jobSalary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="💰 Gehalt: 1000€"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        app:layout_constraintTop_toBottomOf="@id/jobTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp" />
-
-    <TextView
-        android:id="@+id/jobBonus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="🎁 Bonus: 500€"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        app:layout_constraintTop_toBottomOf="@id/jobSalary"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/acceptJobButton"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Job übernehmen"
-        android:backgroundTint="#2196F3"
-        android:textColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/jobBonus"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
+        android:orientation="vertical"
+        android:layout_margin="8dp"
+        android:background="@drawable/job_popup_background"
+        android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/jobTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jobtitel"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/jobSalary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💰 Gehalt: 1000€"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/jobBonus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎁 Bonus: 500€"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/acceptJobButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Job annehmen"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center" />
+    </LinearLayout>
+</merge>

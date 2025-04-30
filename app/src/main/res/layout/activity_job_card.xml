@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_blue_button"
-        android:text="Job Screen"
+        android:text="Show Random Job"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         android:textStyle="bold"
