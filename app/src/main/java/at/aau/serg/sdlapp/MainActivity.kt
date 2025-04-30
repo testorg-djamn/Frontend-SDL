@@ -1,5 +1,6 @@
 package at.aau.serg.sdlapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -22,6 +23,7 @@ class MainActivity : ComponentActivity() {
 
         val connectBtn = findViewById<Button>(R.id.connectbtn)
         val moveBtn = findViewById<Button>(R.id.hellobtn)
+        val jobCardBtn = findViewById<Button>(R.id.jobCardBtn) // ← dein neuer Button
 
         connectBtn.setOnClickListener {
             stomp.connect()
@@ -29,6 +31,12 @@ class MainActivity : ComponentActivity() {
 
         moveBtn.setOnClickListener {
             stomp.sendMove(playerName, "würfelt 6")
+        }
+
+        jobCardBtn.setOnClickListener {
+            val intent = Intent(this, JobCardActivity::class.java)
+            intent.putExtra("playerName", playerName)
+            startActivity(intent)
         }
     }
 

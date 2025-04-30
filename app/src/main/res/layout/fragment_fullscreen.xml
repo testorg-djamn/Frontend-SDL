@@ -48,6 +48,22 @@
         android:textColor="#FFFFFF" />
 
     <!-- Statusanzeige mit Hintergrund -->
+    <Button
+        android:id="@+id/hellobtn2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_blue_button"
+        android:gravity="center"
+        android:text="🎲 Spielzug senden"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/connectbtn" />
+
     <TextView
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
@@ -64,5 +80,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp" />
+
+    <!-- Screen Switch -->
+
+    <Button
+        android:id="@+id/jobCardBtn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/rounded_blue_button"
+        android:gravity="center"
+        android:text="Job Screen"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statusText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

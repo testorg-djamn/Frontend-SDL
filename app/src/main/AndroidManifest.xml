@@ -44,6 +44,15 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
+        <activity
+            android:name="at.aau.serg.sdlapp.JobCardActivity"
+            android:exported="false"
+            android:label="Job Screen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
     </application>
+
+
 
 </manifest>

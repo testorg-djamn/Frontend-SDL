@@ -14,7 +14,9 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 
-private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" // Für Emulator! – anpassen bei echtem Gerät
+//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+
 
 class MyStomp(private val callback: (String) -> Unit) {
 
@@ -40,11 +42,16 @@ class MyStomp(private val callback: (String) -> Unit) {
                     sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
                 }
 
+                session.subscribeText("/topic/getJob").collect { msg ->
+                    sendToMainThread(msg) // ← JobMessage kommt als JSON-String an
+                }
+
             } catch (e: Exception) {
                 sendToMainThread("❌ Fehler beim Verbinden: ${e.message}")
             }
         }
     }
+
 
     fun sendMove(player: String, action: String) {
         if (!::session.isInitialized) {
@@ -80,9 +87,30 @@ class MyStomp(private val callback: (String) -> Unit) {
         }
     }
 
+    fun requestJob(player: String) {
+        if (!::session.isInitialized) {
+            sendToMainThread("❌ Nicht verbunden")
+            return
+        }
+
+        val message = StompMessage(playerName = player)
+        val json = gson.toJson(message)
+
+        scope.launch {
+            try {
+                session.sendText("/app/getJob", json)
+                sendToMainThread("📨 Job-Anfrage gesendet")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler bei Job-Anfrage: ${e.message}")
+            }
+        }
+    }
+
     private fun sendToMainThread(msg: String) {
         Handler(Looper.getMainLooper()).post {
             callback(msg)
         }
     }
+
+
 }
