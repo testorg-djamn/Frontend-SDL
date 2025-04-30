@@ -8,37 +8,33 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.model.board.Board
-import at.aau.serg.sdlapp.model.board.BoardData
-import at.aau.serg.sdlapp.model.board.Field
-import at.aau.serg.sdlapp.model.board.FieldType
+import at.aau.serg.sdlapp.model.board.*
 import com.otaliastudios.zoom.ZoomLayout
 
 class BoardActivity : ComponentActivity() {
 
     private lateinit var board: Board
-    private var playerId = 1 // Beispielspieler
+    private var playerId = 1
+    private lateinit var figure: ImageView
+    private lateinit var boardImage: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
         enableFullscreen()
 
-        val zoomLayout = findViewById<ZoomLayout>(R.id.zoomLayout)
-        zoomLayout.setMaxZoom(4.0f)
-        zoomLayout.setMinZoom(1.0f)
-        zoomLayout.setZoomEnabled(true)
-        zoomLayout.setHorizontalPanEnabled(true)
-        zoomLayout.setVerticalPanEnabled(true)
-        zoomLayout.zoomTo(1.0f, false)
-
-        findViewById<ImageView>(R.id.boardImag)?.scaleType = ImageView.ScaleType.CENTER_CROP
-
-        // Spiellogik initialisieren
         board = Board(BoardData.board)
+        figure = findViewById(R.id.playerImageView)
+        boardImage = findViewById(R.id.boardImag)
 
-        // Spielstart: Pfadwahl
+        figure.alpha = 1f // sichtbar machen
+
         showStartChoiceDialog()
+
+        // Klick auf Spielfigur: gehe 1 Feld weiter
+        figure.setOnClickListener {
+            moveOneStep()
+        }
     }
 
     private fun showStartChoiceDialog() {
@@ -57,12 +53,22 @@ class BoardActivity : ComponentActivity() {
             .show()
     }
 
+    private fun moveOneStep() {
+        val currentField = board.getPlayerField(playerId)
+
+        if (currentField.nextFields.isEmpty()) return
+
+        if (currentField.nextFields.size > 1) {
+            showBranchDialog(playerId, currentField.nextFields)
+        } else {
+            board.manualMoveTo(playerId, currentField.nextFields.first())
+            moveFigureToField(playerId)
+        }
+    }
+
     private fun moveFigureToField(playerId: Int) {
         val field = board.getPlayerField(playerId)
-        val figure = findViewById<ImageView>(R.id.playerImageView)
-        val boardImage = findViewById<ImageView>(R.id.boardImag)
 
-        // Position berechnen und Figur verschieben
         boardImage.post {
             val x = field.x * boardImage.width
             val y = field.y * boardImage.height
@@ -70,16 +76,8 @@ class BoardActivity : ComponentActivity() {
             figure.animate()
                 .x(x)
                 .y(y)
-                .setDuration(400)
-                .withEndAction {
-                    handleFieldEvent(field)
-                }
+                .setDuration(800)
                 .start()
-        }
-
-        // Entscheidung bei Verzweigung
-        if (field.nextFields.size > 1) {
-            showBranchDialog(playerId, field.nextFields)
         }
     }
 
@@ -94,38 +92,6 @@ class BoardActivity : ComponentActivity() {
                 moveFigureToField(playerId)
             }
             .setCancelable(false)
-            .show()
-    }
-
-    private fun handleFieldEvent(field: Field) {
-        when (field.type) {
-            FieldType.AKTION -> {
-                showMessage("Aktionsfeld", "Du ziehst eine Aktionskarte!")
-                // TODO: Später ActionCard anzeigen
-            }
-            FieldType.ZAHLTAG -> {
-                showMessage("Zahltag", "Du bekommst 50.000€!")
-            }
-            FieldType.KINDER -> {
-                showMessage("Nachwuchs!", "Ihr bekommt ein Kind 👶")
-            }
-            FieldType.MIDLIFECHRISIS -> {
-                showMessage("Midlife Crisis", "Du musst deinen Beruf neu wählen 😅")
-            }
-            FieldType.RUHESTAND -> {
-                showMessage("Ruhestand", "Du hast das Spiel gewonnen! 🎉")
-            }
-            else -> {
-                // Kein Ereignis
-            }
-        }
-    }
-
-    private fun showMessage(title: String, message: String) {
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("OK", null)
             .show()
     }
 
