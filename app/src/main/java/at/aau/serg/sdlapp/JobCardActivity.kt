@@ -50,17 +50,27 @@ class JobCardActivity : ComponentActivity() {
     }
 
     private fun showJobPopup(job: JobMessage) {
-        val dialogView = LayoutInflater.from(this).inflate(android.R.layout.simple_list_item_2, null)
-        val title = dialogView.findViewById<TextView>(android.R.id.text1)
-        val content = dialogView.findViewById<TextView>(android.R.id.text2)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.popup_job, null)
+        val title = dialogView.findViewById<TextView>(R.id.jobTitle)
+        val salary = dialogView.findViewById<TextView>(R.id.jobSalary)
+        val bonus = dialogView.findViewById<TextView>(R.id.jobBonus)
+        val acceptButton = dialogView.findViewById<Button>(R.id.acceptJobButton)
 
         title.text = job.title
-        content.text = "💰 Gehalt: ${job.salary}€, Bonus: ${job.bonusSalary}€"
+        salary.text = "💰 Gehalt: ${job.salary}€"
+        bonus.text = "🎁 Bonus: ${job.bonusSalary}€"
 
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .setCancelable(true)
-            .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
-            .show()
+            .create()
+
+        acceptButton.setOnClickListener {
+            Toast.makeText(this, "🎉 Du hast den Job angenommen: ${job.title}", Toast.LENGTH_SHORT).show()
+            // TODO: Backend-Request zum Annehmen des Jobs senden
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }
