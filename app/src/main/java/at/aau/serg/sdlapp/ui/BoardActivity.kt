@@ -2,6 +2,7 @@ package at.aau.serg.sdlapp.ui
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.core.view.WindowCompat
@@ -17,6 +18,8 @@ class BoardActivity : ComponentActivity() {
     private var playerId = 1
     private lateinit var figure: ImageView
     private lateinit var boardImage: ImageView
+    private lateinit var zoomLayout: ZoomLayout
+    private lateinit var diceButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,15 +27,17 @@ class BoardActivity : ComponentActivity() {
         enableFullscreen()
 
         board = Board(BoardData.board)
-        figure = findViewById(R.id.playerImageView)
+
+        zoomLayout = findViewById(R.id.zoomLayout)
         boardImage = findViewById(R.id.boardImag)
+        figure = findViewById(R.id.playerImageView)
+        diceButton = findViewById(R.id.diceButton)
 
-        figure.alpha = 1f // sichtbar machen
-
+        // Startpfad wählen
         showStartChoiceDialog()
 
-        // Klick auf Spielfigur: gehe 1 Feld weiter
-        figure.setOnClickListener {
+        // 🎲 Button zum Würfeln (1 Schritt)
+        diceButton.setOnClickListener {
             moveOneStep()
         }
     }
@@ -74,9 +79,9 @@ class BoardActivity : ComponentActivity() {
             val y = field.y * boardImage.height
 
             figure.animate()
-                .x(x)
-                .y(y)
-                .setDuration(800)
+                .x(x - figure.width / 2f)
+                .y(y - figure.height / 2f)
+                .setDuration(1000)
                 .start()
         }
     }
