@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
             stomp.connect()
         }
 
-        findViewById<Button>(R.id.hellobtn).setOnClickListener {
+        moveBtn.setOnClickListener {
             val dice = (1..10).random()
             val intent = Intent(this, WheelActivity::class.java)
             intent.putExtra("dice", dice)

@@ -30,10 +30,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import at.aau.serg.websocketbrokerdemo.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.*
 
 class WheelActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
