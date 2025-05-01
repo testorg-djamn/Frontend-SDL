@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.content.Intent
 import at.aau.serg.websocketbrokerdemo.network.MyStomp
 import android.os.Bundle
 import android.widget.Button
@@ -26,7 +27,11 @@ class MainActivity : ComponentActivity(), Callbacks {
         }
 
         findViewById<Button>(R.id.hellobtn).setOnClickListener {
-            stomp.sendMove(playerName, "würfelt 6")
+            val dice = (1..10).random()
+            val intent = Intent(this, WheelActivity::class.java)
+            intent.putExtra("dice", dice)
+            startActivity(intent)
+            stomp.sendRealMove(playerName, dice)
         }
 
         findViewById<Button>(R.id.jsonbtn).setOnClickListener {
