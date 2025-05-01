@@ -13,9 +13,16 @@
         android:id="@+id/connectbtn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="64dp"
+        android:background="@drawable/rounded_blue_button"
+        android:gravity="center"
         android:text="🔌 Verbinden"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

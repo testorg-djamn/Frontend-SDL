@@ -1,28 +1,39 @@
-package at.aau.serg.websocketbrokerdemo
+package at.aau.serg.sdlapp
 
 import android.os.Bundle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.draw.rotate
-import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import at.aau.serg.websocketbrokerdemo.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import androidx.activity.compose.*
-import androidx.compose.ui.graphics.*
+import kotlinx.coroutines.launch
 
 class WheelActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,20 +49,20 @@ class WheelActivity() : ComponentActivity() {
         var rotationAnim = remember { Animatable(0f) }
         val scope = rememberCoroutineScope()
         var isSpinning by remember { mutableStateOf(false) }
-        Surface(color = Color.Transparent, tonalElevation = 0.dp) {
+        Surface(color = Color.Companion.Transparent, tonalElevation = 0.dp) {
 
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.Companion.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.Companion.CenterHorizontally
             ) {
                 Box(
-                    contentAlignment = Alignment.Center // Zeiger & Rad zentrieren
+                    contentAlignment = Alignment.Companion.Center // Zeiger & Rad zentrieren
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.gluecksrad),
                         contentDescription = "Glücksrad",
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .size(250.dp)
                             .rotate(rotationAnim.value)
                     )
@@ -59,13 +70,13 @@ class WheelActivity() : ComponentActivity() {
                     Image(
                         painter = painterResource(id = R.drawable.zeiger),
                         contentDescription = "Zeiger",
-                        modifier = Modifier
+                        modifier = Modifier.Companion
                             .size(40.dp)
                             .offset(x = (120).dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.Companion.height(16.dp))
 
                 Button(
                     enabled = !isSpinning,
@@ -131,9 +142,3 @@ class WheelActivity() : ComponentActivity() {
 
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun Wheel_preview() {
-//    WheelScreen()
-//}
