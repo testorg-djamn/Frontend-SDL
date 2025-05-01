@@ -1,5 +1,6 @@
 package at.aau.serg.websocketbrokerdemo
 
+import android.os.Bundle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,59 +18,69 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.rotate
 import kotlinx.coroutines.launch
 import android.util.Log
+import androidx.activity.ComponentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import androidx.activity.compose.*
+import androidx.compose.ui.graphics.*
 
-
-
-
+class WheelActivity(private val dice: Int) : ComponentActivity(){
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            WheelScreen(dice)
+        }
+    }
+}
 @Composable
-fun WheelScreen() {
+fun WheelScreen(dice: Int) {
     var rotationAnim = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
-    var isEnabled by remember { mutableStateOf(true) }
     var isSpinning by remember { mutableStateOf(false) }
+    Surface(color = Color.Transparent, tonalElevation = 0.dp) {
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            contentAlignment = Alignment.Center // Zeiger & Rad zentrieren
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.gluecksrad),
-                contentDescription = "Glücksrad",
-                modifier = Modifier
-                    .size(250.dp)
-                    .rotate(rotationAnim.value)
-            )
+            Box(
+                contentAlignment = Alignment.Center // Zeiger & Rad zentrieren
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.gluecksrad),
+                    contentDescription = "Glücksrad",
+                    modifier = Modifier
+                        .size(250.dp)
+                        .rotate(rotationAnim.value)
+                )
 
-            Image(
-                painter = painterResource(id = R.drawable.zeiger),
-                contentDescription = "Zeiger",
-                modifier = Modifier
-                    .size(40.dp)
-                    .offset(x = (120).dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            enabled = !isSpinning,
-            onClick = {
-                isSpinning = true
-                spinWheel(scope, rotationAnim, onSpinEnd = { isSpinning = false})
+                Image(
+                    painter = painterResource(id = R.drawable.zeiger),
+                    contentDescription = "Zeiger",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .offset(x = (120).dp)
+                )
             }
-        ) {
-            Text("Drehen")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                enabled = !isSpinning,
+                onClick = {
+                    isSpinning = true
+                    spinWheel(dice, scope, rotationAnim, onSpinEnd = { isSpinning = false })
+                }
+            ) {
+                Text("Drehen")
+            }
         }
     }
 }
 
 fun spinWheel(
+    dice: Int,
     scope: CoroutineScope,
     rotationAnim: Animatable<Float, AnimationVector1D>,
     onSpinEnd: () -> Unit,
@@ -77,7 +88,6 @@ fun spinWheel(
     scope.launch {
         val angles =
             floatArrayOf(144f, 108f, 72f, 36f, 0f, 324f, 288f, 252f, 216f, 180f)
-        val dice = (1..10).random()
         val angle = 1080f + angles[dice - 1]
         Log.d("Gluecksrad", "Gewürfelt: $dice")
         rotationAnim.animateTo(
@@ -116,8 +126,8 @@ suspend fun resetWheel(rotationAngle: Animatable<Float, AnimationVector1D>) {
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun Wheel_preview() {
-    WheelScreen()
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun Wheel_preview() {
+//    WheelScreen()
+//}
