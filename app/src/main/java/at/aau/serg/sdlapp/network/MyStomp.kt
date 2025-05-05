@@ -2,13 +2,10 @@ package at.aau.serg.sdlapp.network
 
 import android.os.Handler
 import android.os.Looper
-import at.aau.serg.sdlapp.model.OutputMessage
-import at.aau.serg.sdlapp.model.StompMessage
-import at.aau.serg.sdlapp.model.JobMessage
+import at.aau.serg.sdlapp.model.*
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.*
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.sendText
@@ -16,30 +13,37 @@ import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 
 private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
+private const val GAME_ID = "1"
 
 class MyStomp(private val callback: (String) -> Unit) {
 
-    private lateinit var session: StompSession
+    lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
     private val gson = Gson()
 
-    // Verbindung herstellen & Standardtopics abonnieren
-    fun connect() {
+    fun connect(playerName: String) {
         val client = StompClient(OkHttpWebSocketClient())
         scope.launch {
             try {
                 session = client.connect(WEBSOCKET_URI)
-
                 sendToMainThread("✅ Verbunden mit Server")
 
+                // 🟢 Spielstart-Bestätigung empfangen
                 session.subscribeText("/topic/game").collect { msg ->
-                    val output = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+                    val o = gson.fromJson(msg, OutputMessage::class.java)
+                    sendToMainThread("🎮 Spiel gestartet: ${o.content}")
                 }
 
+                // 🎲 Spielzüge empfangen
+                session.subscribeText("/topic/game").collect { msg ->
+                    val o = gson.fromJson(msg, OutputMessage::class.java)
+                    sendToMainThread("🎲 ${o.playerName}: ${o.content}")
+                }
+
+                // 💬 Chat empfangen
                 session.subscribeText("/topic/chat").collect { msg ->
-                    val output = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
+                    val o = gson.fromJson(msg, OutputMessage::class.java)
+                    sendToMainThread("💬 ${o.playerName}: ${o.content}")
                 }
 
             } catch (e: Exception) {
@@ -47,6 +51,10 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         }
     }
+
+
+
+
 
     fun sendMove(player: String, action: String) {
         if (!::session.isInitialized) {
@@ -65,65 +73,111 @@ class MyStomp(private val callback: (String) -> Unit) {
         }
     }
 
-    // Nur auf /topic/getJob abonnieren, wenn gewünscht
-    fun subscribeToJobs(jobCallback: (String) -> Unit) {
+    fun sendRealMove(player: String, dice: Int){
+        if(!::session.isInitialized){
+            callback("❌ Fehler: Verbindung nicht aktiv!")
+            return
+        }
+        val message = StompMessage(playerName = player, action = "$dice gewürfelt")
+        val json = gson.toJson(message)
+        scope.launch {
+            try {
+                session.sendText("/app/move", json)
+                callback("✅ Spielzug gesendet")
+            } catch (e: Exception){
+                callback("❌ Fehler beim Senden (move): ${e.message}")
+            }
+        }
+    }
+
+    fun sendChat(player: String, text: String) {
         if (!::session.isInitialized) {
-            sendToMainThread("❌ Nicht verbunden")
+            sendToMainThread("❌ Fehler: Verbindung nicht aktiv!")
+            return
+        }
+        val message = StompMessage(playerName = player, messageText = text)
+        val json = gson.toJson(message)
+        scope.launch {
+            try {
+                session.sendText("/app/chat", json)
+                sendToMainThread("✅ Nachricht gesendet")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler beim Senden (chat): ${e.message}")
+            }
+        }
+    }
+
+    private fun subscribeToJobs(gameId: String, playerName: String) {
+        if (!::session.isInitialized) {
+            sendToMainThread("❌ Verbindung nicht aktiv – kein Job-Subscribe möglich")
             return
         }
 
+        val topic = "/topic/$gameId/jobs/$playerName"
         scope.launch {
             try {
-                session.subscribeText("/topic/getJob").collect { msg ->
-                    Handler(Looper.getMainLooper()).post {
-                        jobCallback(msg)
+                session.subscribeText(topic).collect { msg ->
+                    val jobListType = object : TypeToken<List<JobMessage>>() {}.type
+                    val jobs: List<JobMessage> = gson.fromJson(msg, jobListType)
+                    jobs.forEach {
+                        sendToMainThread("💼 Job-Angebot: ${it.title} (${it.salary}€ +${it.bonusSalary}€ Bonus)")
                     }
                 }
             } catch (e: Exception) {
-                sendToMainThread("❌ Fehler bei Job-Subscription: ${e.message}")
+                sendToMainThread("❌ Fehler beim Job-Subscribe: ${e.message}")
             }
         }
     }
 
-    // Anfrage an Backend: „Gib mir zwei Jobs“
-    fun requestJob(player: String) {
+    fun requestJobs(playerName: String, hasDegree: Boolean) {
         if (!::session.isInitialized) {
-            sendToMainThread("❌ Nicht verbunden")
+            sendToMainThread("❌ Verbindung nicht aktiv – Jobanfrage fehlgeschlagen")
             return
         }
 
-        val message = StompMessage(playerName = player)
-        val json = gson.toJson(message)
+        val request = JobRequestMessage(
+            playerName = playerName,
+            gameId = GAME_ID,
+            hasDegree = hasDegree,
+            jobId = null
+        )
 
+        val json = gson.toJson(request)
         scope.launch {
             try {
-                session.sendText("/app/getJob", json)
-                sendToMainThread("📨 Job-Anfrage gesendet")
+                session.sendText("/app/jobs/request", json)
+                sendToMainThread("📨 Jobanfrage gesendet")
             } catch (e: Exception) {
-                sendToMainThread("❌ Fehler bei Job-Anfrage: ${e.message}")
+                sendToMainThread("❌ Fehler bei Jobanfrage: ${e.message}")
             }
         }
     }
 
-    // Auswahl eines Jobs durch den Spieler
-    fun sendAcceptJob(job: JobMessage) {
-        if (!::session.isInitialized) return
-        val json = gson.toJson(job)
+    fun acceptJob(playerName: String, jobId: Int, hasDegree: Boolean) {
+        if (!::session.isInitialized) {
+            sendToMainThread("❌ Verbindung nicht aktiv – Jobauswahl fehlgeschlagen")
+            return
+        }
+
+        val selection = JobRequestMessage(
+            playerName = playerName,
+            gameId = GAME_ID,
+            hasDegree = hasDegree,
+            jobId = jobId
+        )
+
+        val json = gson.toJson(selection)
         scope.launch {
             try {
-                session.sendText("/app/acceptJob", json)
-                sendToMainThread("✅ Jobübernahme gesendet: ${job.title}")
+                session.sendText("/app/jobs/select", json)
+                sendToMainThread("✅ Jobauswahl gesendet – warte auf Bestätigung…")
             } catch (e: Exception) {
-                sendToMainThread("❌ Fehler beim Senden (acceptJob): ${e.message}")
+                sendToMainThread("❌ Fehler bei Jobauswahl: ${e.message}")
             }
         }
     }
 
-
-    // Hilfsmethode: Ausgabe ins UI zurücksenden
     private fun sendToMainThread(msg: String) {
-        Handler(Looper.getMainLooper()).post {
-            callback(msg)
-        }
+        Handler(Looper.getMainLooper()).post { callback(msg) }
     }
 }

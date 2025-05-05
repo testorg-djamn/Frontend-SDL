@@ -23,10 +23,10 @@ class MainActivity : ComponentActivity() {
 
         val connectBtn = findViewById<Button>(R.id.connectbtn)
         val moveBtn = findViewById<Button>(R.id.hellobtn)
-        val jobCardBtn = findViewById<Button>(R.id.jobCardBtn) // ← dein neuer Button
+        val jobCardBtn = findViewById<Button>(R.id.jobCardBtn)
 
         connectBtn.setOnClickListener {
-            stomp.connect()
+            stomp.connect(playerName)
         }
 
         moveBtn.setOnClickListener {
@@ -34,10 +34,12 @@ class MainActivity : ComponentActivity() {
         }
 
         jobCardBtn.setOnClickListener {
+            stomp.requestJobs(playerName, hasDegree = false)
             val intent = Intent(this, JobCardActivity::class.java)
             intent.putExtra("playerName", playerName)
             startActivity(intent)
         }
+
     }
 
     private fun handleResponse(res: String) {

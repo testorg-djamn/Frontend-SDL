@@ -10,10 +10,6 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <!-- Verbinden -->
-
-    <!-- Spielzug senden -->
-
     <Button
         android:id="@+id/connectbtn"
         android:layout_width="0dp"
@@ -47,7 +43,6 @@
         android:background="@drawable/rounded_blue_button"
         android:textColor="#FFFFFF" />
 
-    <!-- Statusanzeige mit Hintergrund -->
     <Button
         android:id="@+id/hellobtn2"
         android:layout_width="0dp"
@@ -64,25 +59,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/connectbtn" />
 
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status: Getrennt"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/status_background"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:padding="12dp"
-        app:layout_constraintTop_toBottomOf="@id/hellobtn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
-
-    <!-- Screen Switch -->
-
+    <!-- Show Jobs kommt jetzt direkt nach dem Spielzug-Button -->
     <Button
         android:id="@+id/jobCardBtn"
         android:layout_width="0dp"
@@ -98,6 +75,24 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/statusText" />
+        app:layout_constraintTop_toBottomOf="@id/hellobtn" />
+
+    <!-- Statusanzeige ist jetzt nach dem Show Jobs Button -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status: Getrennt"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/status_background"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/jobCardBtn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
