@@ -90,7 +90,7 @@
         android:layout_marginTop="32dp"
         android:background="@drawable/rounded_blue_button"
         android:gravity="center"
-        android:text="Job Screen"
+        android:text="Show Jobs"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
