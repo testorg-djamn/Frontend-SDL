@@ -63,6 +63,23 @@ class MyStomp(private val callback: (String) -> Unit) {
         }
     }
 
+    fun sendRealMove(player: String, dice: Int){
+        if(!::session.isInitialized){
+            callback("❌ Fehler: Verbindung nicht aktiv!")
+            return
+        }
+        val message = StompMessage(playerName = player, action = "$dice gewürfelt")
+        val json = gson.toJson(message)
+        scope.launch {
+            try {
+                session.sendText("/app/move", json)
+                callback("✅ Spielzug gesendet")
+            } catch (e: Exception){
+                callback("❌ Fehler beim Senden (move): ${e.message}")
+            }
+        }
+    }
+
     fun sendChat(player: String, text: String) {
         if (!::session.isInitialized) {
             sendToMainThread("❌ Fehler: Verbindung nicht aktiv!")

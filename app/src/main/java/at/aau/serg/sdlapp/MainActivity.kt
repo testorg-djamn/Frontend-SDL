@@ -1,5 +1,6 @@
 package at.aau.serg.sdlapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -28,7 +29,11 @@ class MainActivity : ComponentActivity() {
         }
 
         moveBtn.setOnClickListener {
-            stomp.sendMove(playerName, "würfelt 6")
+            val dice = (1..10).random()
+            val intent = Intent(this, WheelActivity::class.java)
+            intent.putExtra("dice", dice)
+            startActivity(intent)
+            stomp.sendRealMove(playerName, dice)
         }
     }
 

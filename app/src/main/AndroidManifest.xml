@@ -21,7 +21,6 @@
         <activity
             android:name="at.aau.serg.sdlapp.StartActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape">
             <intent-filter>
@@ -41,9 +40,15 @@
         <activity
             android:name="at.aau.serg.sdlapp.MainActivity"
             android:exported="false"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
+        <activity android:name=".WheelActivity"
+            tools:ignore="Instantiatable"
+            android:exported="false"
+            android:label = "Gluecksrad"
+            android:screenOrientation="landscape"/>
+
+
     </application>
 
 </manifest>
