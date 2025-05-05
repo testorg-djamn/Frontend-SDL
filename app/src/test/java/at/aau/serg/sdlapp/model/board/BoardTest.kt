@@ -1,9 +1,18 @@
 package at.aau.serg.sdlapp.model.board
 
-import org.junit.Assert.*
+// JUnit 4 Imports (Standard für Android)
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+/**
+ * Unit-Tests für die Board-Klasse.
+ * Diese Tests verwenden JUnit4, das Standardtestframework für Android.
+ */
+@RunWith(JUnit4::class)
 class BoardTest {
 
     private lateinit var board: Board
@@ -11,13 +20,7 @@ class BoardTest {
     
     @Before
     fun setUp() {
-        // Create test fields with different configurations:
-        // - Field 0: connects to Field 1
-        // - Field 1: connects to Fields 2 and 3 (branch)
-        // - Field 2: connects to Field 4
-        // - Field 3: connects to Field 5
-        // - Field 4: dead end (no next fields)
-        // - Field 5: dead end (no next fields)
+        // Erstelle eine einfache Testumgebung mit Feldern
         testFields = listOf(
             Field(index = 0, x = 0.1f, y = 0.1f, nextFields = listOf(1), type = FieldType.STARTNORMAL),
             Field(index = 1, x = 0.2f, y = 0.2f, nextFields = listOf(2, 3), type = FieldType.AKTION),
@@ -27,7 +30,16 @@ class BoardTest {
             Field(index = 5, x = 0.6f, y = 0.6f, nextFields = listOf(), type = FieldType.RUHESTAND)
         )
         
+        // Instanziiere das Board mit den Testfeldern
         board = Board(testFields)
+    }
+    
+    @Test
+    fun testBoardInitialization() {
+        // Überprüfe, ob das Board korrekt initialisiert wurde
+        assertEquals(6, board.fields.size)
+        assertEquals(0, board.fields[0].index)
+        assertEquals(FieldType.STARTNORMAL, board.fields[0].type)
     }
     
     @Test

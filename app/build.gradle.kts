@@ -58,52 +58,36 @@ android {
             isReturnDefaultValues = true
             all {
                 it.useJUnitPlatform()
-                it.systemProperty("robolectric.logging", "stdout")
-                it.systemProperty("robolectric.graphicsMode", "NATIVE")
-                it.finalizedBy(tasks.named("jacocoTestReport"))
             }
         }
     }
 }
 
-tasks.register<JacocoReport>("jacocoTestReport") {
-    group = "verification"
-    description = "Generiert einen Code Coverage Report für Unit-Tests"
+// Stark vereinfachte JaCoCo-Konfiguration
+tasks.register<JacocoReport>("generateTestCoverageReport") {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    
+    // Abhängigkeit von allen Unit-Tests
     dependsOn("testDebugUnitTest")
-
+    
     reports {
         xml.required.set(true)
         html.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
-
-    val fileFilter = listOf(
-        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*Test*.*", "android/**/*.*",
-        "**/di/**/*.*", "**/*_Factory.*", "**/*_MembersInjector.*",
-        "**/*_Provide*Factory.*", "**/*_ViewBinding.*"
-    )
-
-    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
-        exclude(fileFilter)
-    }
-
-    val javaDebugTree = fileTree(layout.buildDirectory.dir("intermediates/javac/debug")) {
-        exclude(fileFilter)
-    }
-
-    val mainSrc = listOf("src/main/java", "src/main/kotlin")
-
+    
+    // Setze Klassenpfade für das Debug-Build
+    val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug"))
+    classDirectories.setFrom(debugTree)
+    
+    // Quellverzeichnisse
+    val mainSrc = "${project.projectDir}/src/main/java"
     sourceDirectories.setFrom(files(mainSrc))
-    classDirectories.setFrom(files(debugTree, javaDebugTree))
-    executionData.setFrom(files(
-        layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"),
-        layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
-    ))
-}
-
-tasks.withType<Test> {
-    finalizedBy(tasks.named("jacocoTestReport"))
+    
+    // Sammle alle verfügbaren Exec-Dateien
+    executionData.setFrom(fileTree(project.layout.buildDirectory) {
+        include("**/*.exec")
+    })
 }
 
 sonar {
@@ -114,7 +98,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt")
+        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**Board.kt")
 
     }
 }
