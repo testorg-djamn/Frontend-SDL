@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:zoom="http://schemas.android.com/apk/res-auto"
-    xmlns:androidx="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
     <!-- Zoombares Spielfeld -->
     <com.otaliastudios.zoom.ZoomLayout
         android:id="@+id/zoomLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/transparent"
         zoom:zoomEnabled="true"
-        zoom:minZoom="0.9"
+        zoom:minZoom="1.4"
         zoom:maxZoom="5.0">
 
         <!-- Brett + Figur im gemeinsamen Container -->
         <FrameLayout
             android:id="@+id/boardContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent">
 
             <ImageView
                 android:id="@+id/boardImag"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
-                android:src="@drawable/board5" />
+                android:src="@drawable/board10" />
 
             <ImageView
                 android:id="@+id/playerImageView"
@@ -47,6 +49,5 @@
         android:background="@drawable/rounded_white_button"
         android:src="@drawable/dice"
         android:contentDescription="Würfeln"
-        android:scaleType="centerInside"
-        />
+        android:scaleType="centerInside" />
 </FrameLayout>
