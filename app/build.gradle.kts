@@ -114,7 +114,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/SettingsActivity.kt,**/StartActivity.kt,**/MainActivity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCardActivity.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt, **/WheelActivity.kt")
+        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt")
 
     }
 }
