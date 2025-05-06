@@ -1,8 +1,9 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import at.aau.serg.sdlapp.R
 
 
 class SettingsActivity : ComponentActivity() {

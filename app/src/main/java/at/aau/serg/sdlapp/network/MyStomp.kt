@@ -2,8 +2,6 @@ package at.aau.serg.sdlapp.network
 
 import android.os.Handler
 import android.os.Looper
-import at.aau.serg.sdlapp.model.OutputMessage
-import at.aau.serg.sdlapp.model.StompMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
