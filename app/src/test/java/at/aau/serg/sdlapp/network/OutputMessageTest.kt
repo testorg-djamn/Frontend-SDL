@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.model
+package at.aau.serg.sdlapp.network
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="at.aau.serg.sdlapp">  <!-- ✅ HIER eingefügt -->
+    package="at.aau.serg.sdlapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -17,9 +17,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- Startscreen im Querformat -->
+        <!-- ✅ StartActivity ist jetzt die Haupt- und Launcher-Aktivität -->
         <activity
-            android:name="at.aau.serg.sdlapp.StartActivity"
+            android:name="at.aau.serg.sdlapp.ui.StartActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
@@ -30,20 +30,28 @@
             </intent-filter>
         </activity>
 
+        <!-- Einstellungen -->
         <activity
-            android:name="at.aau.serg.sdlapp.SettingsActivity"
+            android:name="at.aau.serg.sdlapp.ui.SettingsActivity"
             android:exported="false"
             android:label="Einstellungen"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- Spielbildschirm ebenfalls im Querformat -->
+        <!-- Spielbrett -->
         <activity
-            android:name="at.aau.serg.sdlapp.MainActivity"
+            android:name="at.aau.serg.sdlapp.ui.BoardActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
+        <activity android:name=".WheelActivity"
+            tools:ignore="Instantiatable"
+            android:exported="false"
+            android:label = "Gluecksrad"
+            android:screenOrientation="landscape"/>
+
+
         <activity
             android:name="at.aau.serg.sdlapp.JobCardActivity"
             android:exported="false"
@@ -52,7 +60,5 @@
             android:theme="@style/Theme.MyApplication" />
 
     </application>
-
-
 
 </manifest>

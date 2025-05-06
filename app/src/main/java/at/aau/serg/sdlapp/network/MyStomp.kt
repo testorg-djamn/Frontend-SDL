@@ -2,10 +2,10 @@ package at.aau.serg.sdlapp.network
 
 import android.os.Handler
 import android.os.Looper
-import at.aau.serg.sdlapp.model.*
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.sendText
@@ -17,33 +17,26 @@ private const val GAME_ID = "1"
 
 class MyStomp(private val callback: (String) -> Unit) {
 
-    lateinit var session: StompSession
+    private lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
     private val gson = Gson()
 
-    fun connect(playerName: String) {
+    fun connect() {
         val client = StompClient(OkHttpWebSocketClient())
         scope.launch {
             try {
                 session = client.connect(WEBSOCKET_URI)
+
                 sendToMainThread("✅ Verbunden mit Server")
 
-                // 🟢 Spielstart-Bestätigung empfangen
                 session.subscribeText("/topic/game").collect { msg ->
-                    val o = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("🎮 Spiel gestartet: ${o.content}")
+                    val output = gson.fromJson(msg, OutputMessage::class.java)
+                    sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
                 }
 
-                // 🎲 Spielzüge empfangen
-                session.subscribeText("/topic/game").collect { msg ->
-                    val o = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("🎲 ${o.playerName}: ${o.content}")
-                }
-
-                // 💬 Chat empfangen
                 session.subscribeText("/topic/chat").collect { msg ->
-                    val o = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("💬 ${o.playerName}: ${o.content}")
+                    val output = gson.fromJson(msg, OutputMessage::class.java)
+                    sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
                 }
 
             } catch (e: Exception) {
@@ -51,10 +44,6 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         }
     }
-
-
-
-
 
     fun sendMove(player: String, action: String) {
         if (!::session.isInitialized) {
@@ -178,6 +167,8 @@ class MyStomp(private val callback: (String) -> Unit) {
     }
 
     private fun sendToMainThread(msg: String) {
-        Handler(Looper.getMainLooper()).post { callback(msg) }
+        Handler(Looper.getMainLooper()).post {
+            callback(msg)
+        }
     }
 }
