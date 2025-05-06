@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.model
+package at.aau.serg.sdlapp.network
 
 data class JobMessage(
     val jobId: Int,
@@ -6,5 +6,6 @@ data class JobMessage(
     val salary: Int,
     val bonusSalary: Int,
     val requiresDegree: Boolean,
-    val taken: Boolean
+    val taken: Boolean,
+    val gameId: Int
 )

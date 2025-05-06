@@ -17,7 +17,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- ✅ StartActivity ist jetzt die Haupt- und Launcher-Aktivität -->
+        <!-- StartActivity ist jetzt die Haupt- und Launcher-Aktivität -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.StartActivity"
             android:exported="true"
@@ -38,24 +38,35 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- Spielbrett -->
+        <!-- Spielbrett (BoardActivity) -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.BoardActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
-        <activity android:name=".WheelActivity"
+
+        <!-- Glücksrad -->
+        <activity
+            android:name=".WheelActivity"
             tools:ignore="Instantiatable"
             android:exported="false"
-            android:label = "Gluecksrad"
-            android:screenOrientation="landscape"/>
+            android:label="Glücksrad"
+            android:screenOrientation="landscape" />
 
-
+        <!-- JobCardActivity muss exakt im ui-Package stehen -->
         <activity
-            android:name="at.aau.serg.sdlapp.JobCardActivity"
+            android:name="at.aau.serg.sdlapp.ui.JobCardActivity"
             android:exported="false"
             android:label="Job Screen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- (Optional) JobSelectionActivity, falls du sie starten möchtest -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.JobSelectionActivity"
+            android:exported="false"
+            android:label="Job Auswahl"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
