@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -20,13 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.sdlapp.network.MyStomp
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.platform.LocalContext
 
 
 class HomeScreenActivity : ComponentActivity() {
@@ -34,9 +34,9 @@ class HomeScreenActivity : ComponentActivity() {
     private lateinit var playerName: String
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //gets playername, maybe change to playername + boolean isHost later
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
         stomp = MyStomp { showToast(it) }
         setContent {
@@ -104,6 +104,7 @@ class HomeScreenActivity : ComponentActivity() {
         }
     }
 
+    //shows text field to join existing lobby
     @Composable
     fun inputLobbyID(): String {
         var text by remember { mutableStateOf("") }
@@ -113,14 +114,16 @@ class HomeScreenActivity : ComponentActivity() {
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
-        ){
+        ) {
             TextField(
                 value = text,
                 onValueChange = { text = it },
                 placeholder = {
                     Text(
                         text = "Lobby-ID eingeben",
-                        color = Color.Gray) },
+                        color = Color.Gray
+                    )
+                },
                 singleLine = true
             )
         }
@@ -128,8 +131,9 @@ class HomeScreenActivity : ComponentActivity() {
         return text
     }
 
+    //function to switch to lobby screen, using lobby id as parameter
     @Composable
-    fun startLobbyScreen(lobbyid : String){
+    fun startLobbyScreen(lobbyid: String) {
         val context = LocalContext.current
         Intent(context, LobbyActivity::class.java).apply {
             intent.putExtra("Lobby-ID", lobbyid)
