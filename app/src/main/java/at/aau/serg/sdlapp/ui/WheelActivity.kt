@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.*
+import at.aau.serg.sdlapp.R
 
 class WheelActivity() : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
