@@ -13,8 +13,8 @@ import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import kotlinx.coroutines.flow.first
 
-private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
+//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
 
 
 class MyStomp(private val callback: (String) -> Unit) {
