@@ -11,11 +11,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
     var name by remember { mutableStateOf("") }
     var money by remember { mutableStateOf("") }
+    var jobId by remember { mutableStateOf("") }
+    var houseId by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
@@ -42,13 +43,32 @@ fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
             isError = money.toIntOrNull() == null
         )
 
+        OutlinedTextField(
+            value = jobId,
+            onValueChange = { jobId = it },
+            label = { Text("Job-ID") },
+            isError = jobId.toIntOrNull() == null
+        )
+
+        OutlinedTextField(
+            value = houseId,
+            onValueChange = { houseId = it },
+            label = { Text("Haus-ID") },
+            isError = houseId.toIntOrNull() == null
+        )
+
         errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error)
         }
 
         Button(
             onClick = {
-                if (name.isNotBlank() && money.toIntOrNull() != null) {
+                if (
+                    name.isNotBlank() &&
+                    money.toIntOrNull() != null &&
+                    jobId.toIntOrNull() != null &&
+                    houseId.toIntOrNull() != null
+                ) {
                     val newPlayer = PlayerModell(
                         id = 0, // Backend setzt ID
                         name = name,
@@ -58,10 +78,11 @@ fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
                         children = 0,
                         education = "Keine",
                         relationship = "Single",
-                        career = "Arbeitslos"
+                        career = "Arbeitslos",
+                        JobID = jobId.toInt(),
+                        HouseID = houseId.toInt()
                     )
 
-                    // Erstelle den Spieler in der Datenbank
                     scope.launch {
                         try {
                             PlayerRepository.createPlayer(newPlayer)
@@ -74,7 +95,10 @@ fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
                     errorMessage = "Bitte gültige Werte eingeben!"
                 }
             },
-            enabled = name.isNotBlank() && money.toIntOrNull() != null
+            enabled = name.isNotBlank() &&
+                    money.toIntOrNull() != null &&
+                    jobId.toIntOrNull() != null &&
+                    houseId.toIntOrNull() != null
         ) {
             Text("🎲 Spieler erstellen")
         }
@@ -84,7 +108,6 @@ fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
     Column(
-
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
@@ -97,7 +120,7 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        // Stats Cards
+        // Stat Cards
         StatCard("💰 Geld", "${player.money}$", getMoneyColor(player.money))
         StatCard("💼 Gehalt", "${player.salary}$", getSalaryColor(player.salary))
         StatCard("🧑‍🍳 Beruf", player.career, Color(0xFFFAFAFA))
@@ -105,22 +128,24 @@ fun PlayerStatsOverlay(player: PlayerModell) {
         StatCard("❤️ Beziehung", player.relationship, Color(0xFF1976D2))
         StatCard("📈 Investitionen", player.investments.toString(), Color(0xFFFDD835))
         StatCard("👶 Kinder", player.children.toString(), Color(0xFF424242))
+        StatCard("🆔 Job-ID", player.JobID.toString(), Color.Gray)
+        StatCard("🏠 Haus-ID", player.HouseID.toString(), Color.DarkGray)
     }
 }
 
 fun getMoneyColor(money: Int): Color {
     return when {
-        money > 10000 -> Color(0xFF2E7D32) // grün
-        money > 5000 -> Color(0xFFF9A825) // gelb
-        else -> Color(0xFFD32F2F) // rot
+        money > 10000 -> Color(0xFF2E7D32) // Grün
+        money > 5000 -> Color(0xFFF9A825)  // Gelb
+        else -> Color(0xFFD32F2F)         // Rot
     }
 }
 
 fun getSalaryColor(salary: Int): Color {
     return when {
-        salary > 5000 -> Color(0xFF388E3C) // grün
-        salary > 2500 -> Color(0xFFFBC02D) // gelb
-        else -> Color(0xFFC62828) // rot
+        salary > 5000 -> Color(0xFF388E3C)
+        salary > 2500 -> Color(0xFFFBC02D)
+        else -> Color(0xFFC62828)
     }
 }
 
@@ -147,5 +172,3 @@ fun StatCard(label: String, value: String, color: Color) {
         }
     }
 }
-
-

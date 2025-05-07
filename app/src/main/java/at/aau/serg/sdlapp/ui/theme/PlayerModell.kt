@@ -12,5 +12,7 @@ data class PlayerModell(
     var children: Int,
     var education: String,
     var relationship: String,
-    var career: String
+    var career: String,
+    var JobID: Int = 0,
+    var HouseID: Int = 0,
 )
