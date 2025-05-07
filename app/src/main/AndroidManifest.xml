@@ -67,6 +67,22 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- exported for test purposes -->
+        <activity
+            android:name=".ui.HomeScreenActivity"
+            android:exported="true"
+            android:label="Homescreen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- exported for test purposes -->
+
+        <activity android:name=".ui.LobbyActivity"
+            android:exported="true"
+            android:label="Lobby"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication"/>
+
     </application>
 
 </manifest>

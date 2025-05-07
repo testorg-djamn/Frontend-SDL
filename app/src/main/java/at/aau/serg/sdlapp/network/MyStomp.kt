@@ -187,6 +187,10 @@ class MyStomp(private val callback: (String) -> Unit) {
     }
 
 
+    fun requestPlayers(){
+
+    }
+
     private fun sendToMainThread(msg: String) {
         Handler(Looper.getMainLooper()).post {
             callback(msg)
