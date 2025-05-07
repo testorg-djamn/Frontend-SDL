@@ -3,115 +3,25 @@ package at.aau.serg.sdlapp.ui.theme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
+import com.google.accompanist.pager.*
+import at.aau.serg.sdlapp.ui.theme.PlayerModell
 
-@Composable
-fun CreatePlayerScreen(onPlayerCreated: () -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var money by remember { mutableStateOf("") }
-    var jobId by remember { mutableStateOf("") }
-    var houseId by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    val scope = rememberCoroutineScope()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text("🧍 Neuen Spieler erstellen", fontSize = 26.sp)
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") },
-            isError = name.isBlank()
-        )
-
-        OutlinedTextField(
-            value = money,
-            onValueChange = { money = it },
-            label = { Text("Startgeld") },
-            isError = money.toIntOrNull() == null
-        )
-
-        OutlinedTextField(
-            value = jobId,
-            onValueChange = { jobId = it },
-            label = { Text("Job-ID") },
-            isError = jobId.toIntOrNull() == null
-        )
-
-        OutlinedTextField(
-            value = houseId,
-            onValueChange = { houseId = it },
-            label = { Text("Haus-ID") },
-            isError = houseId.toIntOrNull() == null
-        )
-
-        errorMessage?.let {
-            Text(it, color = MaterialTheme.colorScheme.error)
-        }
-
-        Button(
-            onClick = {
-                if (
-                    name.isNotBlank() &&
-                    money.toIntOrNull() != null &&
-                    jobId.toIntOrNull() != null &&
-                    houseId.toIntOrNull() != null
-                ) {
-                    val newPlayer = PlayerModell(
-                        id = 0, // Backend setzt ID
-                        name = name,
-                        money = money.toInt(),
-                        investments = 0,
-                        salary = 0,
-                        children = 0,
-                        education = "Keine",
-                        relationship = "Single",
-                        career = "Arbeitslos",
-                        JobID = jobId.toInt(),
-                        HouseID = houseId.toInt()
-                    )
-
-                    scope.launch {
-                        try {
-                            PlayerRepository.createPlayer(newPlayer)
-                            onPlayerCreated()
-                        } catch (e: Exception) {
-                            errorMessage = "Fehler beim Erstellen: ${e.message}"
-                        }
-                    }
-                } else {
-                    errorMessage = "Bitte gültige Werte eingeben!"
-                }
-            },
-            enabled = name.isNotBlank() &&
-                    money.toIntOrNull() != null &&
-                    jobId.toIntOrNull() != null &&
-                    houseId.toIntOrNull() != null
-        ) {
-            Text("🎲 Spieler erstellen")
-        }
-    }
-}
-
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
+    val pagerState = rememberPagerState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = "Spieler #${player.id}",
@@ -120,24 +30,66 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
-        // Stat Cards
-        StatCard("💰 Geld", "${player.money}$", getMoneyColor(player.money))
-        StatCard("💼 Gehalt", "${player.salary}$", getSalaryColor(player.salary))
-        StatCard("🧑‍🍳 Beruf", player.career, Color(0xFFFAFAFA))
-        StatCard("🎓 Bildung", player.education, Color(0xFF43A047))
-        StatCard("❤️ Beziehung", player.relationship, Color(0xFF1976D2))
-        StatCard("📈 Investitionen", player.investments.toString(), Color(0xFFFDD835))
-        StatCard("👶 Kinder", player.children.toString(), Color(0xFF424242))
-        StatCard("🆔 Job-ID", player.JobID.toString(), Color.Gray)
-        StatCard("🏠 Haus-ID", player.HouseID.toString(), Color.DarkGray)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        HorizontalPager(
+            count = 2,
+            state = pagerState,
+            modifier = Modifier.weight(1f)
+        ) { page ->
+            when (page) {
+                0 -> StatsCategory(
+                    title = "🏦 Geld & Karriere",
+                    stats = listOf(
+                        Triple("💰 Geld", "${player.money}$", getMoneyColor(player.money)),
+                        Triple("💼 Gehalt", "${player.salary}$", getSalaryColor(player.salary)),
+                        Triple("🧑‍🍳 Beruf", player.career, Color(0xFFFAFAFA)),
+                        Triple("🎓 Bildung", player.education, Color(0xFF43A047)),
+                        Triple("📈 Investitionen", player.investments.toString(), Color(0xFFFDD835))
+                    )
+                )
+                1 -> StatsCategory(
+                    title = "👨‍👩‍👧‍👦 Familie",
+                    stats = listOf(
+                        Triple("❤️ Beziehung", player.relationship, Color(0xFF1976D2)),
+                        Triple("👶 Kinder", player.children.toString(), Color(0xFF424242)),
+                        Triple("🆔 Job-ID", player.jobID.toString(), Color.Gray),
+                        Triple("🏠 Haus-ID", player.houseID.toString(), Color.DarkGray)
+                    )
+                )
+            }
+        }
+
+        HorizontalPagerIndicator(
+            pagerState = pagerState,
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
     }
 }
 
+@Composable
+fun StatsCategory(title: String, stats: List<Triple<String, String, Color>>) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = title, fontSize = 22.sp, color = MaterialTheme.colorScheme.primary)
+
+        stats.forEach { (label, value, color) ->
+            StatCard(label, value, color)
+        }
+    }
+}
 fun getMoneyColor(money: Int): Color {
     return when {
         money > 10000 -> Color(0xFF2E7D32) // Grün
         money > 5000 -> Color(0xFFF9A825)  // Gelb
-        else -> Color(0xFFD32F2F)         // Rot
+        else -> Color(0xFFD32F2F)          // Rot
     }
 }
 
@@ -172,3 +124,5 @@ fun StatCard(label: String, value: String, color: Color) {
         }
     }
 }
+
+

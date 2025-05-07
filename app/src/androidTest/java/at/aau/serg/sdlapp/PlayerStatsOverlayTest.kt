@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.runner.RunWith
 
+
 @RunWith(AndroidJUnit4::class)
 class PlayerStatsOverlayTest {
 
@@ -28,9 +29,10 @@ class PlayerStatsOverlayTest {
             children = 2,
             education = "Bachelor",
             relationship = "Single",
-            career = "Kellner"
+            career = "Kellner",
+            jobID = 101,
+            houseID = 202
         )
-
 
         composeTestRule.setContent {
             MaterialTheme(
@@ -38,18 +40,14 @@ class PlayerStatsOverlayTest {
                     primary = Color.Blue,
                     secondary = Color.Green
                 ),
-                typography = Typography(),
-                content = {
-                    PlayerStatsOverlay(player = player)
-                }
-            )
+                typography = Typography()
+            ) {
+                PlayerStatsOverlay(player = player)
+            }
         }
-
-
+        Thread.sleep(10000)
+        // Alle StatCard-Bezeichnungen prüfen
         composeTestRule.onNodeWithText("Spieler #1").assertExists()
-        Thread.sleep(5000)
-
-
         composeTestRule.onNodeWithText("💰 Geld").assertExists()
         composeTestRule.onNodeWithText("💼 Gehalt").assertExists()
         composeTestRule.onNodeWithText("🧑‍🍳 Beruf").assertExists()
@@ -57,5 +55,8 @@ class PlayerStatsOverlayTest {
         composeTestRule.onNodeWithText("❤️ Beziehung").assertExists()
         composeTestRule.onNodeWithText("📈 Investitionen").assertExists()
         composeTestRule.onNodeWithText("👶 Kinder").assertExists()
+        composeTestRule.onNodeWithText("🆔 Job-ID").assertExists()
+        composeTestRule.onNodeWithText("🏠 Haus-ID").assertExists()
     }
 }
+

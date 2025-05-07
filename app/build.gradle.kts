@@ -152,6 +152,9 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.accompanist:accompanist-pager:0.34.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
+
 
     // Unit-Tests
     testImplementation(libs.junit)
@@ -178,10 +181,8 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")//
 
     // Compose Test
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.8.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
     testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter.api)
