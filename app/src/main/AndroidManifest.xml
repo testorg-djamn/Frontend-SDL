@@ -51,6 +51,22 @@
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
 
+        <!-- JobCardActivity muss exakt im ui-Package stehen -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.JobCardActivity"
+            android:exported="false"
+            android:label="Job Screen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- (Optional) JobSelectionActivity, falls du sie starten möchtest -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.JobSelectionActivity"
+            android:exported="false"
+            android:label="Job Auswahl"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
     </application>
 
 </manifest>

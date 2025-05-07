@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Linke Jobkarte -->
+    <LinearLayout
+        android:id="@+id/leftJobCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnLeftAccept"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/rightJobCard"
+        android:layout_marginEnd="8dp">
+
+        <TextView android:id="@+id/tvTitleLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Titel"/>
+        <TextView android:id="@+id/tvSalaryLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gehalt"/>
+        <TextView android:id="@+id/tvBonusLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bonus"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnLeftAccept"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Job annehmen"
+        app:layout_constraintTop_toBottomOf="@id/leftJobCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnRightAccept"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- Rechte Jobkarte -->
+    <LinearLayout
+        android:id="@+id/rightJobCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnRightAccept"
+        app:layout_constraintStart_toEndOf="@+id/leftJobCard"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp">
+
+        <TextView android:id="@+id/tvTitleRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Titel"/>
+        <TextView android:id="@+id/tvSalaryRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gehalt"/>
+        <TextView android:id="@+id/tvBonusRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bonus"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnRightAccept"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Job annehmen"
+        app:layout_constraintTop_toBottomOf="@id/rightJobCard"
+        app:layout_constraintStart_toEndOf="@+id/btnLeftAccept"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
