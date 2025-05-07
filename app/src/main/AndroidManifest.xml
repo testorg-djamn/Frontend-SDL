@@ -9,19 +9,19 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/splash_logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/splash_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
-        <!-- ✅ StartActivity ist jetzt die Haupt- und Launcher-Aktivität -->
+        <!-- ✅ SplashActivity ist Launcher und braucht exported=true -->
         <activity
-            android:name="at.aau.serg.sdlapp.ui.StartActivity"
+            android:name="at.aau.serg.sdlapp.ui.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.MyApplication"
+            android:theme="@style/Theme.SDLApp.Splash"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,26 +29,27 @@
             </intent-filter>
         </activity>
 
-        <!-- Einstellungen -->
+        <!-- ✅ StartActivity: exported=false (keine externe Aufrufbarkeit nötig) -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.StartActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication"
+            android:screenOrientation="landscape" />
+
+        <!-- ✅ SettingsActivity -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.SettingsActivity"
             android:exported="false"
             android:label="Einstellungen"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.MyApplication" />
+            android:theme="@style/Theme.MyApplication"
+            android:screenOrientation="landscape" />
 
-        <!-- Spielbrett -->
+        <!-- ✅ BoardActivity -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.BoardActivity"
             android:exported="false"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
-        <activity android:name=".WheelActivity"
-            tools:ignore="Instantiatable"
-            android:exported="false"
-            android:label = "Gluecksrad"
-            android:screenOrientation="landscape"/>
-
 
     </application>
 
