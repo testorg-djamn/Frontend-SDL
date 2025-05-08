@@ -55,7 +55,6 @@
 
 
     <!-- SpielerStatus Button -->
-
     <ImageButton
         android:id="@+id/btnShowStats"
         android:layout_width="78dp"

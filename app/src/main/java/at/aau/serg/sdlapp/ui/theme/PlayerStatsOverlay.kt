@@ -1,6 +1,5 @@
 package at.aau.serg.sdlapp.ui.theme
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -12,9 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
-import at.aau.serg.sdlapp.ui.theme.PlayerModell
-import at.aau.serg.sdlapp.viewmodel.PlayerViewModel
-
 
 
 @OptIn(ExperimentalPagerApi::class)

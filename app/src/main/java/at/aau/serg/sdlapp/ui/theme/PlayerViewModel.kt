@@ -1,12 +1,10 @@
-package at.aau.serg.sdlapp.viewmodel
+package at.aau.serg.sdlapp.ui.theme
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.aau.serg.sdlapp.ui.theme.PlayerModell
-import at.aau.serg.sdlapp.ui.theme.PlayerRepository
 import kotlinx.coroutines.launch
 
 class PlayerViewModel : ViewModel() {
