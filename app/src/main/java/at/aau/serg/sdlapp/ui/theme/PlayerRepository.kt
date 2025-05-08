@@ -11,7 +11,7 @@ import java.net.URL
 object PlayerRepository {
     suspend fun fetchPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
-            val url = URL("http://localhost:8080/players") // oder localhost bei dir
+            val url = URL("http://localhost:8080/players")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
 
@@ -35,6 +35,30 @@ object PlayerRepository {
 
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 throw RuntimeException("Fehler beim Erstellen des Spielers: ${connection.responseMessage}")
+            }
+        }
+    }
+
+    suspend fun marryPlayer(playerId: Int) {
+        makePutRequest("http://143.205.196.195:8080/players/$playerId/marry")
+    }
+
+    suspend fun addChild(playerId: Int) {
+        makePutRequest("http://143.205.196.195:8080/players/$playerId/add-child")
+    }
+
+    suspend fun investForPlayer(playerId: Int) {
+        makePutRequest("http://143.205.196.195:8080/players/$playerId/invest")
+    }
+
+    private suspend fun makePutRequest(urlString: String) {
+        withContext(Dispatchers.IO) {
+            val url = URL(urlString)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "PUT"
+
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                throw RuntimeException("Fehler beim Aufruf von $urlString: ${connection.responseMessage}")
             }
         }
     }
