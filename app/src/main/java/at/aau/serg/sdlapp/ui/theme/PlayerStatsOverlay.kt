@@ -1,9 +1,11 @@
 package at.aau.serg.sdlapp.ui.theme
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -11,6 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
 import at.aau.serg.sdlapp.ui.theme.PlayerModell
+import at.aau.serg.sdlapp.viewmodel.PlayerViewModel
+
+
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -123,6 +128,27 @@ fun StatCard(label: String, value: String, color: Color) {
             Text(text = value, fontSize = 20.sp, color = color)
         }
     }
+
+
+}@Composable
+fun PlayerStatsOverlayScreen(
+    playerId: Int,
+    viewModel: PlayerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
+    LaunchedEffect(playerId) {
+        viewModel.loadPlayer(playerId)
+    }
+
+    viewModel.player?.let { player ->
+        PlayerStatsOverlay(player = player)
+    } ?: Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
 }
+
+
 
 

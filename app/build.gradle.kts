@@ -155,6 +155,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-pager:0.34.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
     implementation("androidx.compose.material3:material3:1.2.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+
 
 
 
