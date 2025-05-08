@@ -57,11 +57,11 @@
     <!-- SpielerStatus Button -->
     <ImageButton
         android:id="@+id/btnShowStats"
-        android:layout_width="78dp"
+        android:layout_width="64dp"
         android:layout_height="62dp"
         android:layout_alignParentEnd="true"
         android:contentDescription="SpielerStatus"
-        android:src="@drawable/rounded_white_button"
+        android:src="@drawable/spielericon"
         android:layout_margin="16dp" />
 
 </FrameLayout>
