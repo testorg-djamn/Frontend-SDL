@@ -1,8 +1,8 @@
 package at.aau.serg.sdlapp
 
 import androidx.compose.ui.test.*
-import at.aau.serg.sdlapp.ui.theme.PlayerModell
-import at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlay
+import at.aau.serg.sdlapp.ui.PlayerModell
+import at.aau.serg.sdlapp.ui.PlayerStatsOverlay
 import androidx.compose.material3.*
 import androidx.compose.ui.graphics.Color
 import org.junit.Rule

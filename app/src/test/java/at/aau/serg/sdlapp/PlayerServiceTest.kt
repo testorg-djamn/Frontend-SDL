@@ -1,5 +1,6 @@
-import androidx.compose.ui.graphics.Color
-import at.aau.serg.sdlapp.ui.theme.PlayerModell
+package at.aau.serg.sdlapp
+
+import at.aau.serg.sdlapp.ui.PlayerModell
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 

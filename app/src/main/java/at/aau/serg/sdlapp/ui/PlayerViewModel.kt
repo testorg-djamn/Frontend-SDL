@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.theme
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.theme
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,7 +73,7 @@ fun StatusIcon(emoji: String, value: String) {
 @Composable
 fun PlayerStatsOverlayScreen(
     playerId: Int,
-    viewModel: PlayerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: PlayerViewModel = viewModel()
 ) {
     LaunchedEffect(playerId) {
         println("PlayerStatsOverlayScreen gestartet mit ID: $playerId")
