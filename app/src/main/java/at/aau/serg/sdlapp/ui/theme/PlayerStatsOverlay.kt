@@ -3,148 +3,92 @@ package at.aau.serg.sdlapp.ui.theme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.pager.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 
-
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
-    val pagerState = rememberPagerState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Spieler #${player.id}",
-            fontSize = 28.sp,
-            color = Color(0xFF0D47A1),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        HorizontalPager(
-            count = 2,
-            state = pagerState,
-            modifier = Modifier.weight(1f)
-        ) { page ->
-            when (page) {
-                0 -> StatsCategory(
-                    title = "🏦 Geld & Karriere",
-                    stats = listOf(
-                        Triple("💰 Geld", "${player.money}$", getMoneyColor(player.money)),
-                        Triple("💼 Gehalt", "${player.salary}$", getSalaryColor(player.salary)),
-                        Triple("🧑‍🍳 Beruf", player.career, Color(0xFFFAFAFA)),
-                        Triple("🎓 Bildung", player.education, Color(0xFF43A047)),
-                        Triple("📈 Investitionen", player.investments.toString(), Color(0xFFFDD835))
-                    )
-                )
-                1 -> StatsCategory(
-                    title = "👨‍👩‍👧‍👦 Familie",
-                    stats = listOf(
-                        Triple("❤️ Beziehung", player.relationship, Color(0xFF1976D2)),
-                        Triple("👶 Kinder", player.children.toString(), Color(0xFF424242)),
-                        Triple("🆔 Job-ID", player.jobID.toString(), Color.Gray),
-                        Triple("🏠 Haus-ID", player.houseID.toString(), Color.DarkGray)
-                    )
-                )
-            }
-        }
-
-        HorizontalPagerIndicator(
-            pagerState = pagerState,
-            modifier = Modifier
-                .padding(16.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-    }
-}
-
-@Composable
-fun StatsCategory(title: String, stats: List<Triple<String, String, Color>>) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = title, fontSize = 22.sp, color = MaterialTheme.colorScheme.primary)
-
-        stats.forEach { (label, value, color) ->
-            StatCard(label, value, color)
-        }
-    }
-}
-fun getMoneyColor(money: Int): Color {
-    return when {
-        money > 10000 -> Color(0xFF2E7D32) // Grün
-        money > 5000 -> Color(0xFFF9A825)  // Gelb
-        else -> Color(0xFFD32F2F)          // Rot
-    }
-}
-
-fun getSalaryColor(salary: Int): Color {
-    return when {
-        salary > 5000 -> Color(0xFF388E3C)
-        salary > 2500 -> Color(0xFFFBC02D)
-        else -> Color(0xFFC62828)
-    }
-}
-
-@Composable
-fun StatCard(label: String, value: String, color: Color) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            .padding(16.dp)
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF8D4C28)), // Braunton
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(12.dp)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = label, fontSize = 18.sp, color = color)
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(text = value, fontSize = 20.sp, color = color)
+            // 🧍 Spielername & Geld
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = player.name,
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "${player.money / 1000}k",
+                    color = Color.White,
+                    fontSize = 22.sp
+                )
+            }
+
+            // ❤️📘💰 Status
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                StatusIcon("❤️", player.children.toString())
+                StatusIcon("📘", player.education.take(1))
+                StatusIcon("💰", "${player.investments / 1000}k")
+            }
         }
     }
+}
 
+@Composable
+fun StatusIcon(emoji: String, value: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 4.dp)
+    ) {
+        Text(text = emoji, fontSize = 16.sp, color = Color.White)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(text = value, fontSize = 14.sp, color = Color.White)
+    }
+}
 
-}@Composable
+@Composable
 fun PlayerStatsOverlayScreen(
     playerId: Int,
     viewModel: PlayerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     LaunchedEffect(playerId) {
+        println("PlayerStatsOverlayScreen gestartet mit ID: $playerId")
         viewModel.loadPlayer(playerId)
     }
 
     viewModel.player?.let { player ->
+        println("🎉 Spieler geladen: ${player.name}")
         PlayerStatsOverlay(player = player)
     } ?: Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        println("⌛ Spieler wird noch geladen...")
         CircularProgressIndicator()
     }
+
 }
-
-
-
-

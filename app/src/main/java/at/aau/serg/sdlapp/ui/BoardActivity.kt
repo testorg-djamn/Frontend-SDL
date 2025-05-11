@@ -15,6 +15,8 @@ import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.board.Board
 import at.aau.serg.sdlapp.model.board.BoardData
 import com.otaliastudios.zoom.ZoomLayout
+import androidx.compose.ui.platform.ComposeView
+
 
 class BoardActivity : ComponentActivity() {
 
@@ -31,6 +33,12 @@ class BoardActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
         enableFullscreen()
+
+        // 🎯 Spieler-Overlay oben links anzeigen
+        val overlayView = findViewById<ComposeView>(R.id.playerStatsOverlayView)
+        overlayView.setContent {
+            at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlayScreen(playerId = playerId)
+        }
 
         board = Board(BoardData.board)
 

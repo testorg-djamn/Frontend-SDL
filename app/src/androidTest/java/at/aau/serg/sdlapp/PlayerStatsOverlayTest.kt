@@ -30,8 +30,8 @@ class PlayerStatsOverlayTest {
             education = "Bachelor",
             relationship = "Single",
             career = "Kellner",
-            jobID = 101,
-            houseID = 202
+            jobId = 101,
+            houseId = 202
         )
 
         composeTestRule.setContent {

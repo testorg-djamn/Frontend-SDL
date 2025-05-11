@@ -64,4 +64,12 @@
         android:src="@drawable/spielericon"
         android:layout_margin="16dp" />
 
+    <!-- SpielerOverlay (oben links) -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/playerStatsOverlayView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_margin="16dp" />
+
 </FrameLayout>

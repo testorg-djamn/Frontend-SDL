@@ -14,9 +14,11 @@ class PlayerViewModel : ViewModel() {
     fun loadPlayer(id: Int) {
         viewModelScope.launch {
             try {
-                val allPlayers = PlayerRepository.fetchPlayers()
-                player = allPlayers.find { it.id == id }
+                val loadedPlayer = PlayerRepository.fetchPlayerById(id)
+                println("🟢 Spieler erfolgreich geladen: ${loadedPlayer.name}")
+                player = loadedPlayer
             } catch (e: Exception) {
+                println("🔴 Fehler beim Laden des Spielers mit ID $id: ${e.message}")
                 e.printStackTrace()
             }
         }

@@ -10,7 +10,7 @@ import java.net.URL
 
 object PlayerRepository {
 
-    private const val BASE_URL = "http://143.205.196.195:8080/players"
+    private const val BASE_URL = "http://192.168.178.38:8080/players"
 
     suspend fun fetchPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
