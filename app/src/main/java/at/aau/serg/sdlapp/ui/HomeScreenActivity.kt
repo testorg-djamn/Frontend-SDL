@@ -99,7 +99,7 @@ class HomeScreenActivity : ComponentActivity() {
             if (showTextField) {
                 inputLobbyId = inputLobbyID()
                 //TODO: add call to LobbyScreen, add communication to backend that player joined
-                startLobbyScreen(inputLobbyId)
+                StartLobbyScreen(inputLobbyId)
             }
         }
     }
@@ -133,7 +133,7 @@ class HomeScreenActivity : ComponentActivity() {
 
     //function to switch to lobby screen, using lobby id as parameter
     @Composable
-    fun startLobbyScreen(lobbyid: String) {
+    fun StartLobbyScreen(lobbyid: String) {
         val context = LocalContext.current
         Intent(context, LobbyActivity::class.java).apply {
             intent.putExtra("Lobby-ID", lobbyid)

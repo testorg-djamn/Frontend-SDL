@@ -1,16 +1,22 @@
 package at.aau.serg.sdlapp.ui
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.model.board.*
+import at.aau.serg.sdlapp.model.board.Board
+import at.aau.serg.sdlapp.model.board.BoardData
 import com.otaliastudios.zoom.ZoomLayout
+import androidx.compose.ui.platform.ComposeView
+
 
 class BoardActivity : ComponentActivity() {
 
@@ -20,11 +26,19 @@ class BoardActivity : ComponentActivity() {
     private lateinit var boardImage: ImageView
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
+    private lateinit var statsLauncher: ActivityResultLauncher<Intent>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
         enableFullscreen()
+
+        // 🎯 Spieler-Overlay oben links anzeigen
+        val overlayView = findViewById<ComposeView>(R.id.playerStatsOverlayView)
+        overlayView.setContent {
+            at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlayScreen(playerId = playerId)
+        }
 
         board = Board(BoardData.board)
 
@@ -33,6 +47,13 @@ class BoardActivity : ComponentActivity() {
         figure = findViewById(R.id.playerImageView)
         diceButton = findViewById(R.id.diceButton)
 
+        statsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                println("Spielerwerte wurden möglicherweise geändert – Backend neu abfragen")
+            }
+        }
+
+
         // Startpfad wählen
         showStartChoiceDialog()
 
@@ -40,6 +61,14 @@ class BoardActivity : ComponentActivity() {
         diceButton.setOnClickListener {
             moveOneStep()
         }
+
+        val btnShowStats = findViewById<ImageButton>(R.id.btnShowStats)
+        btnShowStats.setOnClickListener {
+            val intent = Intent(this, PlayerStatsActivity::class.java)
+            intent.putExtra("playerId", playerId)
+            statsLauncher.launch(intent) //über Launcher starten
+        }
+
     }
 
     private fun showStartChoiceDialog() {
@@ -107,4 +136,6 @@ class BoardActivity : ComponentActivity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         WindowCompat.setDecorFitsSystemWindows(window, false)
     }
+
+
 }

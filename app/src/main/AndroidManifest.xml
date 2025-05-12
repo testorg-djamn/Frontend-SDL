@@ -54,16 +54,24 @@
         <!-- JobCardActivity muss exakt im ui-Package stehen -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.JobCardActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="Job Screen"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.MyApplication" />
+            android:theme="@style/Theme.MyApplication"
+            tools:ignore="MissingClass" />
 
         <!-- (Optional) JobSelectionActivity, falls du sie starten möchtest -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.JobSelectionActivity"
             android:exported="false"
             android:label="Job Auswahl"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name=".ui.PlayerStatsActivity"
+            android:exported="true"
+            android:label="Spielerübersicht"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
