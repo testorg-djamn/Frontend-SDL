@@ -20,11 +20,11 @@ object BoardData {
         Field(index = 13, x = 0.65f, y = 0.23f, nextFields = listOf(13), type = FieldType.ZAHLTAG),
         Field(index = 14, x = 0.70f, y = 0.19f, nextFields = listOf(14), type = FieldType.AKTION),
         Field(index = 15, x = 0.75f, y = 0.15f, nextFields = listOf(15), type = FieldType.FREUND),
-        Field(index = 16, x = 0.80f, y = 0.11f, nextFields = listOf(16), type = FieldType.AKTION),
+        Field(index = 16, x = 0.10f, y = 0.11f, nextFields = listOf(16), type = FieldType.AKTION),
         Field(index = 17, x = 0.85f, y = 0.07f, nextFields = listOf(16), type = FieldType.HEIRAT),
         
         // Uni-Start-Feld
-        Field(index = 18, x = 0.25f, y = 0.75f, nextFields = listOf(18), type = FieldType.STARTUNI),
+        Field(index = 18, x = 0.115f, y = 0.75f, nextFields = listOf(18), type = FieldType.STARTUNI),
         Field(index = 19, x = 0.30f, y = 0.72f, nextFields = listOf(19), type = FieldType.ZAHLTAG),
         Field(index = 20, x = 0.35f, y = 0.70f, nextFields = listOf(5), type = FieldType.EXAMEN)
 

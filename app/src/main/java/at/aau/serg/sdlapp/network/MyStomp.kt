@@ -5,6 +5,7 @@ import android.os.Looper
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
@@ -12,7 +13,10 @@ import org.hildan.krossbow.stomp.sendText
 import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 
+
 private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+
+
 
 class MyStomp(private val callback: (String) -> Unit) {
 
@@ -20,52 +24,86 @@ class MyStomp(private val callback: (String) -> Unit) {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val gson = Gson()
     private val client = StompClient(OkHttpWebSocketClient())
-    
-    // Callback für empfangene Bewegungen
+    // Callbacks für verschiedene Events
     var onMoveReceived: ((MoveMessage) -> Unit)? = null
+    var onConnectionStateChanged: ((Boolean) -> Unit)? = null
+    var onConnectionError: ((String) -> Unit)? = null
+
+    // Flag, das anzeigt, ob wir verbunden sind
+    private var isConnected = false
+
+    // Automatisches Wiederverbinden
+    private var shouldReconnect = true
+    private val maxReconnectAttempts = 5
+    private var reconnectAttempts = 0
+
     fun connect() {
         scope.launch {
             try {
-                session = client.connect(WEBSOCKET_URI)
+                reconnectAttempts = 0
+                shouldReconnect = true
+                connectInternal()
+            } catch (e: Exception) {
+                sendToMainThread("❌ Initialer Verbindungsfehler: ${e.message}")
+                handleReconnect()
+            }
+        }
+    }
 
-                sendToMainThread("✅ Verbunden mit Server")
-                session.subscribeText("/topic/game").collect { msg ->
-                    try {
-                        // Versuche zuerst, es als MoveMessage zu parsen
-                        val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
-                        if (moveMessage.fieldIndex >= 0) {
-                            // Es ist eine MoveMessage
-                            sendToMainThread("🚗 Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
-                            // Callback aufrufen, wenn einer registriert ist
-                            onMoveReceived?.invoke(moveMessage)
-                        } else {
-                            // Wenn es keine MoveMessage ist, versuche es als OutputMessage
-                            val output = gson.fromJson(msg, OutputMessage::class.java)
-                            sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
-                        }
-                    } catch (e: Exception) {
-                        // Fallback: als OutputMessage verarbeiten
-                        try {
-                            val output = gson.fromJson(msg, OutputMessage::class.java)
-                            sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
-                        } catch (innerEx: Exception) {
-                            sendToMainThread("❌ Fehler beim Verarbeiten der Nachricht: ${e.message}")
-                        }
+    private suspend fun connectInternal() {
+        try {
+            session = client.connect(WEBSOCKET_URI)
+            isConnected = true
+            reconnectAttempts = 0
+
+            sendToMainThread("✅ Verbunden mit Server")
+            onConnectionStateChanged?.invoke(true)
+
+            session.subscribeText("/topic/game").collect { msg ->
+                try {
+                    // Ausführlicheres Logging für Debugging
+                    sendToMainThread("📥 Nachricht vom Server empfangen: ${msg.take(100)}${if(msg.length > 100) "..." else ""}")
+
+                    // Versuche zuerst, es als MoveMessage zu parsen
+                    val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
+                    if (moveMessage.fieldIndex >= 0) {
+                        // Es ist eine MoveMessage
+                        sendToMainThread("🚗 Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
+                        // Callback aufrufen, wenn einer registriert ist
+                        onMoveReceived?.invoke(moveMessage)
+                    } else {
+                        // Wenn es keine MoveMessage ist, versuche es als OutputMessage
+                        val output = gson.fromJson(msg, OutputMessage::class.java)
+                        sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
                     }
-                }
+                } catch (e: Exception) {
+                    // Verbesserte Fehlerbehandlung
+                    sendToMainThread("⚠️ Fehler beim Verarbeiten einer Game-Nachricht: ${e.message}")
+                    sendToMainThread("⚠️ Nachricht war: $msg")
 
-                session.subscribeText("/topic/chat").collect { msg ->
+                    // Fallback: als OutputMessage verarbeiten
                     try {
                         val output = gson.fromJson(msg, OutputMessage::class.java)
-                        sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
-                    } catch (e: Exception) {
-                        sendToMainThread("❌ Fehler beim Verarbeiten der Chat-Nachricht: ${e.message}")
+                        sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+                    } catch (innerEx: Exception) {
+                        sendToMainThread("❌ Fehler beim Parsen der Nachricht: ${innerEx.message}")
                     }
                 }
-
-            } catch (e: Exception) {
-                sendToMainThread("❌ Fehler beim Verbinden: ${e.message}")
             }
+
+            session.subscribeText("/topic/chat").collect { msg ->
+                try {
+                    val output = gson.fromJson(msg, OutputMessage::class.java)
+                    sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Verarbeiten der Chat-Nachricht: ${e.message}")
+                }
+            }
+        } catch (e: Exception) {
+            isConnected = false
+            onConnectionStateChanged?.invoke(false)
+            sendToMainThread("❌ Fehler beim Verbinden: ${e.message}")
+            throw e // Weitergeben für Wiederverbindungslogik
         }
     }
 
@@ -84,21 +122,37 @@ class MyStomp(private val callback: (String) -> Unit) {
                 sendToMainThread("❌ Fehler beim Senden (move): ${e.message}")
             }
         }
-    }    fun sendRealMove(player: String, dice: Int, currentFieldIndex: Int = -1){
-        if(!::session.isInitialized){
-            callback("❌ Fehler: Verbindung nicht aktiv!")
+    }
+
+    fun sendRealMove(player: String, dice: Int, currentFieldIndex: Int = -1) {
+        if(!::session.isInitialized || !isConnected) {
+            sendToMainThread("❌ Fehler: Verbindung nicht aktiv!")
+
+            // Versuche erneut zu verbinden, wenn nicht verbunden
+            if (!isConnected) {
+                sendToMainThread("🔄 Versuche die Verbindung wiederherzustellen...")
+                connect()
+            }
             return
         }
+
         // Sende den aktuellen Index mit, damit das Backend weiß, von wo aus zu bewegen
         val moveInfo = if(currentFieldIndex >= 0) "$dice gewürfelt:$currentFieldIndex" else "$dice gewürfelt"
-        val message = StompMessage(playerName = player, action = moveInfo)
+        val message = StompMessage(playerName = player, action = moveInfo, gameId = player) // Spieler-ID als gameId für spätere Erweiterungen
         val json = gson.toJson(message)
+
+        sendToMainThread("🎲 Sende Würfelzug $dice von Feld $currentFieldIndex")
+
         scope.launch {
             try {
                 session.sendText("/app/move", json)
-                callback("✅ Spielzug gesendet (von Feld $currentFieldIndex)")
-            } catch (e: Exception){
-                callback("❌ Fehler beim Senden (move): ${e.message}")
+                sendToMainThread("✅ Spielzug gesendet (von Feld $currentFieldIndex)")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler beim Senden des Spielzugs: ${e.message}")
+                // Bei einem Fehler beim Senden prüfen wir, ob wir noch verbunden sind
+                isConnected = false
+                onConnectionStateChanged?.invoke(false)
+                handleReconnect()
             }
         }
     }
@@ -123,6 +177,47 @@ class MyStomp(private val callback: (String) -> Unit) {
     private fun sendToMainThread(msg: String) {
         Handler(Looper.getMainLooper()).post {
             callback(msg)
+        }
+    }
+
+    // Füge Funktion zum Wiederverbinden hinzu
+    private fun handleReconnect() {
+        if (!shouldReconnect || reconnectAttempts >= maxReconnectAttempts) {
+            sendToMainThread("❌ Maximale Anzahl an Wiederverbindungsversuchen erreicht")
+            onConnectionError?.invoke("Verbindung zum Server verloren")
+            return
+        }
+
+        reconnectAttempts++
+
+        scope.launch {
+            sendToMainThread("🔄 Versuche erneut zu verbinden (Versuch $reconnectAttempts/$maxReconnectAttempts)")
+            // Exponentielles Backoff für Wiederverbindungsversuche
+            delay(1000L * reconnectAttempts)
+
+            try {
+                connectInternal()
+            } catch (e: Exception) {
+                sendToMainThread("❌ Wiederverbindung fehlgeschlagen: ${e.message}")
+                handleReconnect()
+            }
+        }
+    }
+
+    // Funktion zum manuellen Trennen der Verbindung
+    fun disconnect() {
+        shouldReconnect = false
+        scope.launch {
+            try {
+                if (::session.isInitialized) {
+                    session.disconnect()
+                    isConnected = false
+                    onConnectionStateChanged?.invoke(false)
+                    sendToMainThread("✓ Verbindung zum Server getrennt")
+                }
+            } catch (e: Exception) {
+                sendToMainThread("⚠️ Fehler beim Trennen der Verbindung: ${e.message}")
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -35,55 +36,100 @@ class BoardActivity : ComponentActivity() {
         diceButton = findViewById(R.id.diceButton)
         val playerName = intent.getStringExtra("playerName") ?: "1"
         playerId = playerName.toIntOrNull() ?: 1
-
         val stompClient = MyStomp { log ->
             println(log)
-        }        // Liste der aktuellen Highlight-Marker für mögliche Felder
+            // In einer vollständigen Implementierung würde man hier ein Log-Fenster einblenden
+        }
+
+        // Liste der aktuellen Highlight-Marker für mögliche Felder
         val nextMoveMarkers = mutableListOf<ImageView>()
-          // Bewegung per Backend-Daten
+
+        // Verbindungsstatus überwachen
+        stompClient.onConnectionStateChanged = { isConnected ->
+            runOnUiThread {
+                // Aktiviere/Deaktiviere UI-Elemente je nach Verbindungsstatus
+                diceButton.isEnabled = isConnected
+
+                // Zeige visuelles Feedback für Verbindungsstatus
+                if (isConnected) {
+                    diceButton.alpha = 1.0f
+                    // Toast.makeText(this, "Verbindung zum Server hergestellt", Toast.LENGTH_SHORT).show()
+                } else {
+                    diceButton.alpha = 0.5f
+                    // Toast.makeText(this, "Verbindung zum Server verloren", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        // Behandlung von Verbindungsfehlern
+        stompClient.onConnectionError = { errorMessage ->
+            runOnUiThread {
+                // In einer vollständigen Implementierung würde ein Dialog angezeigt werden
+                println("🔴 Verbindungsfehler: $errorMessage")
+                // showErrorDialog("Verbindungsfehler", errorMessage)
+            }
+        }
+
+        // Bewegung per Backend-Daten
         stompClient.onMoveReceived = { move ->
             runOnUiThread {
                 try {
-                    // Logging für Debugging
-                    println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.type}, Spieler=${move.playerName}")
-                    
-                    // Ignoriere Move-Nachrichten, die auf Feld 0 zurücksetzen würden,
-                    // wenn wir bereits auf einem anderen Feld sind (außer beim Start)
-                    if (move.fieldIndex == 0 && currentFieldIndex > 0) {
-                        println("⚠️ Ignoriere Zurücksetzen auf Feld 0, da wir bereits auf Feld $currentFieldIndex sind")
+                    // Verbesserte Logging für Debugging mit mehr Details
+                    println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.type}, " +
+                            "Spieler=${move.playerName}, Nächste Felder=${move.nextPossibleFields.joinToString()}")
+
+                    // Nur aktuelle Spieler-Bewegungen berücksichtigen oder allgemeine Updates
+                    if (move.playerId != playerId && move.playerId != -1) {
+                        // Wenn es ein anderer Spieler ist, aktualisieren wir nur dessen Position,
+                        // implementieren wir später für echtes Multiplayer
+                        println("ℹ️ Bewegung eines anderen Spielers (ID=${move.playerId}) - wird später implementiert")
                         return@runOnUiThread
                     }
 
-                // Aktualisiere den aktuellen Index
-                currentFieldIndex = move.fieldIndex
+                    // Aktualisiere den aktuellen Index
+                    val oldFieldIndex = currentFieldIndex
+                    currentFieldIndex = move.fieldIndex
+                    println("🔄 Feldindex aktualisiert: $oldFieldIndex -> ${move.fieldIndex}")
 
-                // Hole die Koordinaten aus BoardData anhand der Field-ID
-                val field = BoardData.board.find { it.index == move.fieldIndex }
-                if (field != null) {
-                    // Bewege Figur zu den X/Y-Koordinaten des Feldes
-                    moveFigureToPosition(field.x, field.y)
-                    // Log für Debugging
-                    println("🚗 Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.type}")
-                    
-                    // Entferne alle bisherigen Highlight-Marker
-                    for (marker in nextMoveMarkers) {
-                        zoomLayout.removeView(marker)
-                    }
-                    nextMoveMarkers.clear()
-                    
-                    // Füge Highlight-Marker für mögliche nächste Felder hinzu
-                    if (move.nextPossibleFields.isNotEmpty()) {
-                        println("🎯 Mögliche nächste Felder: ${move.nextPossibleFields.joinToString()}")
-                        
-                        for (nextFieldIndex in move.nextPossibleFields) {
-                            val nextField = BoardData.board.find { it.index == nextFieldIndex }
-                            if (nextField != null) {
-                                addNextMoveMarker(nextField.x, nextField.y, nextFieldIndex, stompClient, playerName, nextMoveMarkers)
+                    // Hole die Koordinaten aus BoardData anhand der Field-ID
+                    val field = BoardData.board.find { it.index == move.fieldIndex }
+                    if (field != null) {
+                        // Bewege Figur zu den X/Y-Koordinaten des Feldes
+                        moveFigureToPosition(field.x, field.y)
+                        // Log für Debugging
+                        println("🚗 Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.type}")
+
+                        // Entferne alle bisherigen Highlight-Marker
+                        for (marker in nextMoveMarkers) {
+                            zoomLayout.removeView(marker)
+                        }
+                        nextMoveMarkers.clear()
+
+                        // Füge Highlight-Marker für mögliche nächste Felder hinzu
+                        if (move.nextPossibleFields.isNotEmpty()) {
+                            println("🎯 Mögliche nächste Felder: ${move.nextPossibleFields.joinToString()}")
+
+                            // Prüfen ob alle nextPossibleFields im BoardData existieren
+                            val missingFields = move.nextPossibleFields.filter { nextIndex ->
+                                BoardData.board.none { it.index == nextIndex }
+                            }
+
+                            if (missingFields.isNotEmpty()) {
+                                println("⚠️ Warnung: Einige vom Server gesendete nextPossibleFields fehlen im Frontend: $missingFields")
+                            }
+
+                            for (nextFieldIndex in move.nextPossibleFields) {
+                                val nextField = BoardData.board.find { it.index == nextFieldIndex }
+                                if (nextField != null) {
+                                    addNextMoveMarker(nextField.x, nextField.y, nextFieldIndex, stompClient, playerName, nextMoveMarkers)
+                                }
                             }
                         }
-                    }                } else {
-                    println("❌ Fehler: Feld mit ID ${move.fieldIndex} nicht gefunden in BoardData")
-                }
+                    } else {
+                        println("❌ Fehler: Feld mit ID ${move.fieldIndex} nicht gefunden in BoardData")
+                        // Versuche, mehr Debugging-Informationen zu sammeln
+                        println("📊 Verfügbare Felder im Frontend: ${BoardData.board.map { it.index }.sorted()}")
+                    }
                 } catch (e: Exception) {
                     println("❌❌❌ Unerwarteter Fehler bei der Bewegungsverarbeitung: ${e.message}")
                     e.printStackTrace()
@@ -97,25 +143,19 @@ class BoardActivity : ComponentActivity() {
         // Zeige den Start-Auswahl-Dialog
         showStartChoiceDialog(playerName, stompClient)
 
-        // 🎲 Button: würfeln und Bewegung anstoßen (für Test immer 1 Feld)
+        // 🎲 Button: würfeln und Bewegung über Backend steuern lassen
         diceButton.setOnClickListener {
-            // Erhöhe den Field-Index für Testzwecke und bewege die Figur direkt
-            if (currentFieldIndex < BoardData.board.size - 1) {
-                currentFieldIndex++
-            } else {
-                // Wenn wir am Ende des Boards sind, gehe zurück zum Start
-                currentFieldIndex = 1
-            }
+            // Zufällige Würfelzahl zwischen 1-6 generieren
+            val diceRoll = (1..6).random()
 
-            // Bewege Figur direkt zum nächsten Feld (ohne auf Backend zu warten)
-            val nextField = BoardData.board.find { it.index == currentFieldIndex }
-            if (nextField != null) {
-                moveFigureToPosition(nextField.x, nextField.y)
-                println("🚗 [TEST] Figur direkt bewegt zu Feld $currentFieldIndex")
-            }
+            println("🎲 Gewürfelt: $diceRoll")
 
-            // Sende auch an Backend mit aktuellem Index
-            stompClient.sendRealMove(playerName, 1, currentFieldIndex)
+            // Sende die Würfelzahl an das Backend und überlasse ihm die Bewegungsberechnung
+            // Wir geben den aktuellen Index mit, damit der Server weiß, wo wir sind
+            stompClient.sendRealMove(playerName, diceRoll, currentFieldIndex)
+
+            // Die tatsächliche Bewegung erfolgt erst, wenn wir die Antwort vom Server bekommen
+            // Dies geschieht über den onMoveReceived Callback, der bereits oben definiert wurde
         }
     }
 
@@ -156,24 +196,24 @@ class BoardActivity : ComponentActivity() {
         boardImage.post {
             val marker = ImageView(this)
             marker.setImageResource(R.drawable.move_indicator) // Füge ein passendes Bild-Asset hinzu
-            
+
             // Berechne die Position relativ zum Spielbrett
             val x = xPercent * boardImage.width
             val y = yPercent * boardImage.height
-            
+
             // Setze Größe und Position des Markers
             val size = resources.getDimensionPixelSize(R.dimen.marker_size) // Definiere eine angemessene Größe
             val params = android.widget.FrameLayout.LayoutParams(size, size)
             marker.layoutParams = params
-            
+
             // Position setzen (zentriert auf dem Feld)
             marker.x = x - size / 2f
             marker.y = y - size / 2f
-            
+
             // Marker zum Layout hinzufügen
             zoomLayout.addView(marker)
             markers.add(marker)
-            
+
             // Marker anklickbar machen für direkte Bewegung
             marker.setOnClickListener {
                 stompClient.sendMove(playerName, "move:$fieldIndex")
@@ -192,19 +232,54 @@ class BoardActivity : ComponentActivity() {
 
     /**
      * Zeigt einen Dialog zur Auswahl des Startpunktes (normal oder Uni)
-     */    private fun showStartChoiceDialog(playerName: String, stompClient: MyStomp) {
+     */
+    private fun showStartChoiceDialog(playerName: String, stompClient: MyStomp) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_start_choice, null)
         val dialog = android.app.AlertDialog.Builder(this)
             .setView(dialogView)
             .setCancelable(false) // Verhindern, dass der Dialog geschlossen wird
             .create()
 
+        // Statustext für Verbindungsinformation
+        val statusText = dialogView.findViewById<TextView>(R.id.tvStatus)
+        statusText?.text = "Verbinde zum Server..."
+
+        // Buttons im Dialog anfangs deaktivieren, bis Verbindung steht
+        val normalButton = dialogView.findViewById<Button>(R.id.btnStartNormal)
+        val uniButton = dialogView.findViewById<Button>(R.id.btnStartUni)
+
+        normalButton.isEnabled = false
+        uniButton.isEnabled = false
+
+        // Verbindungsstatusbehandlung aktualisieren
+        stompClient.onConnectionStateChanged = { isConnected ->
+            runOnUiThread {
+                if (isConnected) {
+                    statusText?.text = "Verbunden! Wähle deinen Startpunkt."
+                    normalButton.isEnabled = true
+                    uniButton.isEnabled = true
+
+                    // Würfelbutton aktivieren
+                    diceButton.isEnabled = true
+                    diceButton.alpha = 1.0f
+                } else {
+                    statusText?.text = "Verbindung zum Server verloren. Versuche erneut zu verbinden..."
+                    normalButton.isEnabled = false
+                    uniButton.isEnabled = false
+
+                    // Würfelbutton deaktivieren
+                    diceButton.isEnabled = false
+                    diceButton.alpha = 0.5f
+                }
+            }
+        }
+
         // Normal-Start Button
-        dialogView.findViewById<android.widget.Button>(R.id.btnStartNormal).setOnClickListener {
+        normalButton.setOnClickListener {
             try {
                 println("🎮 Normal-Start Button geklickt")
                 // Starte am normalen Startfeld (Index 0)
-                val startFieldIndex = 1
+                val startFieldIndex = 1 // Jetzt korrekt Index 0 für den Start
                 currentFieldIndex = startFieldIndex
 
                 // Bewege Figur zum Startfeld
@@ -212,8 +287,11 @@ class BoardActivity : ComponentActivity() {
                 if (startField != null) {
                     moveFigureToPosition(startField.x, startField.y)
                     println("🎮 Figur zum Startfeld bewegt: (${startField.x}, ${startField.y})")
-                }                // Sende Start-Nachricht an Backend
+                }
 
+                // Sende Start-Nachricht an Backend
+                stompClient.sendMove(playerName, "join:$startFieldIndex")
+                println("🎮 Sende join:$startFieldIndex an Backend")
 
                 // Schließe den Dialog
                 dialog.dismiss()
@@ -224,12 +302,14 @@ class BoardActivity : ComponentActivity() {
                 // Dialog trotzdem schließen, damit der Benutzer nicht feststeckt
                 dialog.dismiss()
             }
-        }        // Uni-Start Button
-        dialogView.findViewById<android.widget.Button>(R.id.btnStartUni).setOnClickListener {
+        }
+
+        // Uni-Start Button
+        uniButton.setOnClickListener {
             try {
                 println("🎓 Uni-Start Button geklickt")
-                // Starte am Uni-Startfeld (Index 17)
-                val startFieldIndex = 17
+                // Starte am Uni-Startfeld (Index 18)
+                val startFieldIndex = 18
                 currentFieldIndex = startFieldIndex
 
                 // Bewege Figur zum Uni-Startfeld
@@ -237,9 +317,11 @@ class BoardActivity : ComponentActivity() {
                 if (startField != null) {
                     moveFigureToPosition(startField.x, startField.y)
                     println("🎓 Figur zum Uni-Startfeld bewegt: (${startField.x}, ${startField.y})")
-                }                // Sende Start-Nachricht an Backend
-                println("🎓 Sende join:$startFieldIndex an Backend")
+                }
 
+                // Sende Start-Nachricht an Backend
+                stompClient.sendMove(playerName, "join:$startFieldIndex")
+                println("🎓 Sende join:$startFieldIndex an Backend")
 
                 // Schließe den Dialog
                 dialog.dismiss()
@@ -255,6 +337,7 @@ class BoardActivity : ComponentActivity() {
         // Dialog anzeigen
         dialog.show()
     }
+
     /**
      * Zeigt einen Fehlerdialog mit Titel und Nachricht an.
      */
@@ -289,7 +372,7 @@ class BoardActivity : ComponentActivity() {
         // Stelle den Feld-Index wieder her
         currentFieldIndex = savedInstanceState.getInt("currentFieldIndex", 0)
         println("📂 Activity-Zustand wiederhergestellt, currentFieldIndex=$currentFieldIndex")
-        
+
         // Figur zur gespeicherten Position bewegen
         val field = BoardData.board.find { it.index == currentFieldIndex }
         if (field != null) {
