@@ -161,6 +161,8 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.compose.ui:ui:1.7.0")
     implementation("androidx.compose.ui:ui-viewbinding:1.7.0")
+    implementation("org.hildan.krossbow:krossbow-stomp-core:4.6.0")
+    implementation("org.hildan.krossbow:krossbow-websocket-okhttp:4.6.0")
 
 
 

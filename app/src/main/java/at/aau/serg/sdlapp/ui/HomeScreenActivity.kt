@@ -27,11 +27,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.sdlapp.network.MyStomp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class HomeScreenActivity : ComponentActivity() {
     private lateinit var stomp: MyStomp
     private lateinit var playerName: String
+    private val scope = CoroutineScope(Dispatchers.IO)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +52,7 @@ class HomeScreenActivity : ComponentActivity() {
     @Composable
     fun HomeScreen() {
         var showTextField by remember { mutableStateOf(false) }
-        var inputLobbyId by remember { mutableStateOf("") }
+        var lobbyId by remember { mutableStateOf("") }
 
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -74,11 +79,16 @@ class HomeScreenActivity : ComponentActivity() {
             }
             Button(
                 onClick = {
-                    //TODO: jump to newly created lobby and tell backend to create lobby
-                    //also get lobby id from backend
-                    //startLobbyScreen() add lobbyid
-
-
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val newLobbyId = withContext(Dispatchers.IO) {
+                            stomp.sendLobbyCreate(playerName)
+                        }
+                        // Direkt danach neue Activity starten
+                        val intent = Intent(this@HomeScreenActivity, LobbyActivity::class.java)
+                        intent.putExtra("lobbyID", newLobbyId)
+                        intent.putExtra("player", playerName)
+                        startActivity(intent)
+                    }
                 },
                 modifier = Modifier
                     .padding(8.dp)
@@ -97,9 +107,17 @@ class HomeScreenActivity : ComponentActivity() {
                 Text("Lobby beitreten")
             }
             if (showTextField) {
-                inputLobbyId = inputLobbyID()
                 //TODO: add call to LobbyScreen, add communication to backend that player joined
-                StartLobbyScreen(inputLobbyId)
+
+                lobbyId = inputLobbyID()
+                CoroutineScope(Dispatchers.Main).launch {
+                    stomp.sendLobbyJoin(playerName, lobbyId)
+                    // Direkt danach neue Activity starten
+                    val intent = Intent(this@HomeScreenActivity, LobbyActivity::class.java)
+                    intent.putExtra("lobbyID", lobbyId)
+                    intent.putExtra("player", playerName)
+                    startActivity(intent)
+                }
             }
         }
     }
@@ -133,7 +151,7 @@ class HomeScreenActivity : ComponentActivity() {
 
     //function to switch to lobby screen, using lobby id as parameter
     @Composable
-    fun StartLobbyScreen(lobbyid: String) {
+    fun StartLobbyScreen(lobbyid: String?) {
         val context = LocalContext.current
         Intent(context, LobbyActivity::class.java).apply {
             intent.putExtra("Lobby-ID", lobbyid)
