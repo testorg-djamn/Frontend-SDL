@@ -20,22 +20,14 @@
             android:id="@+id/boardContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent">
-
-            <ImageView
+            android:background="@android:color/transparent">            <ImageView
                 android:id="@+id/boardImag"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY"
                 android:src="@drawable/board10" />
-
-            <ImageView
-                android:id="@+id/playerImageView"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/blackcar"
-                android:translationZ="10dp"
-                android:alpha="1" />
+            
+            <!-- Spielfiguren werden dynamisch hinzugefügt -->
         </FrameLayout>
     </com.otaliastudios.zoom.ZoomLayout>
 

@@ -3,6 +3,7 @@ package at.aau.serg.sdlapp.ui
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -12,18 +13,26 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.board.BoardData
+import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.MoveMessage
 import at.aau.serg.sdlapp.network.MyStomp
 import com.otaliastudios.zoom.ZoomLayout
 
 class BoardActivity : ComponentActivity() {
-
     private var playerId = 1
-    private lateinit var figure: ImageView
     private lateinit var boardImage: ImageView
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
     private var currentFieldIndex = 0  // Speichert den aktuellen Field-Index für Testzwecke
+
+    // Map für alle Spielerfiguren: playerId -> ImageView
+    private val playerFigures = mutableMapOf<Int, ImageView>()
+
+    // Liste der aktuellen Highlight-Marker für mögliche Felder
+    private val nextMoveMarkers = mutableListOf<ImageView>()
+
+    // PlayerManager zur Verwaltung aller Spieler
+    private lateinit var playerManager: PlayerManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,17 +41,25 @@ class BoardActivity : ComponentActivity() {
 
         zoomLayout = findViewById(R.id.zoomLayout)
         boardImage = findViewById(R.id.boardImag)
-        figure = findViewById(R.id.playerImageView)
         diceButton = findViewById(R.id.diceButton)
         val playerName = intent.getStringExtra("playerName") ?: "1"
         playerId = playerName.toIntOrNull() ?: 1
+
+        // Player Manager initialisieren
+        playerManager = PlayerManager()
+        playerManager.setLocalPlayer(playerId)
+
+        // Lokaler Spieler wird später automatisch erstellt, wenn er benötigt wird
+        val localPlayer = playerManager.getLocalPlayer()
+        if (localPlayer != null) {
+            // Spielfigur wird beim ersten Zugriff erstellt
+            println("🎮 Lokaler Spieler initialisiert: ID=${localPlayer.id}, Farbe=${localPlayer.color}")
+        }
+
         val stompClient = MyStomp { log ->
             println(log)
             // In einer vollständigen Implementierung würde man hier ein Log-Fenster einblenden
         }
-
-        // Liste der aktuellen Highlight-Marker für mögliche Felder
-        val nextMoveMarkers = mutableListOf<ImageView>()
 
         // Verbindungsstatus überwachen
         stompClient.onConnectionStateChanged = { isConnected ->
@@ -66,7 +83,7 @@ class BoardActivity : ComponentActivity() {
             runOnUiThread {
                 // In einer vollständigen Implementierung würde ein Dialog angezeigt werden
                 println("🔴 Verbindungsfehler: $errorMessage")
-                // showErrorDialog("Verbindungsfehler", errorMessage)
+                showErrorDialog("Verbindungsfehler", errorMessage)
             }
         }
 
@@ -76,59 +93,66 @@ class BoardActivity : ComponentActivity() {
                 try {
                     // Verbesserte Logging für Debugging mit mehr Details
                     println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.type}, " +
-                            "Spieler=${move.playerName}, Nächste Felder=${move.nextPossibleFields.joinToString()}")
+                            "Spieler=${move.playerName} (ID=${move.playerId}), Nächste Felder=${move.nextPossibleFields.joinToString()}")
 
-                    // Nur aktuelle Spieler-Bewegungen berücksichtigen oder allgemeine Updates
-                    if (move.playerId != playerId && move.playerId != -1) {
-                        // Wenn es ein anderer Spieler ist, aktualisieren wir nur dessen Position,
-                        // implementieren wir später für echtes Multiplayer
-                        println("ℹ️ Bewegung eines anderen Spielers (ID=${move.playerId}) - wird später implementiert")
-                        return@runOnUiThread
-                    }
-
-                    // Aktualisiere den aktuellen Index
-                    val oldFieldIndex = currentFieldIndex
-                    currentFieldIndex = move.fieldIndex
-                    println("🔄 Feldindex aktualisiert: $oldFieldIndex -> ${move.fieldIndex}")
-
-                    // Hole die Koordinaten aus BoardData anhand der Field-ID
-                    val field = BoardData.board.find { it.index == move.fieldIndex }
-                    if (field != null) {
-                        // Bewege Figur zu den X/Y-Koordinaten des Feldes
-                        moveFigureToPosition(field.x, field.y)
-                        // Log für Debugging
-                        println("🚗 Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.type}")
-
-                        // Entferne alle bisherigen Highlight-Marker
-                        for (marker in nextMoveMarkers) {
-                            zoomLayout.removeView(marker)
+                    // Den Spielerzug im PlayerManager aktualisieren
+                    val movePlayerId = move.playerId
+                    if (movePlayerId != -1) {
+                        // Stelle sicher, dass der Spieler im PlayerManager existiert
+                        if (playerManager.getPlayer(movePlayerId) == null) {
+                            playerManager.addPlayer(movePlayerId, "Spieler ${movePlayerId}")
+                            println("👤 Neuer Spieler hinzugefügt: ID=${movePlayerId}")
                         }
-                        nextMoveMarkers.clear()
 
-                        // Füge Highlight-Marker für mögliche nächste Felder hinzu
-                        if (move.nextPossibleFields.isNotEmpty()) {
-                            println("🎯 Mögliche nächste Felder: ${move.nextPossibleFields.joinToString()}")
+                        // Aktualisiere die Position des Spielers
+                        playerManager.updatePlayerPosition(movePlayerId, move.fieldIndex)
 
-                            // Prüfen ob alle nextPossibleFields im BoardData existieren
-                            val missingFields = move.nextPossibleFields.filter { nextIndex ->
-                                BoardData.board.none { it.index == nextIndex }
+                        // Wenn es der lokale Spieler ist, aktualisiere currentFieldIndex
+                        if (movePlayerId == playerId) {
+                            val oldFieldIndex = currentFieldIndex
+                            currentFieldIndex = move.fieldIndex
+                            println("🔄 Lokaler Feldindex aktualisiert: $oldFieldIndex -> ${move.fieldIndex}")
+                        }
+
+                        // Hole die Koordinaten aus BoardData anhand der Field-ID
+                        val field = BoardData.board.find { it.index == move.fieldIndex }
+                        if (field != null) {
+                            // Bewege Figur zu den X/Y-Koordinaten des Feldes
+                            moveFigureToPosition(field.x, field.y, movePlayerId)
+                            // Log für Debugging
+                            println("🚗 Figur von Spieler $movePlayerId bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.type}")
+
+                            // Entferne alle bisherigen Highlight-Marker
+                            for (marker in nextMoveMarkers) {
+                                zoomLayout.removeView(marker)
                             }
+                            nextMoveMarkers.clear()
 
-                            if (missingFields.isNotEmpty()) {
-                                println("⚠️ Warnung: Einige vom Server gesendete nextPossibleFields fehlen im Frontend: $missingFields")
-                            }
+                            // Füge Highlight-Marker für mögliche nächste Felder hinzu
+                            if (move.nextPossibleFields.isNotEmpty()) {
+                                println("🎯 Mögliche nächste Felder: ${move.nextPossibleFields.joinToString()}")
 
-                            for (nextFieldIndex in move.nextPossibleFields) {
-                                val nextField = BoardData.board.find { it.index == nextFieldIndex }
-                                if (nextField != null) {
-                                    addNextMoveMarker(nextField.x, nextField.y, nextFieldIndex, stompClient, playerName, nextMoveMarkers)
+                                // Prüfen ob alle nextPossibleFields im BoardData existieren
+                                val missingFields = move.nextPossibleFields.filter { nextIndex ->
+                                    BoardData.board.none { it.index == nextIndex }
+                                }
+
+                                if (missingFields.isNotEmpty()) {
+                                    println("⚠️ Warnung: Einige vom Server gesendete nextPossibleFields fehlen im Frontend: $missingFields")
+                                }
+
+                                for (nextFieldIndex in move.nextPossibleFields) {
+                                    val nextField = BoardData.board.find { it.index == nextFieldIndex }
+                                    if (nextField != null) {
+                                        addNextMoveMarker(nextField.x, nextField.y, nextFieldIndex, stompClient, playerName, nextMoveMarkers)
+                                    }
                                 }
                             }
+                        } else {
+                            println("❌ Fehler: Feld mit ID ${move.fieldIndex} nicht gefunden in BoardData")
+                            // Versuche, mehr Debugging-Informationen zu sammeln
+                            println("📊 Verfügbare Felder im Frontend: ${BoardData.board.map { it.index }.sorted()}")
                         }
-                    } else {
-                        println("❌ Fehler: Feld mit ID ${move.fieldIndex} nicht gefunden in BoardData")
-                        // Versuche, mehr Debugging-Informationen zu sammeln
-                        println("📊 Verfügbare Felder im Frontend: ${BoardData.board.map { it.index }.sorted()}")
                     }
                 } catch (e: Exception) {
                     println("❌❌❌ Unerwarteter Fehler bei der Bewegungsverarbeitung: ${e.message}")
@@ -159,34 +183,91 @@ class BoardActivity : ComponentActivity() {
         }
     }
 
-    private fun moveFigureToPosition(xPercent: Float, yPercent: Float) {
+    private fun moveFigureToPosition(xPercent: Float, yPercent: Float, playerId: Int = this.playerId) {
         boardImage.post {
             // Berechne die Position relativ zum Spielbrett
             val x = xPercent * boardImage.width
             val y = yPercent * boardImage.height
 
             // Debug-Ausgabe
-            println("🚗 Bewege Figur zu Position: $xPercent, $yPercent -> ${x}px, ${y}px")
+            println("🚗 Bewege Figur von Spieler $playerId zu Position: $xPercent, $yPercent -> ${x}px, ${y}px")
+
+            // Hole die entsprechende Spielfigur aus der Map
+            val playerFigure = getOrCreatePlayerFigure(playerId)
 
             // Beende laufende Animationen und setze absolute Position
-            figure.clearAnimation()
+            playerFigure.clearAnimation()
 
             // Zentriere die Figur auf dem Feld
-            val targetX = x - figure.width / 2f
-            val targetY = y - figure.height / 2f
+            val targetX = x - playerFigure.width / 2f
+            val targetY = y - playerFigure.height / 2f
 
             // Bewege die Figur mit Animation
-            figure.animate()
+            playerFigure.animate()
                 .x(targetX)
                 .y(targetY)
                 .setDuration(800)  // Schnellere Animation
                 .withEndAction {
                     // Setze absolute Position nach Animation, um sicherzustellen, dass die Figur am richtigen Ort bleibt
-                    figure.x = targetX
-                    figure.y = targetY
+                    playerFigure.x = targetX
+                    playerFigure.y = targetY
                 }
                 .start()
         }
+    }
+
+    /**
+     * Holt die Spielfigur für die angegebene Spieler-ID oder erstellt eine neue, wenn sie nicht existiert
+     */
+    private fun getOrCreatePlayerFigure(playerId: Int): ImageView {
+        // Prüfen, ob die Figur bereits existiert
+        if (!playerFigures.containsKey(playerId)) {
+            // Erstelle eine neue Spielfigur
+            val newPlayerFigure = ImageView(this).apply {
+                layoutParams = FrameLayout.LayoutParams(
+                    resources.getDimensionPixelSize(R.dimen.player_figure_size),
+                    resources.getDimensionPixelSize(R.dimen.player_figure_size)
+                )
+
+                // Setze das richtige Auto-Bild basierend auf der Spieler-ID
+                val player = playerManager.getPlayer(playerId) ?:
+                playerManager.addPlayer(playerId, "Spieler $playerId")
+
+                setImageResource(player.getCarImageResource())
+
+                // Setze die Z-Achse höher als das Brett
+                translationZ = 10f
+
+                // Markiere den lokalen Spieler besonders
+                if (playerManager.isLocalPlayer(playerId)) {
+                    // Hervorheben des eigenen Spielers
+                    alpha = 1.0f
+
+                    // Optional: Füge hier eine Kennzeichnung hinzu, z.B. einen Rahmen oder ein Badge
+                    // Für eine einfache Implementierung kann ein leichter Schatten hinzugefügt werden
+                    elevation = 8f
+                } else {
+                    alpha = 0.9f
+                }
+
+                // Zeige eine Tooltip beim Klicken auf die Figur
+                setOnClickListener {
+                    val playerInfo = playerManager.getPlayer(playerId)
+                    val message = "Spieler ${playerInfo?.id} (${playerInfo?.color})"
+                    android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // Füge die neue Figur zum Layout hinzu
+            findViewById<FrameLayout>(R.id.boardContainer).addView(newPlayerFigure)
+
+            // Speichere die Figur in der Map
+            playerFigures[playerId] = newPlayerFigure
+
+            println("🎮 Neue Spielfigur für Spieler $playerId erstellt")
+        }
+
+        return playerFigures[playerId]!!
     }
 
     /**
@@ -203,7 +284,7 @@ class BoardActivity : ComponentActivity() {
 
             // Setze Größe und Position des Markers
             val size = resources.getDimensionPixelSize(R.dimen.marker_size) // Definiere eine angemessene Größe
-            val params = android.widget.FrameLayout.LayoutParams(size, size)
+            val params = FrameLayout.LayoutParams(size, size)
             marker.layoutParams = params
 
             // Position setzen (zentriert auf dem Feld)
@@ -278,14 +359,17 @@ class BoardActivity : ComponentActivity() {
         normalButton.setOnClickListener {
             try {
                 println("🎮 Normal-Start Button geklickt")
-                // Starte am normalen Startfeld (Index 0)
-                val startFieldIndex = 1 // Jetzt korrekt Index 0 für den Start
+                // Starte am normalen Startfeld (Index 1)
+                val startFieldIndex = 1
                 currentFieldIndex = startFieldIndex
+
+                // Aktualisiere lokalen Spieler im PlayerManager
+                playerManager.updatePlayerPosition(playerId, startFieldIndex)
 
                 // Bewege Figur zum Startfeld
                 val startField = BoardData.board.find { it.index == startFieldIndex }
                 if (startField != null) {
-                    moveFigureToPosition(startField.x, startField.y)
+                    moveFigureToPosition(startField.x, startField.y, playerId)
                     println("🎮 Figur zum Startfeld bewegt: (${startField.x}, ${startField.y})")
                 }
 
@@ -312,10 +396,13 @@ class BoardActivity : ComponentActivity() {
                 val startFieldIndex = 18
                 currentFieldIndex = startFieldIndex
 
+                // Aktualisiere lokalen Spieler im PlayerManager
+                playerManager.updatePlayerPosition(playerId, startFieldIndex)
+
                 // Bewege Figur zum Uni-Startfeld
                 val startField = BoardData.board.find { it.index == startFieldIndex }
                 if (startField != null) {
-                    moveFigureToPosition(startField.x, startField.y)
+                    moveFigureToPosition(startField.x, startField.y, playerId)
                     println("🎓 Figur zum Uni-Startfeld bewegt: (${startField.x}, ${startField.y})")
                 }
 
@@ -376,7 +463,11 @@ class BoardActivity : ComponentActivity() {
         // Figur zur gespeicherten Position bewegen
         val field = BoardData.board.find { it.index == currentFieldIndex }
         if (field != null) {
-            moveFigureToPosition(field.x, field.y)
+            // Lokalen Spieler im PlayerManager aktualisieren
+            playerManager.updatePlayerPosition(playerId, currentFieldIndex)
+
+            // Figur bewegen
+            moveFigureToPosition(field.x, field.y, playerId)
         }
     }
 
@@ -387,16 +478,16 @@ class BoardActivity : ComponentActivity() {
             boardImage.post {
                 println("🚗 BoardActivity: Fenster hat Fokus bekommen")
 
-                // Setze die Figur initial auf eine Standardposition, um sicherzustellen, dass sie sichtbar ist
-                figure.x = 0f
-                figure.y = 0f
-                figure.visibility = android.view.View.VISIBLE
-
                 // Falls currentFieldIndex bereits gesetzt ist, positioniere die Figur korrekt
                 val field = BoardData.board.find { it.index == currentFieldIndex }
                 if (field != null) {
                     println("🚗 Initiale Positionierung auf Feld $currentFieldIndex")
-                    moveFigureToPosition(field.x, field.y)
+
+                    // Lokalen Spieler aktualisieren
+                    playerManager.updatePlayerPosition(playerId, currentFieldIndex)
+
+                    // Spielfigur bewegen
+                    moveFigureToPosition(field.x, field.y, playerId)
                 }
             }
         }
