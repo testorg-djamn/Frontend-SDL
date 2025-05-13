@@ -19,23 +19,48 @@ class MyStomp(private val callback: (String) -> Unit) {
     private lateinit var session: StompSession
     private val scope = CoroutineScope(Dispatchers.IO)
     private val gson = Gson()
-
+    private val client = StompClient(OkHttpWebSocketClient())
+    
+    // Callback für empfangene Bewegungen
+    var onMoveReceived: ((MoveMessage) -> Unit)? = null
     fun connect() {
-        val client = StompClient(OkHttpWebSocketClient())
         scope.launch {
             try {
                 session = client.connect(WEBSOCKET_URI)
 
                 sendToMainThread("✅ Verbunden mit Server")
-
                 session.subscribeText("/topic/game").collect { msg ->
-                    val output = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+                    try {
+                        // Versuche zuerst, es als MoveMessage zu parsen
+                        val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
+                        if (moveMessage.fieldIndex >= 0) {
+                            // Es ist eine MoveMessage
+                            sendToMainThread("🚗 Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
+                            // Callback aufrufen, wenn einer registriert ist
+                            onMoveReceived?.invoke(moveMessage)
+                        } else {
+                            // Wenn es keine MoveMessage ist, versuche es als OutputMessage
+                            val output = gson.fromJson(msg, OutputMessage::class.java)
+                            sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+                        }
+                    } catch (e: Exception) {
+                        // Fallback: als OutputMessage verarbeiten
+                        try {
+                            val output = gson.fromJson(msg, OutputMessage::class.java)
+                            sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+                        } catch (innerEx: Exception) {
+                            sendToMainThread("❌ Fehler beim Verarbeiten der Nachricht: ${e.message}")
+                        }
+                    }
                 }
 
                 session.subscribeText("/topic/chat").collect { msg ->
-                    val output = gson.fromJson(msg, OutputMessage::class.java)
-                    sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
+                    try {
+                        val output = gson.fromJson(msg, OutputMessage::class.java)
+                        sendToMainThread("💬 ${output.playerName}: ${output.content} (${output.timestamp})")
+                    } catch (e: Exception) {
+                        sendToMainThread("❌ Fehler beim Verarbeiten der Chat-Nachricht: ${e.message}")
+                    }
                 }
 
             } catch (e: Exception) {
@@ -59,19 +84,19 @@ class MyStomp(private val callback: (String) -> Unit) {
                 sendToMainThread("❌ Fehler beim Senden (move): ${e.message}")
             }
         }
-    }
-
-    fun sendRealMove(player: String, dice: Int){
+    }    fun sendRealMove(player: String, dice: Int, currentFieldIndex: Int = -1){
         if(!::session.isInitialized){
             callback("❌ Fehler: Verbindung nicht aktiv!")
             return
         }
-        val message = StompMessage(playerName = player, action = "$dice gewürfelt")
+        // Sende den aktuellen Index mit, damit das Backend weiß, von wo aus zu bewegen
+        val moveInfo = if(currentFieldIndex >= 0) "$dice gewürfelt:$currentFieldIndex" else "$dice gewürfelt"
+        val message = StompMessage(playerName = player, action = moveInfo)
         val json = gson.toJson(message)
         scope.launch {
             try {
                 session.sendText("/app/move", json)
-                callback("✅ Spielzug gesendet")
+                callback("✅ Spielzug gesendet (von Feld $currentFieldIndex)")
             } catch (e: Exception){
                 callback("❌ Fehler beim Senden (move): ${e.message}")
             }
