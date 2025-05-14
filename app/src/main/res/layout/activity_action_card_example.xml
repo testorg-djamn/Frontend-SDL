@@ -41,7 +41,7 @@
         android:layout_height="55dp"
         android:layout_marginBottom="104dp"
         android:text="A. Adoptiere einen pelzigen Freund und stecke einen Stift in dein Auto."
-        android:backgroundTint="#FF5722"
+        android:backgroundTint="@color/action_card_orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
