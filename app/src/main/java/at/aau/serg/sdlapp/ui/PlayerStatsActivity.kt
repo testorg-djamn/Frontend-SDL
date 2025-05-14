@@ -52,6 +52,8 @@ class PlayerStatsActivity : ComponentActivity() {
     fun playerStatsPreview(){
         StatsScreenWithCloseButton(1)
     }
+
+
 }
 
 
