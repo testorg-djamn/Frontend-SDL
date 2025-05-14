@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.model
+package at.aau.serg.sdlapp.model.game
 
 data class ActionCard (
     val headline : String,

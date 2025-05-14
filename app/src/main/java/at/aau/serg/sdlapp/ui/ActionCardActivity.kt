@@ -8,8 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.network.MyStomp
-import at.aau.serg.sdlapp.model.ActionCard
+import at.aau.serg.sdlapp.model.game.ActionCard
 import com.google.gson.Gson
+
 
 class ActionCardActivity : ComponentActivity(){
 

@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.model
+package at.aau.serg.sdlapp.network
 
 data class OutputMessage(
     val playerName: String,
