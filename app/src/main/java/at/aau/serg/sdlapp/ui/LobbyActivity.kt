@@ -3,6 +3,7 @@ package at.aau.serg.sdlapp.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,6 +38,7 @@ class LobbyActivity : ComponentActivity() {
 
     @Composable
     fun LobbyScreen() {
+        val textColor = if(isSystemInDarkTheme()) Color.White else Color.Black
         val context = LocalContext.current
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -48,7 +50,7 @@ class LobbyActivity : ComponentActivity() {
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = Color.White,
+                color = textColor,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
             )
@@ -56,7 +58,7 @@ class LobbyActivity : ComponentActivity() {
             for (player in players) {
                 Text(
                     text = "Spieler $i: $player",
-                    color = Color.White,
+                    color = textColor,
                     modifier = Modifier
                         .padding(bottom = 10.dp))
                 i++

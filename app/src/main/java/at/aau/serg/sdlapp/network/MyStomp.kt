@@ -87,7 +87,6 @@ class MyStomp(private val callback: (String) -> Unit) {
 
             try {
                 val payload = flow.first()
-                Log.d("Debugging", "got response $payload")
                 val json = JSONObject(payload)
                 json.getString("lobbyID")
 
@@ -106,17 +105,18 @@ suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMes
         val json = gson.toJson(joinRequest)
         val destination = "/app/$lobbyID/join"
 
+        val flow = session.subscribeText("/topic/$lobbyID")
+
         session.sendText(destination, json)
         sendToMainThread("Lobby beitreten...")
 
-        val flow = session.subscribeText("/topic/$lobbyID/$playerName")
         suspendCancellableCoroutine { continuation ->
             Log.d("Debugging", "started Coroutine")
             scope.launch {
                 flow.collect { payload ->
                     Log.d("Debugging", "started collecting")
                     val json = JSONObject(payload)
-                    val success = json.getBoolean("isSuccessful")
+                    val success = json.getBoolean("successful")
                     val message = json.getString("message")
                     sendToMainThread(message)
 
