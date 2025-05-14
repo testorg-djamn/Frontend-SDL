@@ -22,9 +22,9 @@
 
     <TextView
         android:id="@+id/headline"
-        android:layout_width="297dp"
+        android:layout_width="320dp"
         android:layout_height="53dp"
-        android:layout_marginTop="128dp"
+        android:layout_marginTop="110dp"
         android:fontFamily="@font/arialroundedmtbold"
         android:gravity="center"
         android:text="Tiere verschönern das Leben!"
@@ -38,19 +38,20 @@
     <Button
         android:id="@+id/button"
         android:layout_width="320dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="104dp"
-        android:text="A. Adoptiere einen pelzigen Freund und stecke einen Stift in dein Auto."
+        android:layout_height="85dp"
+        android:layout_marginBottom="110dp"
         android:backgroundTint="@color/action_card_orange"
+        android:text="A. Adoptiere einen pelzigen Freund und stecke einen Stift in dein Auto."
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/picture"
-        android:layout_width="214dp"
-        android:layout_height="211dp"
-        android:layout_marginTop="24dp"
+        android:layout_width="215dp"
+        android:layout_height="215dp"
+        android:layout_marginTop="25dp"
         android:contentDescription="@string/action_card_image_descr"
         android:src="@drawable/animals_enrich"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,8 +63,8 @@
     <Button
         android:id="@+id/button2"
         android:layout_width="320dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="24dp"
+        android:layout_height="85dp"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="@color/action_card_blue"
         android:text="B. Gründe einen Hundesitter-Firma und
 kassiere von jedem Spieler 20.000."
@@ -74,9 +75,9 @@ kassiere von jedem Spieler 20.000."
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="322dp"
+        android:layout_width="320dp"
         android:layout_height="72dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="25dp"
         android:fontFamily="@font/arialroundedmtbold"
         android:gravity="center"
         android:text="@string/action_card_title"
