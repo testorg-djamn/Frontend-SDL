@@ -67,7 +67,7 @@ class HomeScreenActivity : ComponentActivity() {
             )
             Button(
                 onClick = {
-                    stomp.connect()
+                    stomp.connect(playerName)
                     showToast("Verbindung gestartet")
                 },
                 modifier = Modifier

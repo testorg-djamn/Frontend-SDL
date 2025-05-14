@@ -29,7 +29,7 @@ class JobCardActivity : ComponentActivity() {
         val btnRequestJobs   = findViewById<Button>(R.id.btnRequestJobs)
 
         btnConnect.setOnClickListener {
-            stomp.connect()
+            stomp.connect(playerName)
             showToast("Verbindung gestartet")
         }
 
@@ -41,7 +41,7 @@ class JobCardActivity : ComponentActivity() {
         // Hier kommt dein neuer Listener hin:
         btnRequestJobs.setOnClickListener {
             // 1) Stelle erst die Connection her
-            stomp.connect()
+            stomp.connect(playerName)
             // 2) Abonniere einmalig das Job-Topic und erhalte die Jobs im Callback
             stomp.subscribeJobs(gameId, playerName) { jobs ->
                 // hier UI befüllen oder direkt zur Auswahl-Activity navigieren
