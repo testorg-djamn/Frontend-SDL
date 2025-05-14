@@ -68,4 +68,54 @@ class PlayerManager {
     fun isLocalPlayer(playerId: Int): Boolean {
         return playerId == localPlayerId
     }
+    
+    /**
+     * Aktualisiert die Liste der aktiven Spieler basierend auf der vom Server empfangenen Liste
+     * Entfernt Spieler, die nicht mehr aktiv sind (außer dem lokalen Spieler)
+     * 
+     * @param activePlayerIds Liste der aktiven Spieler-IDs vom Server
+     * @return Liste der entfernten Spieler-IDs
+     */
+    fun syncWithActivePlayersList(activePlayerIds: List<Int>): List<Int> {
+        val currentPlayers = players.keys.toSet()
+        val removedPlayers = mutableListOf<Int>()
+        
+        // Spieler entfernen, die nicht mehr in der Liste sind (außer lokaler Spieler)
+        for (playerId in currentPlayers) {
+            if (!activePlayerIds.contains(playerId) && playerId != localPlayerId) {
+                players.remove(playerId)
+                removedPlayers.add(playerId)
+            }
+        }
+        
+        return removedPlayers
+    }
+    
+    /**
+     * Entfernt einen Spieler aus der Liste
+     */
+    fun removePlayer(playerId: Int): Player? {
+        // Den lokalen Spieler nicht entfernen
+        if (playerId == localPlayerId) {
+            return null
+        }
+        return players.remove(playerId)
+    }
+    
+    /**
+     * Prüft, ob der angegebene Spieler existiert
+     */
+    fun playerExists(playerId: Int): Boolean {
+        return players.containsKey(playerId)
+    }
+    
+    /**
+     * Erstellt eine Zusammenfassung der Spieler für Debug-Zwecke
+     */
+    fun getDebugSummary(): String {
+        return "Spieler (${players.size}): " + 
+               players.values.joinToString(", ") { 
+                   "${it.id}:${it.color}" + (if (it.id == localPlayerId) "*" else "") 
+               }
+    }
 }

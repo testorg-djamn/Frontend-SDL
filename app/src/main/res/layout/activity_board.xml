@@ -29,9 +29,7 @@
             
             <!-- Spielfiguren werden dynamisch hinzugefügt -->
         </FrameLayout>
-    </com.otaliastudios.zoom.ZoomLayout>
-
-    <!-- 🎲 Würfel-Button oben rechts -->
+    </com.otaliastudios.zoom.ZoomLayout>    <!-- 🎲 Würfel-Button oben rechts -->
     <ImageButton
         android:id="@+id/diceButton"
         android:layout_width="64dp"
@@ -42,4 +40,28 @@
         android:src="@drawable/dice"
         android:contentDescription="Würfeln"
         android:scaleType="centerInside" />
+          <!-- 👥 Spielerliste-Button oben links -->
+    <ImageButton
+        android:id="@+id/playersButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="16dp"
+        android:background="@drawable/rounded_white_button"
+        android:src="@drawable/players_icon"
+        android:contentDescription="Spielerliste"
+        android:scaleType="centerInside" />
+        
+    <!-- Statusanzeige für Spieler-Anzahl -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:background="#80000000"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:text="1 Spieler online" />
 </FrameLayout>
