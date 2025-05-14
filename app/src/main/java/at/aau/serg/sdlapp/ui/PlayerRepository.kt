@@ -23,20 +23,19 @@ object PlayerRepository {
         }
     }
 
-    suspend fun fetchPlayerById(id: Int): PlayerModell {
+    suspend fun fetchAllPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
-            val url = URL("$BASE_URL/$id")
+            val url = URL(BASE_URL)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-
             connection.inputStream.bufferedReader().use {
                 Json.decodeFromString(it.readText())
             }
         }
     }
 
-    suspend fun createPlayer(player: PlayerModell) {
-        withContext(Dispatchers.IO) {
+    suspend fun createPlayer(player: PlayerModell): PlayerModell {
+        return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
@@ -49,8 +48,13 @@ object PlayerRepository {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 throw RuntimeException("Fehler beim Erstellen des Spielers: ${connection.responseMessage}")
             }
+
+            connection.inputStream.bufferedReader().use {
+                Json.decodeFromString(it.readText())
+            }
         }
     }
+
 
     suspend fun marryPlayer(playerId: Int) {
         makePutRequest("$BASE_URL/$playerId/marry")
@@ -74,5 +78,22 @@ object PlayerRepository {
             }
         }
     }
+
+    suspend fun fetchPlayerById(id: Int): PlayerModell {
+        return withContext(Dispatchers.IO) {
+            val url = URL("$BASE_URL/$id")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                throw RuntimeException("Fehler beim Abrufen des Spielers mit ID $id: ${connection.responseMessage}")
+            }
+
+            connection.inputStream.bufferedReader().use {
+                Json.decodeFromString(it.readText())
+            }
+        }
+    }
+
 
 }
