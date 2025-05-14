@@ -91,4 +91,18 @@ fun PlayerStatsOverlayScreen(
         CircularProgressIndicator()
     }
 
+    @Composable
+    fun AllPlayerStatsScreen(viewModel: PlayerViewModel = viewModel()) {
+        LaunchedEffect(Unit) {
+            viewModel.loadAllPlayers()
+        }
+
+        Column {
+            viewModel.allPlayers.forEach { player ->
+                PlayerStatsOverlay(player = player)
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+
 }

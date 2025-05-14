@@ -12,17 +12,17 @@ object PlayerRepository {
 
     private const val BASE_URL = "http://192.168.178.38:8080/players"
 
-    suspend fun fetchPlayers(): List<PlayerModell> {
+    suspend fun fetchAllPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-
             connection.inputStream.bufferedReader().use {
                 Json.decodeFromString(it.readText())
             }
         }
     }
+
 
     suspend fun fetchPlayerById(id: Int): PlayerModell {
         return withContext(Dispatchers.IO) {
@@ -36,8 +36,8 @@ object PlayerRepository {
         }
     }
 
-    suspend fun createPlayer(player: PlayerModell) {
-        withContext(Dispatchers.IO) {
+    suspend fun createPlayer(player: PlayerModell): PlayerModell {
+        return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
@@ -50,8 +50,13 @@ object PlayerRepository {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 throw RuntimeException("Fehler beim Erstellen des Spielers: ${connection.responseMessage}")
             }
+
+            connection.inputStream.bufferedReader().use {
+                Json.decodeFromString(it.readText())
+            }
         }
     }
+
 
     suspend fun marryPlayer(playerId: Int) {
         makePutRequest("$BASE_URL/$playerId/marry")
