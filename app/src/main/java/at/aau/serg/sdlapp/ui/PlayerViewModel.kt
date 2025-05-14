@@ -27,4 +27,17 @@ class PlayerViewModel : ViewModel() {
     fun refresh(id: Int) {
         loadPlayer(id)
     }
+    var allPlayers by mutableStateOf<List<PlayerModell>>(emptyList())
+        private set
+
+    fun loadAllPlayers() {
+        viewModelScope.launch {
+            try {
+                allPlayers = PlayerRepository.fetchAllPlayers()
+            } catch (e: Exception) {
+                println("Fehler beim Laden aller Spieler: ${e.message}")
+            }
+        }
+    }
+
 }
