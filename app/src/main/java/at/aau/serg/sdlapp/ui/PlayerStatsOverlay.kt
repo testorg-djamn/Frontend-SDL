@@ -72,7 +72,7 @@ fun StatusIcon(emoji: String, value: String) {
 
 @Composable
 fun PlayerStatsOverlayScreen(
-    playerId: Int,
+    playerId: String,
     viewModel: PlayerViewModel = viewModel()
 ) {
     LaunchedEffect(playerId) {

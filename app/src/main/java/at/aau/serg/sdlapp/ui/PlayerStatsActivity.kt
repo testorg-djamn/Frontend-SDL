@@ -11,12 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+
 class PlayerStatsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val playerId = intent.getIntExtra("playerId", 1)
+        val playerId = intent.getStringExtra("playerId") ?: "Player1"
         Log.d("PlayerStatsActivity", "Erhaltener Spieler-ID: $playerId")
-
 
         setContent {
             MaterialTheme {
@@ -26,7 +26,7 @@ class PlayerStatsActivity : ComponentActivity() {
     }
 
     @Composable
-    fun StatsScreenWithCloseButton(playerId: Int) {
+    fun StatsScreenWithCloseButton(playerId: String) {
         Column(modifier = Modifier.fillMaxSize()) {
             Log.d("reached composable", "statsscreen reached")
             PlayerStatsOverlayScreen(playerId = playerId)
@@ -45,9 +45,8 @@ class PlayerStatsActivity : ComponentActivity() {
             }
         }
     }
-
-
 }
+
 
 
 

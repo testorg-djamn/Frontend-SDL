@@ -3,7 +3,6 @@ package at.aau.serg.sdlapp.ui
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL
@@ -18,7 +17,7 @@ object PlayerRepository {
     }
 
     // ✅ Ein einzelner Spieler nach ID
-    suspend fun fetchPlayerById(id: Int): PlayerModell {
+    suspend fun fetchPlayerById(id: String): PlayerModell {
         return withContext(Dispatchers.IO) {
             val url = URL("$BASE_URL/$id")
             val connection = url.openConnection() as HttpURLConnection

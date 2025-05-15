@@ -14,7 +14,7 @@ class PlayerViewModel : ViewModel() {
     var allPlayers by mutableStateOf<List<PlayerModell>>(emptyList())
         private set
 
-    fun loadPlayer(id: Int) {
+    fun loadPlayer(id: String) {
         viewModelScope.launch {
             try {
                 val loadedPlayer = PlayerRepository.fetchPlayerById(id)
