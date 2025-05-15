@@ -1,11 +1,10 @@
 package at.aau.serg.sdlapp.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,9 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModel
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModelFactory
-import at.aau.serg.sdlapp.network.viewModels.ConnectionViewModel
-import org.hildan.krossbow.stomp.StompSession
 import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
+import org.hildan.krossbow.stomp.StompSession
 
 //bekommt die Lobby ID und die Spielerliste immer übergeben (wird im backend generiert)
 //TODO: Lobby handler muss überprüfen, dass nicht zu viele Spieler in der Lobby sind
@@ -115,6 +113,8 @@ class LobbyActivity : ComponentActivity() {
             Button(
                 onClick = {
                     //TODO: startet Spiel, soll nur Host können
+                    val intent = Intent(this@LobbyActivity, BoardActivity::class.java)
+                    startActivity(intent)
                 },
                 modifier = Modifier
                     .padding(top = 16.dp)

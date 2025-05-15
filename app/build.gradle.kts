@@ -31,6 +31,18 @@ android {
         // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
     }
 
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE"
+            )
+        }
+    }
+
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -181,11 +193,16 @@ dependencies {
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
 
+
     //UI-Test
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.8")
     androidTestImplementation("androidx.compose.ui:ui-tooling:1.7.8")
     androidTestImplementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
     androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.7.8")
+    androidTestImplementation("io.mockk:mockk-android:1.13.9")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
 
     // Instrumentation Tests (Espresso + Intents)
