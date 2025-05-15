@@ -123,6 +123,18 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         }
     }
+    fun sendGameStart(gameId: Int, playerName: String) {
+        getSession()?.let {
+            scope.launch {
+                try {
+                    session?.sendText("/app/game/start/$gameId", "")
+                    sendToMainThread("📨 Spielstart gesendet, Player=$playerName")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden des Spielstarts: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("Keine Verbindung aktiv")
+    }
 
     suspend fun sendLobbyCreate(playerName: String): String? = withContext(Dispatchers.IO) {
         val session = getSession() ?: run {

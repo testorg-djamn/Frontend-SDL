@@ -51,13 +51,6 @@ class BoardActivity : ComponentActivity(),
         setContentView(R.layout.activity_board)
         enableFullscreen()
 
-        // Grundlegende UI-Komponenten initialisieren
-        initializeUIComponents()
-        // 🎯 Spieler-Overlay oben links anzeigen
-        val overlayView = findViewById<ComposeView>(R.id.playerStatsOverlayView)
-        overlayView.setContent {
-            PlayerStatsOverlayScreen(playerId = playerId.toString())
-        }
 
         // Manager initialisieren
         initializeManagers()
