@@ -1,10 +1,12 @@
 package at.aau.serg.sdlapp.ui
 
-import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,123 +14,254 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.model.board.Board
-import at.aau.serg.sdlapp.model.board.BoardData
+import at.aau.serg.sdlapp.model.player.PlayerManager
+import at.aau.serg.sdlapp.network.MoveMessage
+import at.aau.serg.sdlapp.ui.board.BoardFigureManager
+import at.aau.serg.sdlapp.ui.board.BoardMoveManager
+import at.aau.serg.sdlapp.ui.board.BoardNetworkManager
+import at.aau.serg.sdlapp.ui.board.BoardUIManager
 import com.otaliastudios.zoom.ZoomLayout
 import androidx.compose.ui.platform.ComposeView
 
+/**
+ * Die BoardActivity ist die Hauptaktivität des Spiels und verwaltet die
+ * Spieloberfläche und -logik. Sie ist durch Delegation aufgeteilt in mehrere Manager.
+ */
+class BoardActivity : ComponentActivity(),
+    BoardNetworkManager.NetworkCallbacks,
+    BoardUIManager.UICallbacks,
+    BoardMoveManager.MoveCallbacks {
 
-class BoardActivity : ComponentActivity() {
-
-    private lateinit var board: Board
+    // Kernkomponenten der Activity
     private var playerId = 1
-    private lateinit var figure: ImageView
     private lateinit var boardImage: ImageView
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
-    private lateinit var statsLauncher: ActivityResultLauncher<Intent>
+    private lateinit var playerName: String
 
+    // Manager für verschiedene Aspekte des Spiels
+    private lateinit var playerManager: PlayerManager
+    private lateinit var networkManager: BoardNetworkManager
+    private lateinit var figureManager: BoardFigureManager
+    private lateinit var uiManager: BoardUIManager
+    private lateinit var moveManager: BoardMoveManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
         enableFullscreen()
 
-        // 🎯 Spieler-Overlay oben links anzeigen
-        val overlayView = findViewById<ComposeView>(R.id.playerStatsOverlayView)
-        overlayView.setContent {
-            PlayerStatsOverlayScreen(playerId = playerId.toString())
-        }
 
-        board = Board(BoardData.board)
+        // Manager initialisieren
+        initializeManagers()
 
+        // Button-Listener einrichten
+        setupButtonListeners()
+
+        // Zeige den Start-Auswahl-Dialog
+        uiManager.showStartChoiceDialog(playerName, networkManager.getStompClient())
+
+        // Status-Text initial aktualisieren
+        updateStatusText()
+    }
+
+    /**
+     * Initialisiert die grundlegenden UI-Komponenten
+     */
+    private fun initializeUIComponents() {
         zoomLayout = findViewById(R.id.zoomLayout)
         boardImage = findViewById(R.id.boardImag)
-        figure = findViewById(R.id.playerImageView)
         diceButton = findViewById(R.id.diceButton)
 
-        statsLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                println("Spielerwerte wurden möglicherweise geändert – Backend neu abfragen")
-            }
-        }
+        // Player-ID aus Intent lesen
+        playerName = intent.getStringExtra("playerName") ?: "1"
+        playerId = playerName.toIntOrNull() ?: 1
+    }
 
+    /**
+     * Initialisiert alle Manager-Komponenten
+     */
+    private fun initializeManagers() {
+        // Player Manager initialisieren
+        playerManager = PlayerManager()
+        playerManager.setLocalPlayer(playerId)
 
-        // Startpfad wählen
-        showStartChoiceDialog()
+        val boardContainer = findViewById<FrameLayout>(R.id.boardContainer)
 
-        // 🎲 Button zum Würfeln (1 Schritt)
+        // BoardFigureManager initialisieren
+        figureManager = BoardFigureManager(
+            context = this,
+            playerManager = playerManager,
+            boardContainer = boardContainer,
+            boardImage = boardImage,
+            zoomLayout = zoomLayout
+        )
+
+        // BoardNetworkManager initialisieren
+        networkManager = BoardNetworkManager(
+            context = this,
+            playerManager = playerManager,
+            playerName = playerName,
+            playerId = playerId,
+            callbacks = this
+        )
+
+        // BoardUIManager initialisieren
+        uiManager = BoardUIManager(
+            context = this,
+            playerManager = playerManager,
+            layoutInflater = layoutInflater,
+            uiCallbacks = this
+        )
+
+        // BoardMoveManager initialisieren
+        moveManager = BoardMoveManager(
+            context = this,
+            playerManager = playerManager,
+            boardFigureManager = figureManager,
+            callbacks = this
+        )
+
+        // Verbindung herstellen
+        networkManager.connect()
+    }
+
+    /**
+     * Richtet die Button-Listener ein
+     */
+    private fun setupButtonListeners() {
+        // 🎲 Button: würfeln und Bewegung über Backend steuern lassen
         diceButton.setOnClickListener {
-            moveOneStep()
+            // Zufällige Würfelzahl zwischen 1-6 generieren
+            val diceRoll = (1..6).random()
+
+            println("🎲 Gewürfelt: $diceRoll")
+
+            // Sende die Würfelzahl an das Backend und überlasse ihm die Bewegungsberechnung
+            networkManager.sendRealMove(diceRoll, moveManager.getCurrentFieldIndex())
+
+            // Die tatsächliche Bewegung erfolgt erst, wenn wir die Antwort vom Server bekommen
+            // Dies geschieht über den onMoveReceived Callback
         }
 
-        val btnShowStats = findViewById<ImageButton>(R.id.btnShowStats)
-        btnShowStats.setOnClickListener {
-            val intent = Intent(this, PlayerStatsActivity::class.java)
-            intent.putExtra("playerId", playerId)
-            statsLauncher.launch(intent) //über Launcher starten
+        // 👥 Button: Spielerliste anzeigen
+        findViewById<ImageButton>(R.id.playersButton).setOnClickListener {
+            // Vor dem Anzeigen nochmal die Spielerliste aktualisieren
+            networkManager.requestActivePlayers()
+
+            // Kurz warten, damit die Liste aktualisiert werden kann
+            Handler(Looper.getMainLooper()).postDelayed({
+                // Spielerliste-Dialog anzeigen
+                uiManager.showPlayerListOverlay()
+            }, 500) // 500ms warten
+        }
+    }
+
+    override fun onPlayerListReceived(playerIds: List<Int>) {
+        // Füge alle neuen Spieler hinzu und verarbeite entfernte Spieler
+        val playerIdsToProcess = playerIds.toMutableList()
+
+        // Stelle sicher, dass der lokale Spieler immer in der Liste ist
+        if (!playerIdsToProcess.contains(playerId)) {
+            playerIdsToProcess.add(playerId)
         }
 
+        // Füge neue Spieler hinzu
+        playerIdsToProcess.forEach { remotePlayerId ->
+            if (!playerManager.playerExists(remotePlayerId)) {
+                val player = playerManager.addPlayer(remotePlayerId, "Spieler $remotePlayerId")
+                println("➕ Spieler hinzugefügt: ID=$remotePlayerId, Farbe=${player.color}")
+            }
+        }
+
+        // Synchronisiere mit der aktiven Spielerliste und finde entfernte Spieler
+        val removedPlayers = playerManager.syncWithActivePlayersList(playerIdsToProcess)
+
+        // Debug-Ausgabe für entfernte Spieler
+        if (removedPlayers.isNotEmpty()) {
+            println("👋 Entfernte Spieler: $removedPlayers")
+
+            // Entferne die Figuren der nicht mehr aktiven Spieler
+            for (removedPlayerId in removedPlayers) {
+                figureManager.removePlayerFigure(removedPlayerId)
+            }
+
+            // Zeige eine Benachrichtigung wenn Spieler das Spiel verlassen haben
+            uiManager.showRemovedPlayersNotification(removedPlayers)
+        }
+
+        // Zeige alle Spieler auf dem Brett an
+        for (remotePlayerId in playerIdsToProcess) {
+            // Wenn es nicht der lokale Spieler ist, zeigen wir ihn an
+            if (remotePlayerId != playerId) {
+                val remotePlayer = playerManager.getPlayer(remotePlayerId)
+                if (remotePlayer != null) {
+                    // Holt oder erstellt die Spielfigur (erscheint zuerst bei 0,0)
+                    figureManager.getOrCreatePlayerFigure(remotePlayerId)
+
+                    // Wenn der Spieler schon eine Position hat, bewegen wir ihn dorthin
+                    val fieldIndex = remotePlayer.currentFieldIndex
+                    if (fieldIndex > 0) {
+                        moveManager.updatePlayerPosition(remotePlayerId, fieldIndex)
+                    }
+                }
+            }
+        }
+
+        // Debug-Ausgabe
+        println(playerManager.getDebugSummary())
+
+        // Status-Text aktualisieren
+        updateStatusText()
+
+        // Zeigt eine kleine Benachrichtigung über die anderen Spieler, aber nur bei Änderungen
+        val allPlayers = playerManager.getAllPlayers()
+        val hasChanges = removedPlayers.isNotEmpty() || playerIdsToProcess.any { !playerManager.playerExists(it) }
+        uiManager.showOtherPlayersNotification(allPlayers, hasChanges)
     }
 
-    private fun showStartChoiceDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Wähle deinen Startweg")
-            .setMessage("Willst du direkt ins Berufsleben starten oder studieren?")
-            .setPositiveButton("Start normal") { _, _ ->
-                board.addPlayer(playerId, 0)
-                moveFigureToField(playerId)
-            }
-            .setNegativeButton("Start Uni") { _, _ ->
-                board.addPlayer(playerId, 5)
-                moveFigureToField(playerId)
-            }
-            .setCancelable(false)
-            .show()
-    }
+    override fun onConnectionStateChanged(isConnected: Boolean) {
+        // Aktiviere/Deaktiviere UI-Elemente je nach Verbindungsstatus
+        diceButton.isEnabled = isConnected
 
-    private fun moveOneStep() {
-        val currentField = board.getPlayerField(playerId)
+        // Zeige visuelles Feedback für Verbindungsstatus
+        if (isConnected) {
+            diceButton.alpha = 1.0f
 
-        if (currentField.nextFields.isEmpty()) return
-
-        if (currentField.nextFields.size > 1) {
-            showBranchDialog(playerId, currentField.nextFields)
+            // Zeige nach kurzer Verzögerung die Spielerinformationen an
+            Handler(Looper.getMainLooper()).postDelayed({
+                uiManager.showActivePlayersInfo()
+            }, 3000) // 3 Sekunden warten, damit die Spielerlisten-Anfragen verarbeitet werden können
         } else {
-            board.manualMoveTo(playerId, currentField.nextFields.first())
-            moveFigureToField(playerId)
+            diceButton.alpha = 0.5f
         }
     }
 
-    private fun moveFigureToField(playerId: Int) {
-        val field = board.getPlayerField(playerId)
-
-        boardImage.post {
-            val x = field.x * boardImage.width
-            val y = field.y * boardImage.height
-
-            figure.animate()
-                .x(x - figure.width / 2f)
-                .y(y - figure.height / 2f)
-                .setDuration(1000)
-                .start()
-        }
+    override fun onConnectionError(errorMessage: String) {
+        // Zeige einen Fehlerdialog an
+        uiManager.showErrorDialog("Verbindungsfehler", errorMessage)
     }
 
-    private fun showBranchDialog(playerId: Int, options: List<Int>) {
-        val labels = options.map { "Gehe zu Feld $it" }.toTypedArray()
-
-        AlertDialog.Builder(this)
-            .setTitle("Wähle deinen Weg")
-            .setItems(labels) { _, which ->
-                val chosenField = options[which]
-                board.manualMoveTo(playerId, chosenField)
-                moveFigureToField(playerId)
-            }
-            .setCancelable(false)
-            .show()
+    override fun onMoveReceived(move: MoveMessage) {
+        moveManager.handleMoveMessage(move, playerId, playerName, networkManager.getStompClient())
     }
 
+    override fun onStartFieldSelected(fieldIndex: Int) {
+        moveManager.placePlayerAtStartField(playerId, fieldIndex, networkManager.getStompClient(), playerName)
+
+        // Nach dem Beitreten erneut nach aktiven Spielern fragen
+        networkManager.requestActivePlayers()
+        println("👥 Frage nach aktiven Spielern nach dem Beitreten...")
+    }
+
+    override fun onPlayersChanged() {
+        // Status-Text aktualisieren da sich die Spielerliste geändert hat
+        updateStatusText()
+    }
+
+    /**
+     * Aktiviert den Vollbildmodus
+     */
     private fun enableFullscreen() {
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
@@ -137,5 +270,55 @@ class BoardActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
+    /**
+     * Aktualisiert den Status-Text mit der Anzahl der aktiven Spieler
+     */
+    private fun updateStatusText() {
+        val statusText = findViewById<TextView>(R.id.statusText)
+        uiManager.updateStatusText(statusText)
+    }
 
+    /**
+     * Speichert den Zustand der Activity, falls sie neu erstellt werden muss.
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Speichere den aktuellen Feld-Index
+        outState.putInt("currentFieldIndex", moveManager.getCurrentFieldIndex())
+        println("💾 Activity-Zustand gespeichert, currentFieldIndex=${moveManager.getCurrentFieldIndex()}")
+    }
+
+    /**
+     * Stellt den Zustand der Activity wieder her.
+     */
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        // Stelle den Feld-Index wieder her
+        val savedFieldIndex = savedInstanceState.getInt("currentFieldIndex", 0)
+        moveManager.setCurrentFieldIndex(savedFieldIndex)
+        println("📂 Activity-Zustand wiederhergestellt, currentFieldIndex=$savedFieldIndex")
+
+        // Position aktualisieren
+        moveManager.updatePlayerPosition(playerId, savedFieldIndex)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            // Stelle sicher, dass alle UI-Elemente initialisiert sind
+            boardImage.post {
+                println("🚗 BoardActivity: Fenster hat Fokus bekommen")
+
+                // Falls currentFieldIndex bereits gesetzt ist, positioniere die Figur korrekt
+                moveManager.updatePlayerPosition(playerId, moveManager.getCurrentFieldIndex())
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Timer stoppen, wenn die Activity zerstört wird
+        networkManager.stopPlayerListUpdateTimer()
+        println("🚪 BoardActivity: onDestroy()")
+    }
 }

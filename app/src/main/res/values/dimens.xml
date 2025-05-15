@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Board game related dimensions -->
+    <dimen name="marker_size">30dp</dimen>
+    <dimen name="player_figure_size">48dp</dimen>
+</resources>

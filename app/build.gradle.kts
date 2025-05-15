@@ -10,11 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17)) // or 21 depending on what you want
-    }
-}
+
 
 jacoco {
     toolVersion = "0.8.8"

@@ -1,0 +1,39 @@
+package at.aau.serg.sdlapp.model.player
+
+import android.content.res.Resources
+import at.aau.serg.sdlapp.R
+
+/**
+ * Repräsentiert einen Spieler im Spiel
+ */
+data class Player(
+    val id: Int,
+    val name: String,
+    var currentFieldIndex: Int = 0
+) {
+    // Farbe basierend auf der ID bestimmen
+    val color: CarColor = when (id % 4) {
+        0 -> CarColor.BLUE
+        1 -> CarColor.GREEN
+        2 -> CarColor.RED
+        3 -> CarColor.YELLOW
+        else -> CarColor.BLUE
+    }
+    
+    // Liefert die Ressourcen-ID des Auto-Bildes
+    fun getCarImageResource(): Int {
+        return when (color) {
+            CarColor.BLUE -> R.drawable.car_blue_0
+            CarColor.GREEN -> R.drawable.car_green_0
+            CarColor.RED -> R.drawable.car_red_0
+            CarColor.YELLOW -> R.drawable.car_yellow_0
+        }
+    }
+}
+
+/**
+ * Definiert die verfügbaren Auto-Farben
+ */
+enum class CarColor {
+    BLUE, GREEN, RED, YELLOW
+}
