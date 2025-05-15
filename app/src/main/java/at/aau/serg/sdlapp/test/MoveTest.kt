@@ -16,9 +16,7 @@ class MoveTest {
             println("TEST: Bewegung empfangen: Spieler ${move.playerName} zu Feld ${move.fieldIndex}")
         }
         
-        // Mit Server verbinden
-        stompClient.connect()
-        
+       
         // Kurz warten und dann Test-Nachrichten senden
         Thread.sleep(2000)
         

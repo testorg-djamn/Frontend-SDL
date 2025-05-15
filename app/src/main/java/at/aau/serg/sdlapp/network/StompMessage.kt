@@ -6,3 +6,4 @@ data class StompMessage(
     val messageText: String? = null,
     val gameId: String? = null
 )
+

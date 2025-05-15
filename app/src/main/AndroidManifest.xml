@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".network.viewModels.MyViewModelStore"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -50,6 +51,38 @@
             android:exported="false"
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
+
+        <!-- (Optional) JobSelectionActivity, falls du sie starten möchtest -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.JobSelectionActivity"
+            android:exported="false"
+            android:label="Job Auswahl"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name=".ui.PlayerStatsActivity"
+            android:exported="true"
+            android:label="Spielerübersicht"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- exported for test purposes -->
+        <activity
+            android:name=".ui.HomeScreenActivity"
+            android:exported="true"
+            android:label="Homescreen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.SDLApp.HomeScreen" />
+
+        <!-- exported for test purposes -->
+
+        <activity android:name=".ui.LobbyActivity"
+            android:exported="true"
+            android:label="Lobby"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.SDLApp.HomeScreen"/>
+
 
     </application>
 
