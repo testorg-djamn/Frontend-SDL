@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.theme
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,13 +9,14 @@ import kotlinx.coroutines.launch
 
 class PlayerViewModel : ViewModel() {
     var player by mutableStateOf<PlayerModell?>(null)
-        private set
 
-    fun loadPlayer(id: Int) {
+    var allPlayers by mutableStateOf<List<PlayerModell>>(emptyList())
+
+    fun loadPlayer(id: String) {
         viewModelScope.launch {
             try {
                 val loadedPlayer = PlayerRepository.fetchPlayerById(id)
-                println("🟢 Spieler erfolgreich geladen: ${loadedPlayer.name}")
+                println("🟢 Spieler erfolgreich geladen: ${loadedPlayer.id}")
                 player = loadedPlayer
             } catch (e: Exception) {
                 println("🔴 Fehler beim Laden des Spielers mit ID $id: ${e.message}")
@@ -23,12 +24,6 @@ class PlayerViewModel : ViewModel() {
             }
         }
     }
-
-    fun refresh(id: Int) {
-        loadPlayer(id)
-    }
-    var allPlayers by mutableStateOf<List<PlayerModell>>(emptyList())
-        private set
 
     fun loadAllPlayers() {
         viewModelScope.launch {
@@ -39,5 +34,6 @@ class PlayerViewModel : ViewModel() {
             }
         }
     }
+
 
 }

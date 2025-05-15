@@ -1,62 +1,71 @@
 package at.aau.serg.sdlapp
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.*
-import at.aau.serg.sdlapp.ui.theme.PlayerModell
-import at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlay
-import androidx.compose.material3.*
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.junit4.createComposeRule
+import at.aau.serg.sdlapp.ui.PlayerModell
+import at.aau.serg.sdlapp.ui.PlayerStatsOverlay
 import org.junit.Rule
 import org.junit.Test
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.junit.runner.RunWith
 
-
-@RunWith(AndroidJUnit4::class)
 class PlayerStatsOverlayTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Test
-    fun testPlayerStatsOverlayRendering() {
+    fun testOverlayDisplaysCorrectly() {
         val player = PlayerModell(
-            id = 1,
-            name = "Spieler #1",
+            id = "Spieler#1",
             money = 10000,
-            investments = 2000,
+            investments = 3000,
             salary = 5000,
             children = 2,
-            education = "Bachelor",
-            relationship = "Single",
-            career = "Kellner",
-            jobId = 101,
-            houseId = 202
+            education = true,
+            relationship = false
         )
 
         composeTestRule.setContent {
-            MaterialTheme(
-                colorScheme = lightColorScheme(
-                    primary = Color.Blue,
-                    secondary = Color.Green
-                ),
-                typography = Typography()
-            ) {
+            MaterialTheme {
                 PlayerStatsOverlay(player = player)
             }
         }
-        Thread.sleep(10000)
-        // Alle StatCard-Bezeichnungen prüfen
-        composeTestRule.onNodeWithText("Spieler #1").assertExists()
-        composeTestRule.onNodeWithText("💰 Geld").assertExists()
-        composeTestRule.onNodeWithText("💼 Gehalt").assertExists()
-        composeTestRule.onNodeWithText("🧑‍🍳 Beruf").assertExists()
-        composeTestRule.onNodeWithText("🎓 Bildung").assertExists()
-        composeTestRule.onNodeWithText("❤️ Beziehung").assertExists()
-        composeTestRule.onNodeWithText("📈 Investitionen").assertExists()
-        composeTestRule.onNodeWithText("👶 Kinder").assertExists()
-        composeTestRule.onNodeWithText("🆔 Job-ID").assertExists()
-        composeTestRule.onNodeWithText("🏠 Haus-ID").assertExists()
+
+        // 🧪 Check ID and money
+        composeTestRule.onNodeWithText("Spieler#1").assertExists()
+        composeTestRule.onNodeWithText("10k").assertExists()
+
+        // 🧪 Check children (❤️), education (📘) and investments (💰)
+        composeTestRule.onNodeWithText("❤️").assertExists()
+        composeTestRule.onNodeWithText("2").assertExists()
+
+        composeTestRule.onNodeWithText("📘").assertExists()
+        composeTestRule.onNodeWithText("✓").assertExists()
+
+        composeTestRule.onNodeWithText("💰").assertExists()
+        composeTestRule.onNodeWithText("3k").assertExists()
+    }
+
+    @Test
+    fun testOverlayEducationFalseDisplaysCross() {
+        val player = PlayerModell(
+            id = "Spieler#2",
+            money = 8000,
+            investments = 0,
+            salary = 4000,
+            children = 0,
+            education = false,
+            relationship = false
+        )
+
+        composeTestRule.setContent {
+            MaterialTheme {
+                PlayerStatsOverlay(player = player)
+            }
+        }
+
+        // 📘 should display ✗ if no education
+        composeTestRule.onNodeWithText("📘").assertExists()
+        composeTestRule.onNodeWithText("✗").assertExists()
     }
 }
-

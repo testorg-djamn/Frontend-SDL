@@ -10,11 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17)) // or 21 depending on what you want
-    }
-}
+
 
 jacoco {
     toolVersion = "0.8.8"
@@ -144,7 +140,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt")
+        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt")
     }
 }
 

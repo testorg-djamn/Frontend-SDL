@@ -1,41 +1,70 @@
-package at.aau.serg.sdlapp.ui.theme
+package at.aau.serg.sdlapp.ui
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL
 
 object PlayerRepository {
 
-    private const val BASE_URL = "http://192.168.178.38:8080/players"
+    private const val BASE_URL = "http://143.205.193.86:8080/players"
 
+    // ✅ JSON-Konfiguration: Unbekannte Keys ignorieren
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        explicitNulls = false
+    }
+
+
+    // ✅ Ein einzelner Spieler nach ID
+    suspend fun fetchPlayerById(id: String): PlayerModell {
+        return withContext(Dispatchers.IO) {
+            val url = URL("$BASE_URL/$id")
+            println("🌐 Anfrage an: $url")
+
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            val responseCode = connection.responseCode
+            println("📡 HTTP-Status: $responseCode")
+
+            try {
+                println("📥 Verbindung hergestellt. Versuche zu lesen...")
+
+                val jsonText = connection.inputStream.bufferedReader().use { it.readText() }
+                println("📦 JSON empfangen: $jsonText")
+
+                val player = json.decodeFromString<PlayerModell>(jsonText)
+                println("✅ JSON erfolgreich geparsed für Spieler: ${player.id}")
+
+                player
+            } catch (e: Exception) {
+                println("❌ Fehler beim Abrufen oder Parsen: ${e.message}")
+                throw e
+            }
+        }
+    }
+
+
+
+
+
+    // ✅ Liste aller Spieler
     suspend fun fetchAllPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
+
             connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
+                json.decodeFromString(it.readText())
             }
         }
     }
 
-
-    suspend fun fetchPlayerById(id: Int): PlayerModell {
-        return withContext(Dispatchers.IO) {
-            val url = URL("$BASE_URL/$id")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-
-            connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
-            }
-        }
-    }
-
+    // ✅ Spieler erstellen
     suspend fun createPlayer(player: PlayerModell): PlayerModell {
         return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
@@ -44,7 +73,7 @@ object PlayerRepository {
             connection.setRequestProperty("Content-Type", "application/json")
             connection.doOutput = true
 
-            val jsonBody = Json.encodeToString(player)
+            val jsonBody = json.encodeToString(player)
             connection.outputStream.use { it.write(jsonBody.toByteArray()) }
 
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
@@ -52,12 +81,12 @@ object PlayerRepository {
             }
 
             connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
+                json.decodeFromString(it.readText())
             }
         }
     }
 
-
+    // ✅ PUT-Endpunkte
     suspend fun marryPlayer(playerId: Int) {
         makePutRequest("$BASE_URL/$playerId/marry")
     }
@@ -70,6 +99,7 @@ object PlayerRepository {
         makePutRequest("$BASE_URL/$playerId/invest")
     }
 
+    // ✅ Hilfsfunktion für PUT
     private suspend fun makePutRequest(urlString: String) {
         withContext(Dispatchers.IO) {
             val connection = URL(urlString).openConnection() as HttpURLConnection
@@ -80,5 +110,4 @@ object PlayerRepository {
             }
         }
     }
-
 }
