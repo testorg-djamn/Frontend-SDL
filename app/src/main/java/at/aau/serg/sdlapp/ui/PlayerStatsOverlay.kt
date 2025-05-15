@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.theme
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +17,7 @@ fun PlayerStatsOverlay(player: PlayerModell) {
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF8D4C28)), // Braunton
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF8D4C28)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -28,13 +28,13 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // 🧍 Spielername & Geld
+            // Spielername & Geld
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = player.name,
+                    text = player.id,
                     color = Color.White,
                     fontSize = 18.sp
                 )
@@ -45,13 +45,13 @@ fun PlayerStatsOverlay(player: PlayerModell) {
                 )
             }
 
-            // ❤️📘💰 Status
+            // Statussymbole
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 StatusIcon("❤️", player.children.toString())
-                StatusIcon("📘", player.education.take(1))
+                StatusIcon("📘", if (player.education) "✓" else "✗")
                 StatusIcon("💰", "${player.investments / 1000}k")
             }
         }
@@ -70,25 +70,3 @@ fun StatusIcon(emoji: String, value: String) {
     }
 }
 
-@Composable
-fun PlayerStatsOverlayScreen(
-    playerId: Int,
-    viewModel: PlayerViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-) {
-    LaunchedEffect(playerId) {
-        println("PlayerStatsOverlayScreen gestartet mit ID: $playerId")
-        viewModel.loadPlayer(playerId)
-    }
-
-    viewModel.player?.let { player ->
-        println("🎉 Spieler geladen: ${player.name}")
-        PlayerStatsOverlay(player = player)
-    } ?: Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        println("⌛ Spieler wird noch geladen...")
-        CircularProgressIndicator()
-    }
-
-}

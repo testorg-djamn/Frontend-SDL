@@ -9,16 +9,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlayScreen
 
 class PlayerStatsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val playerId = intent.getIntExtra("playerId", 1)
-        Log.d("PlayerStatsActivity", "Erhaltener Spieler-ID: $playerId")
 
+        val playerId = intent.getStringExtra("playerId") ?: "1"
+        Log.d("PlayerStatsActivity", "Erhaltener Spieler-ID: $playerId")
 
         setContent {
             MaterialTheme {
@@ -28,16 +26,19 @@ class PlayerStatsActivity : ComponentActivity() {
     }
 
     @Composable
-    fun StatsScreenWithCloseButton(playerId: Int) {
+    fun StatsScreenWithCloseButton(playerId: String) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Log.d("reached composable", "statsscreen reached")
+            Log.d("PlayerStatsActivity", "Statsscreen Composable geladen")
+
+            // 👇 Spieler-Daten anzeigen
             PlayerStatsOverlayScreen(playerId = playerId)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    Log.d("close message", "closed playerstats overlay")
+                    Log.d("PlayerStatsActivity", "Zurück-Button geklickt")
+                    finish() // Schließt die Activity
                 },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -47,14 +48,4 @@ class PlayerStatsActivity : ComponentActivity() {
             }
         }
     }
-
-    @Preview
-    @Composable
-    fun playerStatsPreview(){
-        StatsScreenWithCloseButton(1)
-    }
 }
-
-
-
-

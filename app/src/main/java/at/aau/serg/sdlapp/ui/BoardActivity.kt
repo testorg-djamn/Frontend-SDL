@@ -37,7 +37,7 @@ class BoardActivity : ComponentActivity() {
         // 🎯 Spieler-Overlay oben links anzeigen
         val overlayView = findViewById<ComposeView>(R.id.playerStatsOverlayView)
         overlayView.setContent {
-            at.aau.serg.sdlapp.ui.theme.PlayerStatsOverlayScreen(playerId = playerId)
+            PlayerStatsOverlayScreen(playerId = playerId.toString())
         }
 
         board = Board(BoardData.board)
