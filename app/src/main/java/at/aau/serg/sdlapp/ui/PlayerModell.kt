@@ -16,5 +16,7 @@ data class PlayerModell(
     var carColor: String? = null,
     var retired: Boolean = false,
     var host: Boolean = false,
-    var active: Boolean = false
+    var active: Boolean = false,
+    var fieldId: Int = 0
 )
+

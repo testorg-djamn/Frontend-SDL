@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import at.aau.serg.sdlapp.ui.PlayerStatsOverlayScreen // wichtig: import falls ausgelagert
 
 class PlayerStatsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +29,10 @@ class PlayerStatsActivity : ComponentActivity() {
     fun StatsScreenWithCloseButton(playerId: String) {
         Column(modifier = Modifier.fillMaxSize()) {
             Log.d("PlayerStatsActivity", "Statsscreen Composable geladen")
+
+            // 👇 Spieler-Daten anzeigen
+            PlayerStatsOverlayScreen(playerId = playerId)
+
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(

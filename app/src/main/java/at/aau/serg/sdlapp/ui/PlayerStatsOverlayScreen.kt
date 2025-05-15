@@ -28,6 +28,11 @@ fun PlayerStatsOverlayScreen(
         contentAlignment = Alignment.Center
     ) {
         println("⌛ Spieler wird noch geladen...")
-        CircularProgressIndicator()
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Aktueller Player: ${viewModel.player?.id ?: "NULL"}")
+        }
     }
 }
+

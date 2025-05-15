@@ -19,26 +19,35 @@ object PlayerRepository {
     }
 
 
-
-
     // ✅ Ein einzelner Spieler nach ID
     suspend fun fetchPlayerById(id: String): PlayerModell {
         return withContext(Dispatchers.IO) {
             val url = URL("$BASE_URL/$id")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-
             println("🌐 Anfrage an: $url")
 
-            val response = connection.inputStream.bufferedReader().use {
-                val jsonString = it.readText()
-                println("📦 JSON empfangen: $jsonString")
-                json.decodeFromString<PlayerModell>(jsonString)
-            }
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            val responseCode = connection.responseCode
+            println("📡 HTTP-Status: $responseCode")
 
-            response
+            try {
+                println("📥 Verbindung hergestellt. Versuche zu lesen...")
+
+                val jsonText = connection.inputStream.bufferedReader().use { it.readText() }
+                println("📦 JSON empfangen: $jsonText")
+
+                val player = json.decodeFromString<PlayerModell>(jsonText)
+                println("✅ JSON erfolgreich geparsed für Spieler: ${player.id}")
+
+                player
+            } catch (e: Exception) {
+                println("❌ Fehler beim Abrufen oder Parsen: ${e.message}")
+                throw e
+            }
         }
     }
+
+
 
 
 
