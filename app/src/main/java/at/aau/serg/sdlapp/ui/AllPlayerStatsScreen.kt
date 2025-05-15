@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import at.aau.serg.sdlapp.ui.theme.PlayerViewModel
 
 @Composable
 fun AllPlayerStatsScreen(viewModel: PlayerViewModel = viewModel()) {

@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import at.aau.serg.sdlapp.ui.theme.PlayerViewModel
 
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
