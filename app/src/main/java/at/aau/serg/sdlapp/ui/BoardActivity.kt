@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -37,6 +38,12 @@ class BoardActivity : ComponentActivity(),
     private lateinit var boardImage: ImageView
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
+    private lateinit var statsOverlayCompose: ComposeView
+    private val showStatsOverlay = mutableStateOf(false)
+
+
+
+
     private lateinit var playerName: String
 
     // Manager für verschiedene Aspekte des Spiels
@@ -49,6 +56,18 @@ class BoardActivity : ComponentActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
+        statsOverlayCompose = findViewById(R.id.playerStatsOverlayCompose)
+
+        statsOverlayCompose.setContent {
+            if (showStatsOverlay.value) {
+                PlayerStatsOverlayScreen(
+                    playerId = playerId.toString(),
+                    onDismiss = { showStatsOverlay.value = false }
+                )
+            }
+        }
+
+
         enableFullscreen()
 
 
@@ -72,6 +91,7 @@ class BoardActivity : ComponentActivity(),
         zoomLayout = findViewById(R.id.zoomLayout)
         boardImage = findViewById(R.id.boardImag)
         diceButton = findViewById(R.id.diceButton)
+
 
         // Player-ID aus Intent lesen
         playerName = intent.getStringExtra("playerName") ?: "1"
@@ -142,6 +162,20 @@ class BoardActivity : ComponentActivity(),
 
             // Die tatsächliche Bewegung erfolgt erst, wenn wir die Antwort vom Server bekommen
             // Dies geschieht über den onMoveReceived Callback
+
+            findViewById<ImageButton>(R.id.playersButton).setOnClickListener {
+                statsOverlayCompose.setContent {
+                    PlayerStatsOverlayScreen(
+                        playerId = playerId.toString(),
+                        onDismiss = {
+                            // Schließt das Overlay beim Klick auf den Button in Compose
+                            statsOverlayCompose.setContent {} // Leert das View
+                        }
+                    )
+                }
+            }
+
+
         }
 
         // 👥 Button: Spielerliste anzeigen

@@ -11,28 +11,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun PlayerStatsOverlayScreen(
     playerId: String,
+    onDismiss: () -> Unit = {},
     viewModel: PlayerViewModel = viewModel()
 ) {
     LaunchedEffect(playerId) {
-        println("PlayerStatsOverlayScreen gestartet mit ID: $playerId")
         viewModel.loadPlayer(playerId)
     }
 
     viewModel.player?.let { player ->
-        println("🎉 Spieler geladen: ${player.id}")
-        PlayerStatsOverlay(player = player)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(16.dp)
+                .wrapContentSize()
+        ) {
+            PlayerStatsOverlay(player = player)
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = onDismiss) {
+                Text("Schließen")
+            }
+        }
     } ?: Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        println("⌛ Spieler wird noch geladen...")
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Aktueller Player: ${viewModel.player?.id ?: "NULL"}")
-        }
+        CircularProgressIndicator()
     }
 }
+
 
