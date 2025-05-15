@@ -2,9 +2,11 @@ package at.aau.serg.sdlapp.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,24 +35,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.viewModels.ConnectionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
 
 
 class HomeScreenActivity : ComponentActivity() {
     private lateinit var stomp: MyStomp
     private lateinit var playerName: String
     private val scope = CoroutineScope(Dispatchers.IO)
+    private val viewModel: ConnectionViewModel by lazy { getSharedViewModel()}
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //gets playername, maybe change to playername + boolean isHost later
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
-        stomp = MyStomp { showToast(it) }
+
+        viewModel.initializeStomp { message ->
+            Log.d("Debugging", "got here")
+            runOnUiThread {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+        stomp = viewModel.myStomp.value!!
         setContent {
             HomeScreen()
         }
@@ -75,7 +89,7 @@ class HomeScreenActivity : ComponentActivity() {
             )
             Button(
                 onClick = {
-                    stomp.connect(playerName)
+                    stomp.connectAsync(playerName)
                     showToast("Verbindung gestartet")
                 },
                 modifier = Modifier
