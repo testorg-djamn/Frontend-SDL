@@ -76,7 +76,7 @@ class LobbyActivity : ComponentActivity() {
 
     @Composable
     fun LobbyScreen(viewModel: LobbyViewModel) {
-        val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+        val textColor = Color.White
         val players by viewModel.players.collectAsState()
 
         Column(

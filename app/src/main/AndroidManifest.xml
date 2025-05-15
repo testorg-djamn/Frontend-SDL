@@ -82,7 +82,7 @@
             android:exported="true"
             android:label="Homescreen"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.MyApplication" />
+            android:theme="@style/Theme.SDLApp.HomeScreen" />
 
         <!-- exported for test purposes -->
 
@@ -90,7 +90,8 @@
             android:exported="true"
             android:label="Lobby"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.MyApplication"/>
+            android:theme="@style/Theme.SDLApp.HomeScreen"/>
+
 
     </application>
 

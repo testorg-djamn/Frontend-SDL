@@ -7,8 +7,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,13 +46,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
+import androidx.activity.R
 
 
 class HomeScreenActivity : ComponentActivity() {
     private lateinit var stomp: MyStomp
     private lateinit var playerName: String
     private val scope = CoroutineScope(Dispatchers.IO)
-    private val viewModel: ConnectionViewModel by lazy { getSharedViewModel()}
+    private val viewModel: ConnectionViewModel by lazy { getSharedViewModel() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +74,7 @@ class HomeScreenActivity : ComponentActivity() {
 
     @Composable
     fun HomeScreen() {
-        val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+        val textColor = Color.White
         var showTextField by remember { mutableStateOf(false) }
         var lobbyId by remember { mutableStateOf("") }
         val context = LocalContext.current
@@ -158,7 +162,7 @@ class HomeScreenActivity : ComponentActivity() {
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                if(lobbyId.trim().isBlank()) return@KeyboardActions
+                                if (lobbyId.trim().isBlank()) return@KeyboardActions
                                 scope.launch {
                                     val response = stomp.sendLobbyJoin(playerName, lobbyId)
                                     if (response?.isSuccessful == true) {
@@ -172,7 +176,9 @@ class HomeScreenActivity : ComponentActivity() {
                                         }
                                         context.startActivity(intent)
                                     } else {
-                                        showToast(response?.message ?: "Beitritt fehlgeschlagen")
+                                        showToast(
+                                            response?.message ?: "Beitritt fehlgeschlagen"
+                                        )
                                     }
 
                                 }
@@ -182,6 +188,7 @@ class HomeScreenActivity : ComponentActivity() {
                     )
                 }
             }
+
         }
     }
 
