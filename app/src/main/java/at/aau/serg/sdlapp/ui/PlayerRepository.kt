@@ -3,6 +3,7 @@ package at.aau.serg.sdlapp.ui
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.HttpURLConnection
 import java.net.URL
@@ -11,6 +12,11 @@ object PlayerRepository {
 
     private const val BASE_URL = "http://192.168.178.38:8080/players"
 
+    // 👇 JSON-Parser mit Konfiguration
+    private val json = Json {
+        ignoreUnknownKeys = true
+    }
+
     suspend fun fetchPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
@@ -18,7 +24,7 @@ object PlayerRepository {
             connection.requestMethod = "GET"
 
             connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
+                json.decodeFromString(it.readText())
             }
         }
     }
@@ -29,11 +35,10 @@ object PlayerRepository {
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
+                json.decodeFromString(it.readText())
             }
         }
     }
-
 
     suspend fun createPlayer(player: PlayerModell): PlayerModell {
         return withContext(Dispatchers.IO) {
@@ -43,7 +48,7 @@ object PlayerRepository {
             connection.setRequestProperty("Content-Type", "application/json")
             connection.doOutput = true
 
-            val jsonBody = Json.encodeToString(player)
+            val jsonBody = json.encodeToString(player)
             connection.outputStream.use { it.write(jsonBody.toByteArray()) }
 
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
@@ -51,11 +56,10 @@ object PlayerRepository {
             }
 
             connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
+                json.decodeFromString(it.readText())
             }
         }
     }
-
 
     suspend fun marryPlayer(playerId: Int) {
         makePutRequest("$BASE_URL/$playerId/marry")
@@ -79,22 +83,4 @@ object PlayerRepository {
             }
         }
     }
-
-    suspend fun fetchPlayerById(id: Int): PlayerModell {
-        return withContext(Dispatchers.IO) {
-            val url = URL("$BASE_URL/$id")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-
-            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
-                throw RuntimeException("Fehler beim Abrufen des Spielers mit ID $id: ${connection.responseMessage}")
-            }
-
-            connection.inputStream.bufferedReader().use {
-                Json.decodeFromString(it.readText())
-            }
-        }
-    }
-
-
 }
