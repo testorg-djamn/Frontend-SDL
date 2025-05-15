@@ -12,14 +12,15 @@ object PlayerRepository {
 
     private const val BASE_URL = "http://192.168.178.38:8080/players"
 
-    // 👇 JSON-Parser mit Konfiguration
+    // ✅ JSON-Konfiguration: Unbekannte Keys ignorieren
     private val json = Json {
         ignoreUnknownKeys = true
     }
 
-    suspend fun fetchPlayers(): List<PlayerModell> {
+    // ✅ Ein einzelner Spieler nach ID
+    suspend fun fetchPlayerById(id: Int): PlayerModell {
         return withContext(Dispatchers.IO) {
-            val url = URL(BASE_URL)
+            val url = URL("$BASE_URL/$id")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
 
@@ -29,17 +30,20 @@ object PlayerRepository {
         }
     }
 
+    // ✅ Liste aller Spieler
     suspend fun fetchAllPlayers(): List<PlayerModell> {
         return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
+
             connection.inputStream.bufferedReader().use {
                 json.decodeFromString(it.readText())
             }
         }
     }
 
+    // ✅ Spieler erstellen
     suspend fun createPlayer(player: PlayerModell): PlayerModell {
         return withContext(Dispatchers.IO) {
             val url = URL(BASE_URL)
@@ -61,6 +65,7 @@ object PlayerRepository {
         }
     }
 
+    // ✅ PUT-Endpunkte
     suspend fun marryPlayer(playerId: Int) {
         makePutRequest("$BASE_URL/$playerId/marry")
     }
@@ -73,6 +78,7 @@ object PlayerRepository {
         makePutRequest("$BASE_URL/$playerId/invest")
     }
 
+    // ✅ Hilfsfunktion für PUT
     private suspend fun makePutRequest(urlString: String) {
         withContext(Dispatchers.IO) {
             val connection = URL(urlString).openConnection() as HttpURLConnection
