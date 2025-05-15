@@ -9,10 +9,8 @@ import kotlinx.coroutines.launch
 
 class PlayerViewModel : ViewModel() {
     var player by mutableStateOf<PlayerModell?>(null)
-        private set
 
     var allPlayers by mutableStateOf<List<PlayerModell>>(emptyList())
-        private set
 
     fun loadPlayer(id: String) {
         viewModelScope.launch {
