@@ -19,7 +19,7 @@ import org.json.JSONObject
 //
 private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
 
-private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+
 
 class MyStomp(private val callback: (String) -> Unit) {
 
