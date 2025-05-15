@@ -9,7 +9,7 @@ import java.net.URL
 
 object PlayerRepository {
 
-    private const val BASE_URL = "http://192.168.178.38:8080/players"
+    private const val BASE_URL = "http://143.205.193.86:8080/players"
 
     // ✅ JSON-Konfiguration: Unbekannte Keys ignorieren
     private val json = Json {
@@ -19,6 +19,8 @@ object PlayerRepository {
     }
 
 
+
+
     // ✅ Ein einzelner Spieler nach ID
     suspend fun fetchPlayerById(id: String): PlayerModell {
         return withContext(Dispatchers.IO) {
@@ -26,11 +28,18 @@ object PlayerRepository {
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
 
-            connection.inputStream.bufferedReader().use {
-                json.decodeFromString(it.readText())
+            println("🌐 Anfrage an: $url")
+
+            val response = connection.inputStream.bufferedReader().use {
+                val jsonString = it.readText()
+                println("📦 JSON empfangen: $jsonString")
+                json.decodeFromString<PlayerModell>(jsonString)
             }
+
+            response
         }
     }
+
 
 
     // ✅ Liste aller Spieler

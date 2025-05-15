@@ -12,5 +12,9 @@ data class PlayerModell(
     var education: Boolean,
     var relationship: Boolean,
     var jobId: Int? = null,
-    var houseId: Map<Int, Int> = emptyMap()
+    var houseId: Map<Int, Int> = emptyMap(),
+    var carColor: String? = null,
+    var retired: Boolean = false,
+    var host: Boolean = false,
+    var active: Boolean = false
 )

@@ -10,12 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
+import at.aau.serg.sdlapp.ui.PlayerStatsOverlayScreen // wichtig: import falls ausgelagert
 
 class PlayerStatsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val playerId = intent.getStringExtra("playerId") ?: "Player1"
+
+        val playerId = intent.getStringExtra("playerId") ?: "1"
         Log.d("PlayerStatsActivity", "Erhaltener Spieler-ID: $playerId")
 
         setContent {
@@ -28,14 +29,13 @@ class PlayerStatsActivity : ComponentActivity() {
     @Composable
     fun StatsScreenWithCloseButton(playerId: String) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Log.d("reached composable", "statsscreen reached")
-            PlayerStatsOverlayScreen(playerId = playerId)
-
+            Log.d("PlayerStatsActivity", "Statsscreen Composable geladen")
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    Log.d("close message", "closed playerstats overlay")
+                    Log.d("PlayerStatsActivity", "Zurück-Button geklickt")
+                    finish() // Schließt die Activity
                 },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -46,8 +46,3 @@ class PlayerStatsActivity : ComponentActivity() {
         }
     }
 }
-
-
-
-
-
