@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -50,9 +51,6 @@ class HomeScreenActivity : ComponentActivity() {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val viewModel: ConnectionViewModel by lazy { getSharedViewModel()}
 
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //gets playername, maybe change to playername + boolean isHost later
@@ -72,6 +70,7 @@ class HomeScreenActivity : ComponentActivity() {
 
     @Composable
     fun HomeScreen() {
+        val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
         var showTextField by remember { mutableStateOf(false) }
         var lobbyId by remember { mutableStateOf("") }
         val context = LocalContext.current
@@ -81,7 +80,7 @@ class HomeScreenActivity : ComponentActivity() {
                 text = "Das Spiel des Lebens",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = textColor,
                 modifier = Modifier
                     .padding(top = 35.dp)
                     .padding(bottom = 25.dp)
@@ -160,6 +159,7 @@ class HomeScreenActivity : ComponentActivity() {
                                 scope.launch {
                                     val response = stomp.sendLobbyJoin(playerName, lobbyId)
                                     if (response?.isSuccessful == true) {
+                                        Log.d("Debugging", "$lobbyId $playerName")
                                         val intent = Intent(
                                             this@HomeScreenActivity,
                                             LobbyActivity::class.java

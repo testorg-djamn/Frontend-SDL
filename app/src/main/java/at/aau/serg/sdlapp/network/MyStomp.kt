@@ -26,7 +26,7 @@ import org.json.JSONObject
 private const val WEBSOCKET_URI = "ws://192.168.8.133:8080/websocket-broker/websocket" //for testing
 
 
-class MyStomp (private val callback: (String) -> Unit) {
+class MyStomp(private val callback: (String) -> Unit) {
 
     private var session: StompSession? = null
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -151,188 +151,167 @@ class MyStomp (private val callback: (String) -> Unit) {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMessage? {
-        getSession()?.let {
-            return withContext(Dispatchers.IO) {
-                val joinRequest = LobbyRequestMessage(playerName)
-                val json = gson.toJson(joinRequest)
-                val destination = "/app/$lobbyID/join"
+    suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMessage? = withContext(Dispatchers.IO) {
+        val session = getSession() ?: run {
+            sendToMainThread("Not connected")
+            return@withContext null
+        }
 
-                val flow = session?.subscribeText("/topic/$lobbyID")
+        try {
 
-                session?.sendText(destination, json)
-                sendToMainThread("Lobby beitreten...")
+            val joinRequest = LobbyRequestMessage(playerName)
+            val json = gson.toJson(joinRequest)
+            val destination = "/app/$lobbyID/join"
 
-                suspendCancellableCoroutine { continuation ->
-                    Log.d("Debugging", "started Coroutine")
-                    scope.launch {
-                        flow?.collect { payload ->
-                            Log.d("Debugging", "started collecting")
-                            val json = JSONObject(payload)
-                            val success = json.getBoolean("successful")
-                            val message = json.getString("message")
-                            sendToMainThread(message)
+            val flow = session.subscribeText("/topic/$lobbyID")
 
-                            subscribeLobbyUpdates(lobbyID)
+            session.sendText(destination, json)
+            sendToMainThread("Beitreten wird verarbeitet...")
 
-                            val response = LobbyResponseMessage(
-                                lobbyId = lobbyID,
-                                playerName = playerName,
-                                isSuccessful = success,
-                                message = message
-                            )
-                            continuation.resume(response, null)
-                        }
-                    }
-                }
-            }
-        } ?: sendToMainThread("Keine Verbindung aktiv")
-        return null
-    }
+            val payload = flow.first()
+            val jsonResponse = JSONObject(payload)
 
-    suspend fun subscribeLobbyUpdates(lobbyId: String) {
-        getSession()?.let { session ->
-            try {
-                session.subscribeText("/topic/$lobbyId").collect { payload ->
-                    try {
-                        val json = JSONObject(payload)
-                        val playerName = json.getString("playerName")
-
-                        val response = LobbyResponseMessage(
-                            lobbyId = lobbyId,
-                            playerName = playerName,
-                            isSuccessful = true,
-                            message = ""
-                        )
-                        _lobbyUpdates.emit(response)
-                    } catch (e: JSONException) {
-                        Log.e("MyStomp", "Fehler beim Parsen: ${e.message}")
-                    }
-
-                }
-            } catch (e: Exception) {
-                Log.e("MyStomp", "Fehler bei Lobby update", e)
-            }
-        } ?: sendToMainThread("Keine Verbindung aktiv")
-    }
-
-    /** Abonniert das Job-Topic, liefert **einmalig** die empfangenen Jobs im Callback. */
-    fun subscribeJobs(
-        gameId: Int,
-        playerName: String,
-        onJobs: (List<JobMessage>) -> Unit
-    ) {
-        getSession()?.let {
-            scope.launch {
-                try {
-                    val dest = "/topic/$gameId/jobs/$playerName"
-                    val rawMsg = session?.subscribeText(dest)?.first()
-                    val jobs = gson.fromJson(rawMsg, Array<JobMessage>::class.java).toList()
-                    sendToMainThread("📥 Jobs erhalten: ${jobs.joinToString(" + ") { it.title }}")
-                    onJobs(jobs)
-
-                } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Subscriben: ${e.message}")
-                }
-            }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
-        return
-    }
-
-
-    fun sendMove(player: String, action: String) {
-        getSession()?.let {
-            val message = StompMessage(playerName = player, action = action)
-            val json = gson.toJson(message)
-            scope.launch {
-                try {
-                    session?.sendText("/app/move", json)
-                    sendToMainThread("✅ Spielzug gesendet")
-                } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Senden (move): ${e.message}")
-                }
-            }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
-        return
-    }
-
-    fun sendRealMove(player: String, dice: Int) {
-        getSession()?.let {
-            val message = StompMessage(playerName = player, action = "$dice gewürfelt")
-            val json = gson.toJson(message)
-            scope.launch {
-                try {
-                    session?.sendText("/app/move", json)
-                    callback("✅ Spielzug gesendet")
-                } catch (e: Exception) {
-                    callback("❌ Fehler beim Senden (move): ${e.message}")
-                }
-            }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
-        return
-    }
-
-    fun sendChat(player: String, text: String) {
-        getSession()?.let {
-            val message = StompMessage(playerName = player, messageText = text)
-            val json = gson.toJson(message)
-            scope.launch {
-                try {
-                    session?.sendText("/app/chat", json)
-                    sendToMainThread("✅ Nachricht gesendet")
-                } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Senden (chat): ${e.message}")
-                }
-            }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
-        return
-    }
-
-    fun requestJobs(gameId: Int, playerName: String, hasDegree: Boolean) {
-        getSession()?.let {
-            val request = JobRequestMessage(
+            return@withContext LobbyResponseMessage(
+                lobbyId = lobbyID,
                 playerName = playerName,
-                gameId = gameId,
-                hasDegree = hasDegree,
-                jobId = null
-            )
-
-            val json = gson.toJson(request)
-
-            scope.launch {
-                try {
-                    val destination = "/app/jobs/$gameId/$playerName/request"
-                    session?.sendText(destination, json)
-                    sendToMainThread("📨 Jobanfrage gesendet an $destination")
-                } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler bei Jobanfrage: ${e.message}")
+                isSuccessful = jsonResponse.getBoolean("successful"),
+                message = jsonResponse.getString("message")
+            ).also {
+                scope.launch {
+                    session.subscribeText("/topic/$lobbyID")
+                        .collect { update ->
+                            try {
+                                _lobbyUpdates.emit(gson.fromJson(update, LobbyResponseMessage::class.java))
+                            } catch (e: Exception) {
+                                Log.e("LobbyJoin", "Update error", e)
+                            }
+                        }
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
-        return
-    }
-
-    fun selectJob(gameId: Int, playerName: String, job: JobMessage) {
-        getSession()?.let {
-            val json = gson.toJson(job)
-            scope.launch {
-                try {
-                    val destination = "/app/jobs/$gameId/$playerName/select"
-                    session?.sendText(destination, json)
-                    // Direkte Textausgabe nach dem Senden
-                    sendToMainThread("✅ Du hast Job „${job.title}“ (ID ${job.jobId}) ausgewählt")
-                } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Senden der Jobauswahl: ${e.message}")
-                }
-            }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
-        return
-    }
-
-
-    private fun sendToMainThread(msg: String) {
-        Handler(Looper.getMainLooper()).post {
-            callback(msg)
+        }catch (e: Exception){
+            Log.e("LobbyJoin", "Error", e)
+            sendToMainThread("Fehler: ${e.message}")
+            null
         }
     }
+
+/** Abonniert das Job-Topic, liefert **einmalig** die empfangenen Jobs im Callback. */
+fun subscribeJobs(
+    gameId: Int,
+    playerName: String,
+    onJobs: (List<JobMessage>) -> Unit
+) {
+    getSession()?.let {
+        scope.launch {
+            try {
+                val dest = "/topic/$gameId/jobs/$playerName"
+                val rawMsg = session?.subscribeText(dest)?.first()
+                val jobs = gson.fromJson(rawMsg, Array<JobMessage>::class.java).toList()
+                sendToMainThread("📥 Jobs erhalten: ${jobs.joinToString(" + ") { it.title }}")
+                onJobs(jobs)
+
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler beim Subscriben: ${e.message}")
+            }
+        }
+    } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+    return
+}
+
+
+fun sendMove(player: String, action: String) {
+    getSession()?.let {
+        val message = StompMessage(playerName = player, action = action)
+        val json = gson.toJson(message)
+        scope.launch {
+            try {
+                session?.sendText("/app/move", json)
+                sendToMainThread("✅ Spielzug gesendet")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler beim Senden (move): ${e.message}")
+            }
+        }
+    } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+    return
+}
+
+fun sendRealMove(player: String, dice: Int) {
+    getSession()?.let {
+        val message = StompMessage(playerName = player, action = "$dice gewürfelt")
+        val json = gson.toJson(message)
+        scope.launch {
+            try {
+                session?.sendText("/app/move", json)
+                callback("✅ Spielzug gesendet")
+            } catch (e: Exception) {
+                callback("❌ Fehler beim Senden (move): ${e.message}")
+            }
+        }
+    } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+    return
+}
+
+fun sendChat(player: String, text: String) {
+    getSession()?.let {
+        val message = StompMessage(playerName = player, messageText = text)
+        val json = gson.toJson(message)
+        scope.launch {
+            try {
+                session?.sendText("/app/chat", json)
+                sendToMainThread("✅ Nachricht gesendet")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler beim Senden (chat): ${e.message}")
+            }
+        }
+    } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+    return
+}
+
+fun requestJobs(gameId: Int, playerName: String, hasDegree: Boolean) {
+    getSession()?.let {
+        val request = JobRequestMessage(
+            playerName = playerName,
+            gameId = gameId,
+            hasDegree = hasDegree,
+            jobId = null
+        )
+
+        val json = gson.toJson(request)
+
+        scope.launch {
+            try {
+                val destination = "/app/jobs/$gameId/$playerName/request"
+                session?.sendText(destination, json)
+                sendToMainThread("📨 Jobanfrage gesendet an $destination")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler bei Jobanfrage: ${e.message}")
+            }
+        }
+    } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+    return
+}
+
+fun selectJob(gameId: Int, playerName: String, job: JobMessage) {
+    getSession()?.let {
+        val json = gson.toJson(job)
+        scope.launch {
+            try {
+                val destination = "/app/jobs/$gameId/$playerName/select"
+                session?.sendText(destination, json)
+                // Direkte Textausgabe nach dem Senden
+                sendToMainThread("✅ Du hast Job „${job.title}“ (ID ${job.jobId}) ausgewählt")
+            } catch (e: Exception) {
+                sendToMainThread("❌ Fehler beim Senden der Jobauswahl: ${e.message}")
+            }
+        }
+    } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+    return
+}
+
+
+private fun sendToMainThread(msg: String) {
+    Handler(Looper.getMainLooper()).post {
+        callback(msg)
+    }
+}
 }
