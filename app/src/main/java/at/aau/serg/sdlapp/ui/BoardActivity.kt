@@ -3,11 +3,14 @@ package at.aau.serg.sdlapp.ui
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -16,6 +19,7 @@ import at.aau.serg.sdlapp.model.board.Board
 import at.aau.serg.sdlapp.model.board.BoardData
 import com.otaliastudios.zoom.ZoomLayout
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.material3.Text
 
 
 class BoardActivity : ComponentActivity() {
@@ -27,11 +31,16 @@ class BoardActivity : ComponentActivity() {
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
     private lateinit var statsLauncher: ActivityResultLauncher<Intent>
+    private lateinit var statsOverlayView: ComposeView
+    private var showStatsOverlay = false
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
+        statsOverlayView = findViewById(R.id.playerStatsOverlayView)
+
         enableFullscreen()
 
         // 🎯 Spieler-Overlay oben links anzeigen
@@ -64,10 +73,26 @@ class BoardActivity : ComponentActivity() {
 
         val btnShowStats = findViewById<ImageButton>(R.id.btnShowStats)
         btnShowStats.setOnClickListener {
-            val intent = Intent(this, PlayerStatsActivity::class.java)
-            intent.putExtra("playerId", playerId)
-            statsLauncher.launch(intent) //über Launcher starten
+            showStatsOverlay = !showStatsOverlay
+            if (showStatsOverlay) {
+                statsOverlayView.visibility = View.VISIBLE
+                statsOverlayView.setContent {
+                    Column {
+                        PlayerStatsOverlayScreen(playerId = playerId.toString())
+                        Button(onClick = {
+                            statsOverlayView.visibility = View.GONE
+                            showStatsOverlay = false
+                        }) {
+                            Text("Overlay schließen")
+                        }
+                    }
+                }
+            } else {
+                statsOverlayView.visibility = View.GONE
+            }
         }
+
+
 
     }
 
