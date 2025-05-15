@@ -9,9 +9,8 @@ data class PlayerModell(
     var investments: Int,
     var salary: Int,
     var children: Int,
-    var education: String,
-    var relationship: String,
-    var career: String,
-    var jobId: Int = 0,
-    var houseId: Int = 0
+    var education: Boolean,
+    var relationship: Boolean,
+    var jobId: Int? = null,
+    var houseId: Map<Int, Int> = emptyMap()
 )

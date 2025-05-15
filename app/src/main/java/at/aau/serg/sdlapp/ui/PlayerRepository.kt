@@ -14,7 +14,10 @@ object PlayerRepository {
     // ✅ JSON-Konfiguration: Unbekannte Keys ignorieren
     private val json = Json {
         ignoreUnknownKeys = true
+        isLenient = true
+        explicitNulls = false
     }
+
 
     // ✅ Ein einzelner Spieler nach ID
     suspend fun fetchPlayerById(id: String): PlayerModell {
