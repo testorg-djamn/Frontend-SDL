@@ -137,7 +137,9 @@ class HomeScreenActivity : ComponentActivity() {
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxSize()
                 ) {
                     TextField(
                         value = lobbyId,
@@ -151,7 +153,8 @@ class HomeScreenActivity : ComponentActivity() {
                         singleLine = true,
                         modifier = Modifier
                             .padding(16.dp)
-                            .focusRequester(focusRequester = focusRequester),
+                            .focusRequester(focusRequester = focusRequester)
+                            .align(Alignment.CenterHorizontally),
                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
                             onDone = {

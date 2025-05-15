@@ -92,10 +92,11 @@ class LobbyActivity : ComponentActivity() {
                 color = textColor,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
+                    .padding(top = 20.dp)
             )
             Text(
                 text = "Spieler:",
-                fontSize = 15.sp,
+                fontSize = 20.sp,
                 textAlign = TextAlign.Center,
                 color = textColor,
                 modifier = Modifier
@@ -132,6 +133,7 @@ class LobbyActivity : ComponentActivity() {
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 30.dp)
             ) {
                 Text("Lobby verlassen")
             }
