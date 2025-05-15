@@ -31,6 +31,18 @@ android {
         // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
     }
 
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/NOTICE"
+            )
+        }
+    }
+
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -132,7 +144,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel")
+        property("sonar.exclusions", "**/*Activity.kt,**/MyStomp.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt")
     }
 }
 
@@ -161,6 +173,8 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.compose.ui:ui:1.7.0")
     implementation("androidx.compose.ui:ui-viewbinding:1.7.0")
+    implementation("org.hildan.krossbow:krossbow-stomp-core:4.6.0")
+    implementation("org.hildan.krossbow:krossbow-websocket-okhttp:4.6.0")
 
 
 
@@ -179,11 +193,16 @@ dependencies {
     testImplementation("androidx.test.ext:junit:1.1.5")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
 
+
     //UI-Test
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.8")
     androidTestImplementation("androidx.compose.ui:ui-tooling:1.7.8")
     androidTestImplementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
     androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.7.8")
+    androidTestImplementation("io.mockk:mockk-android:1.13.9")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
 
     // Instrumentation Tests (Espresso + Intents)

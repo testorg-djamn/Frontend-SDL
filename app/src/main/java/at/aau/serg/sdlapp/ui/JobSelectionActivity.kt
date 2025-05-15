@@ -25,7 +25,7 @@ class JobSelectionActivity : ComponentActivity() {
 
         // 1) STOMP-Client erzeugen und verbinden
         stomp = MyStomp { showToast(it) }
-        stomp.connect()
+        stomp.connectAsync(playerName)
 
         // 2) Parameter aus Intent
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
