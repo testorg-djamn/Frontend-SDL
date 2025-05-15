@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.network.JobMessage
 import at.aau.serg.sdlapp.network.MyStomp
 import com.google.gson.Gson
 
@@ -29,7 +28,7 @@ class JobCardActivity : ComponentActivity() {
         val btnRequestJobs   = findViewById<Button>(R.id.btnRequestJobs)
 
         btnConnect.setOnClickListener {
-            stomp.connect()
+            stomp.connectAsync(playerName)
             showToast("Verbindung gestartet")
         }
 
@@ -38,11 +37,7 @@ class JobCardActivity : ComponentActivity() {
             showToast("Spielstart gesendet (Repo wird erstellt)")
         }
 
-        // Hier kommt dein neuer Listener hin:
         btnRequestJobs.setOnClickListener {
-            // 1) Stelle erst die Connection her
-            stomp.connect()
-            // 2) Abonniere einmalig das Job-Topic und erhalte die Jobs im Callback
             stomp.subscribeJobs(gameId, playerName) { jobs ->
                 // hier UI befüllen oder direkt zur Auswahl-Activity navigieren
                 val jobsJson = Gson().toJson(jobs)
