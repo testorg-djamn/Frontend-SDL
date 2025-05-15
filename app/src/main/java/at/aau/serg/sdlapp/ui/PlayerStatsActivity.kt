@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 class PlayerStatsActivity : ComponentActivity() {
@@ -45,12 +44,6 @@ class PlayerStatsActivity : ComponentActivity() {
                 Text("🔙 Zurück zum Spiel")
             }
         }
-    }
-
-    @Preview
-    @Composable
-    fun playerStatsPreview(){
-        StatsScreenWithCloseButton(1)
     }
 
 

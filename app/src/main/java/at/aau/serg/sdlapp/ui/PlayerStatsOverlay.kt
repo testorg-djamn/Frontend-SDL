@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import at.aau.serg.sdlapp.ui.theme.PlayerViewModel
 
 @Composable
 fun PlayerStatsOverlay(player: PlayerModell) {
@@ -35,7 +34,7 @@ fun PlayerStatsOverlay(player: PlayerModell) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = player.name,
+                    text = player.id,
                     color = Color.White,
                     fontSize = 18.sp
                 )
@@ -82,7 +81,7 @@ fun PlayerStatsOverlayScreen(
     }
 
     viewModel.player?.let { player ->
-        println("🎉 Spieler geladen: ${player.name}")
+        println("🎉 Spieler geladen: ${player.id}")
         PlayerStatsOverlay(player = player)
     } ?: Box(
         modifier = Modifier.fillMaxSize(),

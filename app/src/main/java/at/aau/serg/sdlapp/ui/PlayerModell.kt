@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PlayerModell(
-    val name: String,
     val id: String,
     var money: Int,
     var investments: Int,
