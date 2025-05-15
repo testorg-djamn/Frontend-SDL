@@ -17,7 +17,7 @@ fun PlayerStatsOverlay(player: PlayerModell) {
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF8D4C28)), // Braunton
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF8D4C28)),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -28,7 +28,7 @@ fun PlayerStatsOverlay(player: PlayerModell) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // 🧍 Spielername & Geld
+            // Spielername & Geld
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
@@ -45,13 +45,13 @@ fun PlayerStatsOverlay(player: PlayerModell) {
                 )
             }
 
-            // ❤️📘💰 Status
+            // Statussymbole
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.Start
             ) {
                 StatusIcon("❤️", player.children.toString())
-                StatusIcon("📘", player.education.take(1))
+                StatusIcon("📘", if (player.education) "✓" else "✗")
                 StatusIcon("💰", "${player.investments / 1000}k")
             }
         }
@@ -84,11 +84,12 @@ fun PlayerStatsOverlayScreen(
         println("🎉 Spieler geladen: ${player.id}")
         PlayerStatsOverlay(player = player)
     } ?: Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
         contentAlignment = Alignment.Center
     ) {
         println("⌛ Spieler wird noch geladen...")
         CircularProgressIndicator()
     }
-
 }
