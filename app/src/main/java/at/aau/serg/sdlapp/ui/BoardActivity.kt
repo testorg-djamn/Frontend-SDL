@@ -45,12 +45,13 @@ class BoardActivity : ComponentActivity(),
     private lateinit var figureManager: BoardFigureManager
     private lateinit var uiManager: BoardUIManager
     private lateinit var moveManager: BoardMoveManager
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
         enableFullscreen()
 
+        // UI-Komponenten initialisieren
+        initializeUIComponents()
 
         // Manager initialisieren
         initializeManagers()
@@ -112,18 +113,13 @@ class BoardActivity : ComponentActivity(),
             playerManager = playerManager,
             layoutInflater = layoutInflater,
             uiCallbacks = this
-        )
-
-        // BoardMoveManager initialisieren
+        )        // BoardMoveManager initialisieren
         moveManager = BoardMoveManager(
             context = this,
             playerManager = playerManager,
             boardFigureManager = figureManager,
             callbacks = this
         )
-
-        // Verbindung herstellen
-        networkManager.connect()
     }
 
     /**
@@ -244,14 +240,8 @@ class BoardActivity : ComponentActivity(),
 
     override fun onMoveReceived(move: MoveMessage) {
         moveManager.handleMoveMessage(move, playerId, playerName, networkManager.getStompClient())
-    }
-
-    override fun onStartFieldSelected(fieldIndex: Int) {
+    }    override fun onStartFieldSelected(fieldIndex: Int) {
         moveManager.placePlayerAtStartField(playerId, fieldIndex, networkManager.getStompClient(), playerName)
-
-        // Nach dem Beitreten erneut nach aktiven Spielern fragen
-        networkManager.requestActivePlayers()
-        println("👥 Frage nach aktiven Spielern nach dem Beitreten...")
     }
 
     override fun onPlayersChanged() {
