@@ -63,7 +63,7 @@ class BoardMoveManager(
             // Bewege Figur zu den X/Y-Koordinaten des Feldes
             boardFigureManager.moveFigureToPosition(field.x, field.y, move.playerId)
             // Log für Debugging
-            println("🚗 Lokale Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.type}")
+            println("🚗 Lokale Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.typeString}")
         }
     }
 

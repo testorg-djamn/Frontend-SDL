@@ -2,7 +2,7 @@ package at.aau.serg.sdlapp
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import at.aau.serg.sdlapp.ui.FieldType
+import at.aau.serg.sdlapp.model.board.FieldType
 import at.aau.serg.sdlapp.ui.FieldUI
 import at.aau.serg.sdlapp.ui.GameBoard
 import at.aau.serg.sdlapp.ui.GameField
@@ -17,7 +17,7 @@ class FieldUITest {
 
     @Test
     fun gameField_showsLabelCorrectly() {
-        val field = FieldUI(1, FieldType.PAYDAY, "Zahltag")
+        val field = FieldUI(1, FieldType.ZAHLTAG, "Zahltag")
         composeTestRule.setContent {
             GameField(field = field)
         }

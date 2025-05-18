@@ -17,8 +17,8 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 //
-//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
 
 
 class MyStomp(private val callback: (String) -> Unit) {
@@ -34,6 +34,7 @@ class MyStomp(private val callback: (String) -> Unit) {
     var onConnectionStateChanged: ((Boolean) -> Unit)? = null
     var onConnectionError: ((String) -> Unit)? = null
     var onPlayerListReceived: ((List<Int>) -> Unit)? = null
+    var onBoardDataReceived: ((List<at.aau.serg.sdlapp.model.board.Field>) -> Unit)? = null
 
     // Reconnect-Logik
     private var shouldReconnect = true
@@ -86,6 +87,11 @@ class MyStomp(private val callback: (String) -> Unit) {
                     }
                 }
             }
+            scope.launch {
+                s.subscribeText("/topic/board/data").collect { msg ->
+                    handleBoardDataMessage(msg)
+                }
+            }
         }
     }
 
@@ -123,6 +129,22 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         }
     }
+
+    private fun handleBoardDataMessage(msg: String) {
+        try {
+            sendToMainThread("📊 Board-Daten vom Server empfangen")
+            val boardDataMessage = gson.fromJson(msg, BoardDataMessage::class.java)
+
+            // Konvertiere FieldDto zu lokalen Field-Objekten
+            val fields = boardDataMessage.fields.map { it.toField() }
+
+            // Rufe den Callback mit den Board-Daten auf
+            onBoardDataReceived?.invoke(fields)
+        } catch (e: Exception) {
+            sendToMainThread("⚠️ Fehler beim Verarbeiten der Board-Daten: ${e.message}")
+        }
+    }
+
     fun sendGameStart(gameId: Int, playerName: String) {
         getSession()?.let {
             scope.launch {
@@ -323,6 +345,28 @@ class MyStomp(private val callback: (String) -> Unit) {
                 }
             }
         } ?: sendToMainThread("❌ Verbindung nicht aktiv bei Spielerabfrage!")
+    }
+
+    /**
+     * Sendet eine Nachricht an das angegebene Ziel
+     *
+     * @param destination Das Ziel, an das die Nachricht gesendet werden soll
+     * @param payload Der Inhalt der Nachricht (als JSON-String oder einfacher String)
+     */
+    fun sendMessage(destination: String, payload: String) {
+        getSession()?.let {
+            scope.launch {
+                try {
+                    session?.sendText(destination, payload)
+                    sendToMainThread("✅ Nachricht an $destination gesendet")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden an $destination: ${e.message}")
+                    isConnected = false
+                    onConnectionStateChanged?.invoke(false)
+                    handleReconnect()
+                }
+            }
+        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Senden fehlgeschlagen")
     }
 
     private fun sendToMainThread(message: String) {

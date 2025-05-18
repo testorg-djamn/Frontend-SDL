@@ -3,6 +3,7 @@ package at.aau.serg.sdlapp.ui
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -14,6 +15,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
+import at.aau.serg.sdlapp.model.board.Field
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.MoveMessage
 import at.aau.serg.sdlapp.ui.board.BoardFigureManager
@@ -106,6 +108,9 @@ class BoardActivity : ComponentActivity(),
             playerId = playerId,
             callbacks = this
         )
+        
+        // Fordere die Board-Daten vom Server an
+        networkManager.requestBoardData()
 
         // BoardUIManager initialisieren
         uiManager = BoardUIManager(
@@ -247,6 +252,23 @@ class BoardActivity : ComponentActivity(),
     override fun onPlayersChanged() {
         // Status-Text aktualisieren da sich die Spielerliste geändert hat
         updateStatusText()
+    }
+
+    override fun onBoardDataReceived(fields: List<Field>) {
+        // Log that we received board data
+        Log.d("BoardActivity", "Received board data from server: ${fields.size} fields")
+        
+        // Update the board data if it differs from local data
+        // This could be placed in a separate BoardDataManager class in a real implementation
+        if (fields.isNotEmpty() && fields != at.aau.serg.sdlapp.model.board.BoardData.board) {
+            // For now, we'll just log the differences
+            Log.d("BoardActivity", "Board data from server differs from local data")
+            Log.d("BoardActivity", "Server fields: ${fields.map { it.index }}")
+            Log.d("BoardActivity", "Local fields: ${at.aau.serg.sdlapp.model.board.BoardData.board.map { it.index }}")
+            
+            // In a real implementation, you'd update the local board data
+            // BoardDataManager.updateBoardData(fields)
+        }
     }
 
     /**

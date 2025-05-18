@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import at.aau.serg.sdlapp.model.board.Field
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.MoveMessage
 import at.aau.serg.sdlapp.network.MyStomp
@@ -81,7 +82,7 @@ class BoardNetworkManager(
             Handler(Looper.getMainLooper()).post {
                 try {
                     // Verbesserte Logging für Debugging mit mehr Details
-                    println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.type}, " +
+                    println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.typeString}, " +
                             "Spieler=${move.playerName} (ID=${move.playerId}), Nächste Felder=${move.nextPossibleFields.joinToString()}")
 
                     callbacks.onMoveReceived(move)
@@ -89,6 +90,14 @@ class BoardNetworkManager(
                     println("❌❌❌ Unerwarteter Fehler bei der Bewegungsverarbeitung: ${e.message}")
                     e.printStackTrace()
                 }
+            }
+        }
+
+        // Handler für Board-Daten
+        stompClient.onBoardDataReceived = { fields ->
+            Handler(Looper.getMainLooper()).post {
+                println("📊 Board-Daten vom Server erhalten (${fields.size} Felder)")
+                callbacks.onBoardDataReceived(fields)
             }
         }
     }
@@ -127,6 +136,13 @@ class BoardNetworkManager(
     fun requestActivePlayers() {
         stompClient.requestActivePlayers(playerName)
     }    /**
+     * Fordert die aktuellen Board-Daten vom Server an
+     */
+    fun requestBoardData() {
+        stompClient.sendMessage("/app/board/data", "{}")
+    }
+
+    /**
      * Prüft, ob die Verbindung besteht
      */
     val isConnected: Boolean
@@ -176,5 +192,10 @@ class BoardNetworkManager(
         fun onConnectionStateChanged(isConnected: Boolean)
         fun onConnectionError(errorMessage: String)
         fun onMoveReceived(move: MoveMessage)
+
+        /**
+         * Wird aufgerufen, wenn Spiel-Brett-Daten vom Server empfangen wurden
+         */
+        fun onBoardDataReceived(fields: List<Field>)
     }
 }
