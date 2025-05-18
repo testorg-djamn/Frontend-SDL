@@ -113,7 +113,10 @@ class LobbyActivity : ComponentActivity() {
             Button(
                 onClick = {
                     //TODO: startet Spiel, soll nur Host können
-                    val intent = Intent(this@LobbyActivity, BoardActivity::class.java)
+                    val intent = Intent(this@LobbyActivity, BoardActivity::class.java).apply {
+                        putExtra("playerName", playerName) // Spielername übergeben
+                        putExtra("lobbyID", lobbyid)       // Lobby-ID übergeben
+                    }
                     startActivity(intent)
                 },
                 modifier = Modifier
@@ -125,6 +128,9 @@ class LobbyActivity : ComponentActivity() {
             Button(
                 onClick = {
                     //TODO: Lobby wieder verlassen
+
+                    // Benachrichtigung an den Server senden, dass der Spieler die Lobby verlässt
+
 
                     //delete Player from Lobby
                     // add return to HomeScreen

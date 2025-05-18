@@ -17,8 +17,8 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 //
-private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-
+//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
 
 
 class MyStomp(private val callback: (String) -> Unit) {

@@ -28,31 +28,24 @@ class BoardUIManager(
 ) {
     /**
      * Zeigt einen Dialog zur Auswahl des Startpunktes (normal oder Uni)
-     */
-    fun showStartChoiceDialog(playerName: String, stompClient: MyStomp) {
+     */    fun showStartChoiceDialog(playerName: String, stompClient: MyStomp) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_start_choice, null)
         val dialog = AlertDialog.Builder(context)
             .setView(dialogView)
             .setCancelable(false)
             .create()
 
-        // Statustext für Verbindungsinformation
+        // Statustext für Startpunkt-Auswahl
         val statusText = dialogView.findViewById<TextView>(R.id.tvStatus)
-        statusText?.text = "Verbinde zum Server..."
+        statusText?.text = "Wähle deinen Startpunkt."
 
-        // Buttons im Dialog anfangs deaktivieren, bis Verbindung steht
+        // Buttons für die Startpunktauswahl
         val normalButton = dialogView.findViewById<Button>(R.id.btnStartNormal)
         val uniButton = dialogView.findViewById<Button>(R.id.btnStartUni)
 
-        normalButton.isEnabled = false
-        uniButton.isEnabled = false
-
-        // Aktuellen Verbindungsstatus berücksichtigen
-        if (stompClient.isConnected) {
-            statusText?.text = "Verbunden! Wähle deinen Startpunkt."
-            normalButton.isEnabled = true
-            uniButton.isEnabled = true
-        }
+        // Buttons sind immer aktiv, da die Verbindung bereits in der LobbyActivity hergestellt wurde
+        normalButton.isEnabled = true
+        uniButton.isEnabled = true
 
         // Normal-Start Button
         normalButton.setOnClickListener {
