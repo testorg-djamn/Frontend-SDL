@@ -16,9 +16,9 @@ import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
-//
+
 //private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
 
 
 class MyStomp(private val callback: (String) -> Unit) {
@@ -204,15 +204,24 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         }
 
-    fun subscribeJobs(gameId: Int, playerName: String, onJobs: (List<JobMessage>) -> Unit) {
+    fun subscribeJobs(
+        gameId: Int,
+        playerName: String,
+        onJobs: (List<JobMessage>) -> Unit
+    ) {
         getSession()?.let {
             scope.launch {
                 try {
                     val dest = "/topic/$gameId/jobs/$playerName"
+                    // Warte auf genau eine Nachricht mit den beiden Jobs
                     val rawMsg = session?.subscribeText(dest)?.first()
                     val jobs = gson.fromJson(rawMsg, Array<JobMessage>::class.java).toList()
+                    // Debug-Log
                     sendToMainThread("📥 Jobs erhalten: ${jobs.joinToString(" + ") { it.title }}")
-                    onJobs(jobs)
+                    // Callback auf Main-Thread
+                    withContext(Dispatchers.Main) {
+                        onJobs(jobs)
+                    }
                 } catch (e: Exception) {
                     sendToMainThread("❌ Fehler beim Subscriben: ${e.message}")
                 }
@@ -269,6 +278,25 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
     }
+
+    /**
+     * Fordert beim Backend an, für das gegebene Spiel (gameId) das Job-Repository anzulegen.
+    Später soll das Repo durch den Screen Change von Lobby zu Game im Backend direkt ohne Aufruf erzeugt werden
+     */
+    fun requestJobRepository(gameId: Int) {
+        getSession()?.let {
+            scope.launch {
+                try {
+                    // Leere Nachricht an diesen STOMP-Endpunkt
+                    session?.sendText("/app/game/createJobRepo/$gameId", "")
+                    sendToMainThread("📨 Job-Repository für Spiel $gameId angefordert")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Anfordern des Job-Repos: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("Keine Verbindung aktiv")
+    }
+
 
     fun requestJobs(gameId: Int, playerName: String, hasDegree: Boolean) {
         getSession()?.let {
