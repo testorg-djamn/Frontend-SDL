@@ -11,6 +11,7 @@ import at.aau.serg.sdlapp.network.MyStomp
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+// Can be deleted later, just for Functionality Test
 class JobSelectionActivity : ComponentActivity() {
 
     private lateinit var stomp: MyStomp
@@ -23,16 +24,16 @@ class JobSelectionActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_job_selection)
 
-        // 1) STOMP-Client erzeugen und verbinden
+        // 1) Parameter aus Intent
+        playerName = intent.getStringExtra("playerName") ?: "Spieler"
+        gameId     = intent.getIntExtra("gameId", 1)
+
+        // 2) STOMP-Client erzeugen und verbinden
         stomp = MyStomp { showToast(it) }
         stomp.connectAsync(playerName)
 
-        // 2) Parameter aus Intent
-        playerName = intent.getStringExtra("playerName") ?: "Spieler"
-        gameId      = intent.getIntExtra("gameId", 1)
-
         // 3) Job-Liste aus Intent parsen
-        val jobsJson = intent.getStringExtra("jobList")
+        val jobsJson = intent.getStringExtra("jobList") ?: "[]"
         val type     = object : TypeToken<List<JobMessage>>() {}.type
         val jobs: List<JobMessage> = Gson().fromJson(jobsJson, type)
         leftJob  = jobs[0]
@@ -50,13 +51,13 @@ class JobSelectionActivity : ComponentActivity() {
         // 5) Buttons: Job annehmen
         findViewById<Button>(R.id.btnLeftAccept).setOnClickListener {
             showToast("Job angenommen: ${leftJob.title}")
-            finish()  // sofort schließen
-            stomp.selectJob(gameId, playerName, leftJob)  // und dann im Hintergrund senden
+            stomp.selectJob(gameId, playerName, leftJob)
+            finish()
         }
         findViewById<Button>(R.id.btnRightAccept).setOnClickListener {
             showToast("Job angenommen: ${rightJob.title}")
-            finish()
             stomp.selectJob(gameId, playerName, rightJob)
+            finish()
         }
     }
 
