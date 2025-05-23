@@ -6,9 +6,9 @@
     android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_mainactivity"
+    android:background="@drawable/background_mainscreen"
     android:padding="16dp"
-    tools:context=".MainActivity">
+    tools:context=".ui.StartActivity">
 
     <!-- Verbinden -->
 
@@ -47,6 +47,7 @@
         android:background="@drawable/rounded_blue_button"
         android:textColor="#FFFFFF" />
 
+
     <!-- Statusanzeige mit Hintergrund -->
     <TextView
         android:id="@+id/statusText"
@@ -64,5 +65,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="32dp" />
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

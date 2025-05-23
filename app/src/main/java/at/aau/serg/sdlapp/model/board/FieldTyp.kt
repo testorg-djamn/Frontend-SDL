@@ -1,0 +1,6 @@
+package at.aau.serg.sdlapp.model.board
+
+
+enum class FieldType {
+    AKTION, STARTNORMAL, STARTUNI, ZAHLTAG, ANLAGE, FREUND, BERUF, HAUS, EXAMEN, HEIRAT, KINDER, MIDLIFECHRISIS, FRUEHPENSION, RUHESTAND,
+}
