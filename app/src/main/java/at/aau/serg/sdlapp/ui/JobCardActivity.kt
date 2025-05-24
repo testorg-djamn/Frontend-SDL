@@ -23,37 +23,33 @@ class JobCardActivity : ComponentActivity() {
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
         stomp = MyStomp { showToast(it) }
 
-        val btnConnect       = findViewById<Button>(R.id.btnConnect)
-        val btnSendGameStart = findViewById<Button>(R.id.btnCreateRepo)
-        val btnRequestJobs   = findViewById<Button>(R.id.btnRequestJobs)
-
-        btnConnect.setOnClickListener {
+        findViewById<Button>(R.id.btnConnect).setOnClickListener {
             stomp.connectAsync(playerName)
             showToast("Verbindung gestartet")
         }
 
-        btnSendGameStart.setOnClickListener {
-            stomp.sendGameStart(gameId, playerName)
-            showToast("Spielstart gesendet (Repo wird erstellt)")
+        findViewById<Button>(R.id.btnCreateRepo).setOnClickListener {
+            stomp.requestJobRepository(gameId)
+            showToast("Job-Repository angefordert")
         }
 
-        btnRequestJobs.setOnClickListener {
+        findViewById<Button>(R.id.btnRequestJobs).setOnClickListener {
+            // 1) Subscription auf Job-Topic
             stomp.subscribeJobs(gameId, playerName) { jobs ->
-                // hier UI befüllen oder direkt zur Auswahl-Activity navigieren
+                // 2) Job-Liste ist da → navigiere weiter
                 val jobsJson = Gson().toJson(jobs)
-                Intent(this, JobSelectionActivity::class.java).apply {
+                val intent = Intent(this, JobSelectionActivity::class.java).apply {
                     putExtra("gameId", gameId)
                     putExtra("playerName", playerName)
                     putExtra("hasDegree", hasDegree)
                     putExtra("jobList", jobsJson)
-                    startActivity(this)
                 }
+                startActivity(intent)
             }
-            // 3) Abschließend die eigentliche Anfrage ans Backend schicken
+            // 3) Anfrage ans Backend schicken
             stomp.requestJobs(gameId, playerName, hasDegree)
         }
     }
-
 
     private fun showToast(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
