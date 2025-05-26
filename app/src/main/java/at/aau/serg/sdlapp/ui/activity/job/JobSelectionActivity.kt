@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui
+package at.aau.serg.sdlapp.ui.activity.job
 
 import android.os.Bundle
 import android.widget.Button

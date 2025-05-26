@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui
+package at.aau.serg.sdlapp.ui.activity.job
 
 import android.content.Intent
 import android.os.Bundle

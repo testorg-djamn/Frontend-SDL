@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui
+package at.aau.serg.sdlapp.ui.activity
 
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import at.aau.serg.sdlapp.ui.PlayerStatsOverlayScreen
 
 class PlayerStatsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

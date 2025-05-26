@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.network.MyStomp
 import at.aau.serg.sdlapp.model.game.ActionCard
 import com.google.gson.Gson

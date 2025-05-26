@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui
+package at.aau.serg.sdlapp.ui.activity
 
 import android.os.Bundle
 import android.os.Handler
@@ -8,8 +8,6 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -21,7 +19,6 @@ import at.aau.serg.sdlapp.ui.board.BoardMoveManager
 import at.aau.serg.sdlapp.ui.board.BoardNetworkManager
 import at.aau.serg.sdlapp.ui.board.BoardUIManager
 import com.otaliastudios.zoom.ZoomLayout
-import androidx.compose.ui.platform.ComposeView
 
 /**
  * Die BoardActivity ist die Hauptaktivität des Spiels und verwaltet die
