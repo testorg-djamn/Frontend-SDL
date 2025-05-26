@@ -11,15 +11,30 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btnLeftAccept"
+        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/rightJobCard"
-        android:layout_marginEnd="8dp">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnLeftAccept"
+        app:layout_constraintVertical_chainStyle="packed">
 
-        <TextView android:id="@+id/tvTitleLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Titel"/>
-        <TextView android:id="@+id/tvSalaryLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gehalt"/>
-        <TextView android:id="@+id/tvBonusLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bonus"/>
+        <TextView
+            android:id="@+id/tvTitleLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Titel" />
+
+        <TextView
+            android:id="@+id/tvSalaryLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gehalt" />
+
+        <TextView
+            android:id="@+id/tvBonusLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bonus" />
     </LinearLayout>
 
     <Button
@@ -27,11 +42,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Job annehmen"
-        app:layout_constraintTop_toBottomOf="@id/leftJobCard"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnRightAccept"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/leftJobCard"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <!-- Rechte Jobkarte -->
     <LinearLayout
@@ -39,15 +55,30 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/btnRightAccept"
+        android:layout_marginStart="8dp"
         app:layout_constraintStart_toEndOf="@+id/leftJobCard"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="8dp">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnRightAccept"
+        app:layout_constraintVertical_chainStyle="packed">
 
-        <TextView android:id="@+id/tvTitleRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Titel"/>
-        <TextView android:id="@+id/tvSalaryRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gehalt"/>
-        <TextView android:id="@+id/tvBonusRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bonus"/>
+        <TextView
+            android:id="@+id/tvTitleRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Titel" />
+
+        <TextView
+            android:id="@+id/tvSalaryRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gehalt" />
+
+        <TextView
+            android:id="@+id/tvBonusRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bonus" />
     </LinearLayout>
 
     <Button
@@ -55,9 +86,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Job annehmen"
-        app:layout_constraintTop_toBottomOf="@id/rightJobCard"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="8dp"
         app:layout_constraintStart_toEndOf="@+id/btnLeftAccept"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="8dp"/>
+        app:layout_constraintTop_toBottomOf="@id/rightJobCard"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
