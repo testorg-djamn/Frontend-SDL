@@ -11,6 +11,7 @@ import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.network.message.OutputMessage
 import at.aau.serg.sdlapp.network.message.PlayerListMessage
 import at.aau.serg.sdlapp.network.message.StompMessage
+import at.aau.serg.sdlapp.network.message.house.HouseBuyElseSellMessage
 import at.aau.serg.sdlapp.network.message.house.HouseMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.*
@@ -445,6 +446,57 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
             }
         } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription (Häuser) fehlgeschlagen")
     }
+    fun buyHouse(gameId: Int, playerName: String) {
+        getSession()?.let {
+            val message = HouseBuyElseSellMessage(
+                playerID = playerName,
+                gameId = gameId,
+                buyElseSell = true
+            )
+            val json = gson.toJson(message)
+            scope.launch {
+                try {
+                    val destination = "/app/houses/$gameId/$playerName/choose"
+                    session?.sendText(destination, json)
+                    sendToMainThread("📨 Kaufanfrage für Haus gesendet")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden der Kaufanfrage: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Kaufanfrage fehlgeschlagen")
+    }
 
-
+    fun sellHouse(gameId: Int, playerName: String) {
+        getSession()?.let {
+            val message = HouseBuyElseSellMessage(
+                playerID    = playerName,
+                gameId      = gameId,
+                buyElseSell = false
+            )
+            val json = gson.toJson(message)
+            scope.launch {
+                try {
+                    val destination = "/app/houses/$gameId/$playerName/choose"
+                    session?.sendText(destination, json)
+                    sendToMainThread("📨 Verkaufsanfrage für Haus gesendet")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden der Verkaufsanfrage: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Verkaufsanfrage fehlgeschlagen")
+    }
+    fun finalizeHouseAction(gameId: Int, playerName: String, house: HouseMessage) {
+        getSession()?.let {
+            val json = gson.toJson(house)
+            scope.launch {
+                try {
+                    val destination = "/app/houses/$gameId/$playerName/finalize"
+                    session?.sendText(destination, json)
+                    sendToMainThread("📨 Finalisierungsanfrage für Hausaktion gesendet")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden der Finalisierungsanfrage: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Finalisierungsanfrage fehlgeschlagen")
+    }
 }
