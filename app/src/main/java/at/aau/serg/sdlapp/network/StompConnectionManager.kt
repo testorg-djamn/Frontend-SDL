@@ -3,6 +3,14 @@ package at.aau.serg.sdlapp.network
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import at.aau.serg.sdlapp.network.message.job.JobMessage
+import at.aau.serg.sdlapp.network.message.job.JobRequestMessage
+import at.aau.serg.sdlapp.network.message.lobby.LobbyRequestMessage
+import at.aau.serg.sdlapp.network.message.lobby.LobbyResponseMessage
+import at.aau.serg.sdlapp.network.message.MoveMessage
+import at.aau.serg.sdlapp.network.message.OutputMessage
+import at.aau.serg.sdlapp.network.message.PlayerListMessage
+import at.aau.serg.sdlapp.network.message.StompMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,7 +29,7 @@ import org.json.JSONObject
 private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
 
 
-class MyStomp(private val callback: (String) -> Unit) {
+class StompConnectionManager(private val callback: (String) -> Unit) {
 
     private var session: StompSession? = null
     private val scope = CoroutineScope(Dispatchers.IO)

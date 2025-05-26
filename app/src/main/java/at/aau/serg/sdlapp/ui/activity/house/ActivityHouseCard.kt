@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.activity.job
+package at.aau.serg.sdlapp.ui.activity.house
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,16 +9,15 @@ import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.network.StompConnectionManager
 import com.google.gson.Gson
 
-class JobCardActivity : ComponentActivity() {
+class HouseCardActivity : ComponentActivity() {
 
     private lateinit var stomp: StompConnectionManager
     private lateinit var playerName: String
     private val gameId: Int = 1
-    private val hasDegree = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_job_card)
+        setContentView(R.layout.activity_house_card)
 
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
         stomp = StompConnectionManager { showToast(it) }
@@ -28,30 +27,29 @@ class JobCardActivity : ComponentActivity() {
             showToast("Verbindung gestartet")
         }
 
-        findViewById<Button>(R.id.btnCreateRepo).setOnClickListener {
-            stomp.requestJobRepository(gameId)
-            showToast("Job-Repository angefordert")
+        findViewById<Button>(R.id.btnCreateHouseRepo).setOnClickListener {
+            stomp.requestHouseRepository(gameId)
+            showToast("House-Repository angefordert")
         }
 
-        findViewById<Button>(R.id.btnRequestJobs).setOnClickListener {
-            // 1) Subscription auf Job-Topic
-            stomp.subscribeJobs(gameId, playerName) { jobs ->
-                // 2) Job-Liste ist da → navigiere weiter
-                val jobsJson = Gson().toJson(jobs)
-                val intent = Intent(this, JobSelectionActivity::class.java).apply {
+        findViewById<Button>(R.id.btnHouseFunctionality).setOnClickListener {
+            // 1) Subscription auf House-Topic
+            stomp.subscribeHouses(gameId, playerName) { houses ->
+                // 2) House-Liste eingetroffen → weiter zur Auswahl
+                val housesJson = Gson().toJson(houses)
+                val intent = Intent(this, HouseSelectionActivity::class.java).apply {
                     putExtra("gameId", gameId)
                     putExtra("playerName", playerName)
-                    putExtra("hasDegree", hasDegree)
-                    putExtra("jobList", jobsJson)
+                    putExtra("houseList", housesJson)
                 }
                 startActivity(intent)
             }
             // 3) Anfrage ans Backend schicken
-            stomp.requestJobs(gameId, playerName, hasDegree)
+            stomp.requestHouses(gameId, playerName)
         }
     }
 
-    private fun showToast(msg: String) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

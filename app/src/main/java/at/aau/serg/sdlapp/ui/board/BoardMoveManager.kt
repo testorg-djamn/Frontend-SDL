@@ -4,8 +4,8 @@ import android.content.Context
 import android.widget.Toast
 import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.MoveMessage
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.message.MoveMessage
+import at.aau.serg.sdlapp.network.StompConnectionManager
 
 /**
  * Verwaltet die Spielzüge und Bewegungen auf dem Spielbrett
@@ -22,7 +22,7 @@ class BoardMoveManager(
     /**
      * Verarbeitet eine empfangene MoveMessage vom Server
      */
-    fun handleMoveMessage(move: MoveMessage, playerId: Int, playerName: String, stompClient: MyStomp) {
+    fun handleMoveMessage(move: MoveMessage, playerId: Int, playerName: String, stompClient: StompConnectionManager) {
         // Den Spielerzug im PlayerManager aktualisieren
         val movePlayerId = move.playerId
         if (movePlayerId != -1) {
@@ -106,7 +106,7 @@ class BoardMoveManager(
     /**
      * Fügt Marker für die möglichen nächsten Felder hinzu
      */
-    private fun addMarkersForNextPossibleFields(move: MoveMessage, stompClient: MyStomp, playerName: String) {
+    private fun addMarkersForNextPossibleFields(move: MoveMessage, stompClient: StompConnectionManager, playerName: String) {
         if (move.nextPossibleFields.isNotEmpty()) {
             println("🎯 Mögliche nächste Felder: ${move.nextPossibleFields.joinToString()}")
 
@@ -131,7 +131,7 @@ class BoardMoveManager(
     /**
      * Platziert den Spieler auf dem angegebenen Startfeld
      */
-    fun placePlayerAtStartField(playerId: Int, fieldIndex: Int, stompClient: MyStomp, playerName: String) {
+    fun placePlayerAtStartField(playerId: Int, fieldIndex: Int, stompClient: StompConnectionManager, playerName: String) {
         // Aktuellen Feld-Index setzen
         currentFieldIndex = fieldIndex
 

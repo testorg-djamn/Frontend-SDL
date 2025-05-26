@@ -5,17 +5,15 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.player.Player
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.StompConnectionManager
 
 /**
  * Verwaltet die UI-Elemente der BoardActivity wie Dialoge, Overlays, etc.
@@ -28,7 +26,7 @@ class BoardUIManager(
 ) {
     /**
      * Zeigt einen Dialog zur Auswahl des Startpunktes (normal oder Uni)
-     */    fun showStartChoiceDialog(playerName: String, stompClient: MyStomp) {
+     */    fun showStartChoiceDialog(playerName: String, stompClient: StompConnectionManager) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_start_choice, null)
         val dialog = AlertDialog.Builder(context)
             .setView(dialogView)

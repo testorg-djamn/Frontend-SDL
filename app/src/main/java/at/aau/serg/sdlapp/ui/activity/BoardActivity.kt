@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.MoveMessage
+import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.ui.board.BoardFigureManager
 import at.aau.serg.sdlapp.ui.board.BoardMoveManager
 import at.aau.serg.sdlapp.ui.board.BoardNetworkManager

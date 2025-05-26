@@ -6,15 +6,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.network.JobMessage
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.message.job.JobMessage
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 // Can be deleted later, just for Functionality Test
 class JobSelectionActivity : ComponentActivity() {
 
-    private lateinit var stomp: MyStomp
+    private lateinit var stomp: StompConnectionManager
     private lateinit var playerName: String
     private lateinit var leftJob: JobMessage
     private lateinit var rightJob: JobMessage
@@ -29,7 +29,7 @@ class JobSelectionActivity : ComponentActivity() {
         gameId     = intent.getIntExtra("gameId", 1)
 
         // 2) STOMP-Client erzeugen und verbinden
-        stomp = MyStomp { showToast(it) }
+        stomp = StompConnectionManager { showToast(it) }
         stomp.connectAsync(playerName)
 
         // 3) Job-Liste aus Intent parsen
