@@ -11,6 +11,7 @@ import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.network.message.OutputMessage
 import at.aau.serg.sdlapp.network.message.PlayerListMessage
 import at.aau.serg.sdlapp.network.message.StompMessage
+import at.aau.serg.sdlapp.network.message.house.HouseMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -406,4 +407,44 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
             }
         }
     }
+
+    fun requestHouseRepository(gameId: Int) {
+        getSession()?.let {
+            scope.launch {
+                try {
+                    // Leere Nachricht an diesen STOMP-Endpunkt
+                    session?.sendText("/app/game/createHouseRepo/$gameId", "")
+                    sendToMainThread("📨 House-Repository für Spiel $gameId angefordert")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Anfordern des House-Repos: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("Keine Verbindung aktiv")
+    }
+    fun subscribeHouses(
+        gameId: Int,
+        playerName: String,
+        onHouses: (List<HouseMessage>) -> Unit
+    ) {
+        getSession()?.let {
+            scope.launch {
+                try {
+                    val dest = "/topic/$gameId/houses/$playerName"
+                    // Warte auf genau eine Nachricht mit den HouseMessages
+                    val rawMsg = session?.subscribeText(dest)?.first()
+                    val houses = gson.fromJson(rawMsg, Array<HouseMessage>::class.java).toList()
+                    // Debug-Log
+                    sendToMainThread("📥 Häuser erhalten: ${houses.joinToString(" + ") { it.bezeichnung }}")
+                    // Callback auf Main-Thread
+                    withContext(Dispatchers.Main) {
+                        onHouses(houses)
+                    }
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Subscriben (Häuser): ${e.message}")
+                }
+            }
+        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription (Häuser) fehlgeschlagen")
+    }
+
+
 }
