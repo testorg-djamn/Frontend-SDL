@@ -1,6 +1,5 @@
 package at.aau.serg.sdlapp.test
 
-import at.aau.serg.sdlapp.network.MoveMessage
 import at.aau.serg.sdlapp.network.MyStomp
 
 /**

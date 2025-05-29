@@ -54,7 +54,6 @@ class HomeScreenActivity : ComponentActivity() {
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
 
         viewModel.initializeStomp { message ->
-            Log.d("Debugging", "got here")
             runOnUiThread {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             }
@@ -173,15 +172,12 @@ class HomeScreenActivity : ComponentActivity() {
                                             response?.message ?: "Beitritt fehlgeschlagen"
                                         )
                                     }
-
                                 }
                             }
                         )
-
                     )
                 }
             }
-
         }
     }
 

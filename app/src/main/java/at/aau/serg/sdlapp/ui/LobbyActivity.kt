@@ -26,16 +26,20 @@ import androidx.lifecycle.ViewModelProvider
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModel
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModelFactory
 import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompSession
 
 //bekommt die Lobby ID und die Spielerliste immer übergeben (wird im backend generiert)
 //TODO: Lobby handler muss überprüfen, dass nicht zu viele Spieler in der Lobby sind
 class LobbyActivity : ComponentActivity() {
-    private lateinit var lobbyid: String
+    private lateinit var lobbyID: String
     private lateinit var playerName: String
     private lateinit var lobbyViewModel: LobbyViewModel
     private lateinit var session: StompSession
     private val viewModel by lazy { getSharedViewModel() }
+    private val scope = CoroutineScope(Dispatchers.IO)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +56,7 @@ class LobbyActivity : ComponentActivity() {
             LobbyViewModelFactory(session)
         )[LobbyViewModel::class.java]
 
-        lobbyid = intent.getStringExtra("lobbyID") ?: run {
+        lobbyID = intent.getStringExtra("lobbyID") ?: run {
             finish()
             return
         }
@@ -61,7 +65,7 @@ class LobbyActivity : ComponentActivity() {
             return
         }
 
-        lobbyViewModel.initialize(lobbyid, playerName)
+        lobbyViewModel.initialize(lobbyID, playerName)
 
         setContent {
             //für updates
@@ -69,7 +73,6 @@ class LobbyActivity : ComponentActivity() {
 
             LobbyScreen(viewModel = lobbyViewModel)
         }
-
     }
 
     @Composable
@@ -83,7 +86,7 @@ class LobbyActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Lobby: $lobbyid",
+                text = "Lobby: $lobbyID",
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -115,7 +118,7 @@ class LobbyActivity : ComponentActivity() {
                     //TODO: startet Spiel, soll nur Host können
                     val intent = Intent(this@LobbyActivity, BoardActivity::class.java).apply {
                         putExtra("playerName", playerName) // Spielername übergeben
-                        putExtra("lobbyID", lobbyid)       // Lobby-ID übergeben
+                        putExtra("lobbyID", lobbyID)       // Lobby-ID übergeben
                     }
                     startActivity(intent)
                 },
@@ -127,13 +130,7 @@ class LobbyActivity : ComponentActivity() {
             }
             Button(
                 onClick = {
-                    //TODO: Lobby wieder verlassen
-
-                    // Benachrichtigung an den Server senden, dass der Spieler die Lobby verlässt
-
-
-                    //delete Player from Lobby
-                    // add return to HomeScreen
+                    leaveLobby()
                     finish()
                 },
                 modifier = Modifier
@@ -143,6 +140,12 @@ class LobbyActivity : ComponentActivity() {
             ) {
                 Text("Lobby verlassen")
             }
+        }
+    }
+
+    fun leaveLobby(){
+        scope.launch {
+            viewModel.myStomp.value?.sendLobbyLeave(playerName, lobbyID)
         }
     }
 }

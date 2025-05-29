@@ -3,9 +3,8 @@ package at.aau.serg.sdlapp.ui.board
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.MoveMessage
+import at.aau.serg.sdlapp.network.messaging.MoveMessage
 import at.aau.serg.sdlapp.network.MyStomp
 import java.util.Timer
 import java.util.TimerTask

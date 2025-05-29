@@ -6,7 +6,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.network.JobMessage
+import at.aau.serg.sdlapp.network.messaging.JobMessage
 import at.aau.serg.sdlapp.network.MyStomp
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

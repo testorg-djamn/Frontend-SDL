@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.MoveMessage
+import at.aau.serg.sdlapp.network.messaging.MoveMessage
 import at.aau.serg.sdlapp.network.MyStomp
 
 /**
