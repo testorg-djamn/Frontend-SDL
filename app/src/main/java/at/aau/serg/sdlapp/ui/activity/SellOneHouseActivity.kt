@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.activity.house
+package at.aau.serg.sdlapp.ui.activity
 
 import android.os.Bundle
 import android.widget.Button
@@ -46,8 +46,8 @@ class SellOneHouseActivity : ComponentActivity() {
         // Daten anzeigen
         findViewById<TextView>(R.id.tvDescription).text = house.bezeichnung
         findViewById<TextView>(R.id.tvPurchasePrice).text = "Kaufpreis: ${house.kaufpreis}"
-        findViewById<TextView>(R.id.tvSalePriceRed).text = "Verkauf (rot): ${house.verkaufspreisRot}"
-        findViewById<TextView>(R.id.tvSalePriceBlack).text = "Verkauf (schwarz): ${house.verkaufspreisSchwarz}"
+        findViewById<TextView>(R.id.tvSalePriceRed).text = "Verkauf: ${house.verkaufspreisRot}"
+        findViewById<TextView>(R.id.tvSalePriceBlack).text = "Verkauf: ${house.verkaufspreisSchwarz}"
 
         // Verkaufs-Button
         findViewById<Button>(R.id.btnBuy).setOnClickListener {

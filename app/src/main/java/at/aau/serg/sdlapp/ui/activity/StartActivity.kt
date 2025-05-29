@@ -26,7 +26,7 @@ class StartActivity : ComponentActivity() {
         startBtn.setOnClickListener {
             val name = nameInput.text.toString().trim()
             if (name.isNotEmpty()) {
-                val intent = Intent(this, HomeScreenActivity::class.java) // neu statt BoardActivity
+                val intent = Intent(this, JobCardActivity::class.java) // neu statt BoardActivity
 
                 intent.putExtra("playerName", name)
                 startActivity(intent)

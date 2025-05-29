@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.activity.house
+package at.aau.serg.sdlapp.ui.activity
 
 import android.os.Bundle
 import android.widget.Button
@@ -51,8 +51,8 @@ class SellThreeHouseActivity : ComponentActivity() {
         // --- Center House UI ---
         findViewById<TextView>(R.id.tvDescriptionCenter).text           = centerHouse.bezeichnung
         findViewById<TextView>(R.id.tvPurchasePriceCenter).text         = "Kaufpreis: ${centerHouse.kaufpreis}"
-        findViewById<TextView>(R.id.tvSalePriceCenterRed).text          = "Verkauf (rot): ${centerHouse.verkaufspreisRot}"
-        findViewById<TextView>(R.id.tvSalePriceCenterBlack).text        = "Verkauf (schwarz): ${centerHouse.verkaufspreisSchwarz}"
+        findViewById<TextView>(R.id.tvSalePriceCenterRed).text          = "Verkauf: ${centerHouse.verkaufspreisRot}"
+        findViewById<TextView>(R.id.tvSalePriceCenterBlack).text        = "Verkauf: ${centerHouse.verkaufspreisSchwarz}"
         findViewById<Button>(R.id.btnCenterSell).setOnClickListener {
             stomp.finalizeHouseAction(gameId, playerName, centerHouse)
             showToast("Zentrales Hausverkauf gesendet")
@@ -62,8 +62,8 @@ class SellThreeHouseActivity : ComponentActivity() {
         // --- Bottom Left House UI ---
         findViewById<TextView>(R.id.tvDescriptionBottomLeft).text       = bottomLeftHouse.bezeichnung
         findViewById<TextView>(R.id.tvPurchasePriceBottomLeft).text     = "Kaufpreis: ${bottomLeftHouse.kaufpreis}"
-        findViewById<TextView>(R.id.tvSalePriceBottomLeftRed).text      = "Verkauf (rot): ${bottomLeftHouse.verkaufspreisRot}"
-        findViewById<TextView>(R.id.tvSalePriceBottomLeftBlack).text    = "Verkauf (schwarz): ${bottomLeftHouse.verkaufspreisSchwarz}"
+        findViewById<TextView>(R.id.tvSalePriceBottomLeftRed).text      = "Verkauf: ${bottomLeftHouse.verkaufspreisRot}"
+        findViewById<TextView>(R.id.tvSalePriceBottomLeftBlack).text    = "Verkauf: ${bottomLeftHouse.verkaufspreisSchwarz}"
         findViewById<Button>(R.id.btnBottomLeftSell).setOnClickListener {
             stomp.finalizeHouseAction(gameId, playerName, bottomLeftHouse)
             showToast("Linkes unteres Hausverkauf gesendet")
@@ -73,8 +73,8 @@ class SellThreeHouseActivity : ComponentActivity() {
         // --- Bottom Right House UI ---
         findViewById<TextView>(R.id.tvDescriptionBottomRight).text      = bottomRightHouse.bezeichnung
         findViewById<TextView>(R.id.tvPurchasePriceBottomRight).text    = "Kaufpreis: ${bottomRightHouse.kaufpreis}"
-        findViewById<TextView>(R.id.tvSalePriceBottomRightRed).text     = "Verkauf (rot): ${bottomRightHouse.verkaufspreisRot}"
-        findViewById<TextView>(R.id.tvSalePriceBottomRightBlack).text   = "Verkauf (schwarz): ${bottomRightHouse.verkaufspreisSchwarz}"
+        findViewById<TextView>(R.id.tvSalePriceBottomRightRed).text     = "Verkauf: ${bottomRightHouse.verkaufspreisRot}"
+        findViewById<TextView>(R.id.tvSalePriceBottomRightBlack).text   = "Verkauf: ${bottomRightHouse.verkaufspreisSchwarz}"
         findViewById<Button>(R.id.btnBottomRightSell).setOnClickListener {
             stomp.finalizeHouseAction(gameId, playerName, bottomRightHouse)
             showToast("Rechtes unteres Hausverkauf gesendet")

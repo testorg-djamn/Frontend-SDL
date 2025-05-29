@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.activity.house
+package at.aau.serg.sdlapp.ui.activity
 
 import android.os.Bundle
 import android.widget.Button
@@ -48,14 +48,14 @@ class SellTwoHouseActivity : ComponentActivity() {
         // Linkes Haus anzeigen
         findViewById<TextView>(R.id.tvDescriptionLeft).text = leftHouse.bezeichnung
         findViewById<TextView>(R.id.tvPurchasePriceLeft).text = "Kaufpreis: ${leftHouse.kaufpreis}"
-        findViewById<TextView>(R.id.tvSalePriceLeft).text = "Verkauf (rot): ${leftHouse.verkaufspreisRot}"
-        findViewById<TextView>(R.id.tvSalePriceLeftSecond).text = "Verkauf (schwarz): ${leftHouse.verkaufspreisSchwarz}"
+        findViewById<TextView>(R.id.tvSalePriceLeft).text = "Verkauf: ${leftHouse.verkaufspreisRot}"
+        findViewById<TextView>(R.id.tvSalePriceLeftSecond).text = "Verkauf: ${leftHouse.verkaufspreisSchwarz}"
 
         // Rechtes Haus anzeigen
         findViewById<TextView>(R.id.tvDescriptionRight).text = rightHouse.bezeichnung
         findViewById<TextView>(R.id.tvPurchasePriceRight).text = "Kaufpreis: ${rightHouse.kaufpreis}"
-        findViewById<TextView>(R.id.tvSalePriceRight).text = "Verkauf (rot): ${rightHouse.verkaufspreisRot}"
-        findViewById<TextView>(R.id.tvSalePriceRightSecond).text = "Verkauf (schwarz): ${rightHouse.verkaufspreisSchwarz}"
+        findViewById<TextView>(R.id.tvSalePriceRight).text = "Verkauf: ${rightHouse.verkaufspreisRot}"
+        findViewById<TextView>(R.id.tvSalePriceRightSecond).text = "Verkauf: ${rightHouse.verkaufspreisSchwarz}"
 
         // Verkaufs-Buttons
         findViewById<Button>(R.id.btnLeftBuy).setOnClickListener {

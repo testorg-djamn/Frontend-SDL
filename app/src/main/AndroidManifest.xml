@@ -52,15 +52,15 @@
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
 
-        <!-- JobSelectionActivity -->
+        <!-- ✅ JobSelectionActivity -->
         <activity
-            android:name="at.aau.serg.sdlapp.ui.activity.job.JobSelectionActivity"
+            android:name="at.aau.serg.sdlapp.ui.activity.JobSelectionActivity"
             android:exported="false"
             android:label="Job Auswahl"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- PlayerStatsActivity -->
+        <!-- ✅ PlayerStatsActivity -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.activity.PlayerStatsActivity"
             android:exported="true"
@@ -68,7 +68,7 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- HomeScreenActivity -->
+        <!-- ✅ HomeScreenActivity -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.activity.HomeScreenActivity"
             android:exported="true"
@@ -76,7 +76,7 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.SDLApp.HomeScreen" />
 
-        <!-- LobbyActivity -->
+        <!-- ✅ LobbyActivity -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.activity.LobbyActivity"
             android:exported="true"
@@ -84,11 +84,54 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.SDLApp.HomeScreen" />
 
-        <!-- JobCardActivity for Functionality Test-->
+        <!-- ✅ JobCardActivity for Functionality Test-->
         <activity
-            android:name="at.aau.serg.sdlapp.ui.activity.job.JobCardActivity"
+            android:name="at.aau.serg.sdlapp.ui.activity.JobCardActivity"
             android:exported="false"
             android:label="Jobkarte"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- HouseCard-Aktivitäten -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.HouseCardActivity"
+            android:exported="false"
+            android:label="Hauskarte"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.HouseCardFunctionalityActivity"
+            android:exported="false"
+            android:label="Haus-Funktionalität"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.SellOneHouseActivity"
+            android:exported="false"
+            android:label="Ein Haus verkaufen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.SellTwoHouseActivity"
+            android:exported="false"
+            android:label="Zwei Häuser verkaufen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.SellThreeHouseActivity"
+            android:exported="false"
+            android:label="Drei Häuser verkaufen"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.BuyHouseActivity"
+            android:exported="false"
+            android:label="Haus kaufen"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 

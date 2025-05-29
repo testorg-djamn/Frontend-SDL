@@ -17,45 +17,91 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottomLeftHouseCard"
-        tools:ignore="NotSibling">
+        app:layout_constraintBottom_toTopOf="@+id/bottomRow">
 
-        <TextView
-            android:id="@+id/tvDescriptionCenter"
-            android:layout_width="wrap_content"
+        <!-- Bezeichnung -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bezeichnung" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bezeichnung" />
+            <TextView
+                android:id="@+id/tvDescriptionCenter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvPurchasePriceCenter"
-            android:layout_width="wrap_content"
+        <!-- Kaufpreis -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Kaufpreis" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Kaufpreis" />
+            <TextView
+                android:id="@+id/tvPurchasePriceCenter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvSalePriceCenterRed"
-            android:layout_width="wrap_content"
+        <!-- Verkauf rot -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Verkaufspreis"
-            android:textColor="@android:color/holo_red_dark" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Verkauf rot"
+                android:textColor="@android:color/holo_red_dark" />
+            <TextView
+                android:id="@+id/tvSalePriceCenterRed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–"
+                android:textColor="@android:color/holo_red_dark" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvSalePriceCenterBlack"
-            android:layout_width="wrap_content"
+        <!-- Verkauf schwarz -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Verkaufspreis"
-            android:textColor="@android:color/black" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Verkauf schwarz"
+                android:textColor="@android:color/black" />
+            <TextView
+                android:id="@+id/tvSalePriceCenterBlack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
 
-        <!-- Button for the top card -->
+        <!-- Button -->
         <Button
             android:id="@+id/btnCenterSell"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Haus verkaufen" />
+
     </LinearLayout>
 
-    <!-- Bottom row: two house cards side by side, each half-width -->
+    <!-- Bottom row: two house cards -->
     <LinearLayout
         android:id="@+id/bottomRow"
         android:layout_width="0dp"
@@ -66,7 +112,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Left card + button -->
+        <!-- Bottom-left card -->
         <LinearLayout
             android:id="@+id/bottomLeftHouseCard"
             android:layout_width="0dp"
@@ -76,32 +122,79 @@
             android:padding="16dp"
             android:layout_marginEnd="8dp">
 
-            <TextView
-                android:id="@+id/tvDescriptionBottomLeft"
-                android:layout_width="wrap_content"
+            <!-- Bezeichnung -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bezeichnung" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Bezeichnung" />
+                <TextView
+                    android:id="@+id/tvDescriptionBottomLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvPurchasePriceBottomLeft"
-                android:layout_width="wrap_content"
+            <!-- Kaufpreis -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kaufpreis" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Kaufpreis" />
+                <TextView
+                    android:id="@+id/tvPurchasePriceBottomLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvSalePriceBottomLeftRed"
-                android:layout_width="wrap_content"
+            <!-- Verkauf rot -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Verkaufspreis"
-                android:textColor="@android:color/holo_red_dark" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Verkauf rot"
+                    android:textColor="@android:color/holo_red_dark" />
+                <TextView
+                    android:id="@+id/tvSalePriceBottomLeftRed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–"
+                    android:textColor="@android:color/holo_red_dark" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvSalePriceBottomLeftBlack"
-                android:layout_width="wrap_content"
+            <!-- Verkauf schwarz -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Verkaufspreis"
-                android:textColor="@android:color/black" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Verkauf schwarz"
+                    android:textColor="@android:color/black" />
+                <TextView
+                    android:id="@+id/tvSalePriceBottomLeftBlack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
 
+            <!-- Button -->
             <Button
                 android:id="@+id/btnBottomLeftSell"
                 android:layout_width="match_parent"
@@ -110,7 +203,7 @@
                 android:text="Haus verkaufen" />
         </LinearLayout>
 
-        <!-- Right card + button -->
+        <!-- Bottom-right card -->
         <LinearLayout
             android:id="@+id/bottomRightHouseCard"
             android:layout_width="0dp"
@@ -120,32 +213,79 @@
             android:padding="16dp"
             android:layout_marginStart="8dp">
 
-            <TextView
-                android:id="@+id/tvDescriptionBottomRight"
-                android:layout_width="wrap_content"
+            <!-- Bezeichnung -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Bezeichnung" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Bezeichnung" />
+                <TextView
+                    android:id="@+id/tvDescriptionBottomRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvPurchasePriceBottomRight"
-                android:layout_width="wrap_content"
+            <!-- Kaufpreis -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Kaufpreis" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Kaufpreis" />
+                <TextView
+                    android:id="@+id/tvPurchasePriceBottomRight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvSalePriceBottomRightRed"
-                android:layout_width="wrap_content"
+            <!-- Verkauf rot -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Verkaufspreis"
-                android:textColor="@android:color/holo_red_dark" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Verkauf rot"
+                    android:textColor="@android:color/holo_red_dark" />
+                <TextView
+                    android:id="@+id/tvSalePriceBottomRightRed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–"
+                    android:textColor="@android:color/holo_red_dark" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvSalePriceBottomRightBlack"
-                android:layout_width="wrap_content"
+            <!-- Verkauf schwarz -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Verkaufspreis"
-                android:textColor="@android:color/black" />
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Verkauf schwarz"
+                    android:textColor="@android:color/black" />
+                <TextView
+                    android:id="@+id/tvSalePriceBottomRightBlack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="–"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
 
+            <!-- Button -->
             <Button
                 android:id="@+id/btnBottomRightSell"
                 android:layout_width="match_parent"

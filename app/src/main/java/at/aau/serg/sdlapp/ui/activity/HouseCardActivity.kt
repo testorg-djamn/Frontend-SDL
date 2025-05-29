@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.activity.house
+package at.aau.serg.sdlapp.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,7 +12,7 @@ class HouseCardActivity : ComponentActivity() {
 
     private lateinit var stomp: StompConnectionManager
     private lateinit var playerName: String
-    private val gameId: Int = 1
+    private val gameId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,12 +23,10 @@ class HouseCardActivity : ComponentActivity() {
 
         findViewById<Button>(R.id.btnConnect).setOnClickListener {
             stomp.connectAsync(playerName)
-            showToast("Verbindung gestartet")
         }
 
         findViewById<Button>(R.id.btnCreateHouseRepo).setOnClickListener {
             stomp.requestHouseRepository(gameId)
-            showToast("House-Repository angefordert")
         }
 
         findViewById<Button>(R.id.btnHouseFunctionality).setOnClickListener {

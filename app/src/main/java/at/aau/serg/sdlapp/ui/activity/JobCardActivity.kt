@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui.activity.job
+package at.aau.serg.sdlapp.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,12 +25,10 @@ class JobCardActivity : ComponentActivity() {
 
         findViewById<Button>(R.id.btnConnect).setOnClickListener {
             stomp.connectAsync(playerName)
-            showToast("Verbindung gestartet")
         }
 
         findViewById<Button>(R.id.btnCreateRepo).setOnClickListener {
             stomp.requestJobRepository(gameId)
-            showToast("Job-Repository angefordert")
         }
 
         findViewById<Button>(R.id.btnRequestJobs).setOnClickListener {

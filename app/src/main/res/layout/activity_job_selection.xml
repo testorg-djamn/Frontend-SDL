@@ -18,25 +18,59 @@
         app:layout_constraintBottom_toTopOf="@+id/btnLeftAccept"
         app:layout_constraintVertical_chainStyle="packed">
 
-        <TextView
-            android:id="@+id/tvTitleLeft"
-            android:layout_width="wrap_content"
+        <!-- Titel -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Titel" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Titel:" />
+            <TextView
+                android:id="@+id/tvTitleLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvSalaryLeft"
-            android:layout_width="wrap_content"
+        <!-- Gehalt -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gehalt" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Gehalt:" />
+            <TextView
+                android:id="@+id/tvSalaryLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvBonusLeft"
-            android:layout_width="wrap_content"
+        <!-- Bonus -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bonus" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bonus:" />
+            <TextView
+                android:id="@+id/tvBonusLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- Linke Accept-Taste -->
     <Button
         android:id="@+id/btnLeftAccept"
         android:layout_width="0dp"
@@ -62,25 +96,59 @@
         app:layout_constraintBottom_toTopOf="@+id/btnRightAccept"
         app:layout_constraintVertical_chainStyle="packed">
 
-        <TextView
-            android:id="@+id/tvTitleRight"
-            android:layout_width="wrap_content"
+        <!-- Titel -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Titel" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Titel:" />
+            <TextView
+                android:id="@+id/tvTitleRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvSalaryRight"
-            android:layout_width="wrap_content"
+        <!-- Gehalt -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Gehalt" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Gehalt:" />
+            <TextView
+                android:id="@+id/tvSalaryRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvBonusRight"
-            android:layout_width="wrap_content"
+        <!-- Bonus -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Bonus" />
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Bonus:" />
+            <TextView
+                android:id="@+id/tvBonusRight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="–" />
+        </LinearLayout>
     </LinearLayout>
 
+    <!-- Rechte Accept-Taste -->
     <Button
         android:id="@+id/btnRightAccept"
         android:layout_width="0dp"
