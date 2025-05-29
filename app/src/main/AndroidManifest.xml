@@ -52,7 +52,7 @@
             android:theme="@style/Theme.MyApplication"
             android:screenOrientation="landscape" />
 
-        <!-- (Optional) JobSelectionActivity, falls du sie starten möchtest -->
+        <!-- JobSelectionActivity -->
         <activity
             android:name="at.aau.serg.sdlapp.ui.JobSelectionActivity"
             android:exported="false"
@@ -60,29 +60,37 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- PlayerStatsActivity -->
         <activity
-            android:name=".ui.PlayerStatsActivity"
+            android:name="at.aau.serg.sdlapp.ui.PlayerStatsActivity"
             android:exported="true"
             android:label="Spielerübersicht"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- exported for test purposes -->
+        <!-- HomeScreenActivity -->
         <activity
-            android:name=".ui.HomeScreenActivity"
+            android:name="at.aau.serg.sdlapp.ui.HomeScreenActivity"
             android:exported="true"
             android:label="Homescreen"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.SDLApp.HomeScreen" />
 
-        <!-- exported for test purposes -->
-
-        <activity android:name=".ui.LobbyActivity"
+        <!-- LobbyActivity -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.LobbyActivity"
             android:exported="true"
             android:label="Lobby"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.SDLApp.HomeScreen"/>
+            android:theme="@style/Theme.SDLApp.HomeScreen" />
 
+        <!-- JobCardActivity for Functionality Test-->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.JobCardActivity"
+            android:exported="false"
+            android:label="Jobkarte"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
 
     </application>
 
