@@ -27,8 +27,8 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 
-//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
+private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
 
 
 class StompConnectionManager(private val callback: (String) -> Unit) {
@@ -305,12 +305,11 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     }
 
 
-    fun requestJobs(gameId: Int, playerName: String, hasDegree: Boolean) {
+    fun requestJobs(gameId: Int, playerName: String) {
         getSession()?.let {
             val request = JobRequestMessage(
                 playerName = playerName,
                 gameId = gameId,
-                hasDegree = hasDegree,
                 jobId = null
             )
             val json = gson.toJson(request)

@@ -13,14 +13,14 @@ class JobCardActivity : ComponentActivity() {
 
     private lateinit var stomp: StompConnectionManager
     private lateinit var playerName: String
-    private val gameId: Int = 1
-    private val hasDegree = false
+    private var gameId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_job_card)
 
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
+        gameId = intent.getIntExtra("gameId", gameId)
         stomp = StompConnectionManager { showToast(it) }
 
         findViewById<Button>(R.id.btnConnect).setOnClickListener {
@@ -39,13 +39,12 @@ class JobCardActivity : ComponentActivity() {
                 val intent = Intent(this, JobSelectionActivity::class.java).apply {
                     putExtra("gameId", gameId)
                     putExtra("playerName", playerName)
-                    putExtra("hasDegree", hasDegree)
                     putExtra("jobList", jobsJson)
                 }
                 startActivity(intent)
             }
             // 3) Anfrage ans Backend schicken
-            stomp.requestJobs(gameId, playerName, hasDegree)
+            stomp.requestJobs(gameId, playerName)
         }
     }
 

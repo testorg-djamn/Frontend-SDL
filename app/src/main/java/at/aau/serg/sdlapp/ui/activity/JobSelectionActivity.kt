@@ -18,7 +18,7 @@ class JobSelectionActivity : ComponentActivity() {
     private lateinit var playerName: String
     private lateinit var leftJob: JobMessage
     private lateinit var rightJob: JobMessage
-    private var gameId: Int = 1
+    private var gameId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +26,7 @@ class JobSelectionActivity : ComponentActivity() {
 
         // 1) Parameter aus Intent
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
-        gameId     = intent.getIntExtra("gameId", 1)
+        gameId     = intent.getIntExtra("gameId", gameId)
 
         // 2) STOMP-Client erzeugen und verbinden
         stomp = StompConnectionManager { showToast(it) }
@@ -36,6 +36,11 @@ class JobSelectionActivity : ComponentActivity() {
         val jobsJson = intent.getStringExtra("jobList") ?: "[]"
         val type     = object : TypeToken<List<JobMessage>>() {}.type
         val jobs: List<JobMessage> = Gson().fromJson(jobsJson, type)
+        if (jobs.size < 2) {
+            showToast("Nicht genügend Jobs empfangen")
+            finish()
+            return
+        }
         leftJob  = jobs[0]
         rightJob = jobs[1]
 
