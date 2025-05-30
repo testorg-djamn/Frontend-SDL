@@ -14,7 +14,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class MoveMessage(
     @SerializedName("playerName") val playerName: String,
-    @SerializedName("index") val fieldIndex: Int,
+    @SerializedName("index") val fieldIndex: Int, 
     @SerializedName("type") val typeString: String,
     @SerializedName("timestamp") val timestamp: String? = null,
     @SerializedName("nextPossibleFields") val nextPossibleFields: List<Int> = emptyList()

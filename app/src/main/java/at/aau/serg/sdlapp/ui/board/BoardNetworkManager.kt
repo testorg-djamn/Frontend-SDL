@@ -139,7 +139,36 @@ class BoardNetworkManager(
      * Fordert die aktuellen Board-Daten vom Server an
      */
     fun requestBoardData() {
-        stompClient.sendMessage("/app/board/data", "{}")
+        try {
+            println("📊 Fordere Board-Daten vom Server an")
+            stompClient.sendMessage("/app/board/data", "{\"request\":\"getBoard\"}")
+            
+            // Nach kurzer Verzögerung prüfen, ob wir eine Antwort bekommen haben
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (at.aau.serg.sdlapp.model.board.BoardData.board.isNotEmpty()) {
+                    println("✅ Board-Daten wurden geladen oder waren bereits verfügbar")
+                } else {
+                    println("⚠️ Keine Board-Daten nach Anfrage erhalten")
+                    // Zeige eine Warnung an
+                    Toast.makeText(
+                        context,
+                        "Warnung: Keine Board-Daten vom Server erhalten",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }, 2000) // 2 Sekunden warten
+            
+        } catch (e: Exception) {
+            println("❌ Fehler beim Anfordern der Board-Daten: ${e.message}")
+            e.printStackTrace()
+            
+            // Fehler anzeigen
+            Toast.makeText(
+                context,
+                "Fehler beim Anfordern der Brett-Daten",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     /**

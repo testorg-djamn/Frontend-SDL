@@ -93,9 +93,7 @@ class MyStomp(private val callback: (String) -> Unit) {
                 }
             }
         }
-    }
-
-    private fun handleGameMessage(msg: String) {
+    }    private fun handleGameMessage(msg: String) {
         try {
             sendToMainThread("📥 Nachricht vom Server empfangen: ${msg.take(100)}${if (msg.length > 100) "..." else ""}")
 
@@ -110,13 +108,23 @@ class MyStomp(private val callback: (String) -> Unit) {
                 }
             }
 
-            val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
-            if (moveMessage.fieldIndex >= 0) {
-                sendToMainThread("🚗 Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
-                onMoveReceived?.invoke(moveMessage)
-            } else {
+            try {
+                val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
+                if (moveMessage.fieldIndex >= 0) {
+                    sendToMainThread("🚗 MOVE ERKANNT: Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
+                    sendToMainThread("🔢 Details: typ=${moveMessage.typeString}, nächste Felder=${moveMessage.nextPossibleFields}")
+                    onMoveReceived?.invoke(moveMessage)
+                    return
+                } 
+            } catch (e: Exception) {
+                sendToMainThread("⚠️ Nachricht ist keine gültige MoveMessage: ${e.message}")
+            }
+            
+            try {
                 val output = gson.fromJson(msg, OutputMessage::class.java)
                 sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+            } catch (e: Exception) {
+                sendToMainThread("⚠️ Nachricht ist auch keine OutputMessage: ${e.message}")
             }
         } catch (e: Exception) {
             sendToMainThread("⚠️ Fehler beim Verarbeiten einer Game-Nachricht: ${e.message}")
