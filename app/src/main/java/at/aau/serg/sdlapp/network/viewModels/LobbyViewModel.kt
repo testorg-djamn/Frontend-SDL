@@ -25,7 +25,8 @@ class LobbyViewModel(
 
     fun initialize(lobbyId: String, currentPlayer: String){
         currentLobbyId = lobbyId
-        _players.value = listOf(currentPlayer)
+        // Setze die Spielerliste initial leer, damit das erste LobbyUpdateMessage die Liste korrekt setzt
+        _players.value = emptyList()
         startObserving(lobbyId)
     }
 
