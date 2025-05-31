@@ -1,12 +1,12 @@
-package at.aau.serg.sdlapp.network.messaging
+package at.aau.serg.sdlapp.network.message.lobby
 
-import at.aau.serg.sdlapp.network.message.lobby.LobbyUpdateMessage
-import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Assert.*
+
 
 class LobbyUpdateMessageTest {
     @Test
-    fun `constructor sets all values correctly`() {
+    fun testInitialization() {
         val message = LobbyUpdateMessage(
             player1 = "Alice",
             player2 = "Bob",
@@ -14,6 +14,7 @@ class LobbyUpdateMessageTest {
             player4 = "Dana",
             isStarted = true
         )
+
         assertEquals("Alice", message.player1)
         assertEquals("Bob", message.player2)
         assertEquals("Charlie", message.player3)
@@ -22,19 +23,27 @@ class LobbyUpdateMessageTest {
     }
 
     @Test
-    fun `copy creates identical but separate object`() {
-        val original = LobbyUpdateMessage("A", "B", "C", "D", false)
+    fun testEquality() {
+        val m1 = LobbyUpdateMessage("A", "B", "C", "D", false)
+        val m2 = LobbyUpdateMessage("A", "B", "C", "D", false)
+
+        assertEquals(m1, m2)
+    }
+
+    @Test
+    fun testCopy() {
+        val original = LobbyUpdateMessage("A", "B", "C", "D", true)
         val copy = original.copy()
+
         assertEquals(original, copy)
         assertNotSame(original, copy)
     }
 
     @Test
-    fun `equality and inequality work`() {
+    fun testInequality() {
         val m1 = LobbyUpdateMessage("A", "B", "C", "D", false)
-        val m2 = LobbyUpdateMessage("A", "B", "C", "D", false)
-        val m3 = LobbyUpdateMessage("A", "B", "C", "D", true)
-        assertEquals(m1, m2)
-        assertNotEquals(m1, m3)
+        val m2 = LobbyUpdateMessage("A", "B", "C", "D", true)
+
+        assertNotEquals(m1, m2)
     }
 }

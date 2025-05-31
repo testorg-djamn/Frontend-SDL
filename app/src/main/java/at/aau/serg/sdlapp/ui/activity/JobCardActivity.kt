@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.network.StompConnectionManager
+import at.aau.serg.sdlapp.ui.JobSelectionActivity
 import com.google.gson.Gson
 
 class JobCardActivity : ComponentActivity() {

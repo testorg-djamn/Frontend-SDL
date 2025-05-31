@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModel
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModelFactory
 import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
+import at.aau.serg.sdlapp.ui.BoardActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -29,7 +30,7 @@ fun PlayerStatsOverlayScreen(
     ) {
         println("⌛ Spieler wird noch geladen...")
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(modifier = Modifier.testTag("CircularProgressIndicator"))
             Spacer(modifier = Modifier.height(16.dp))
             Text("Aktueller Player: ${viewModel.player?.id ?: "NULL"}")
         }
