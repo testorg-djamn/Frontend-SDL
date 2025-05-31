@@ -143,7 +143,7 @@ class MyStomp(private val callback: (String) -> Unit) {
 
     suspend fun sendLobbyLeave(playerName: String, lobbyID: String) {
         val session = getSession() ?: run {
-            sendToMainThread("Not connected")
+            sendToMainThread("Keine Verbindung aktiv")
             return
         }
         try{
@@ -159,7 +159,7 @@ class MyStomp(private val callback: (String) -> Unit) {
 
     suspend fun sendLobbyCreate(playerName: String): String? = withContext(Dispatchers.IO) {
         val session : StompSession = getSession() ?: run {
-            sendToMainThread("Not connected")
+            sendToMainThread("Keine Verbindung aktiv")
             return@withContext null
         }
         try {
@@ -191,7 +191,7 @@ class MyStomp(private val callback: (String) -> Unit) {
     suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMessage? =
         withContext(Dispatchers.IO) {
             val session = getSession() ?: run {
-                sendToMainThread("Not connected")
+                sendToMainThread("Keine Verbindung aktiv")
                 return@withContext null
             }
             try {
