@@ -26,14 +26,12 @@ import androidx.lifecycle.ViewModelProvider
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModel
 import at.aau.serg.sdlapp.network.viewModels.LobbyViewModelFactory
 import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
-import at.aau.serg.sdlapp.ui.BoardActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.hildan.krossbow.stomp.StompSession
 
-//bekommt die Lobby ID und die Spielerliste immer übergeben (wird im backend generiert)
-//TODO: Lobby handler muss überprüfen, dass nicht zu viele Spieler in der Lobby sind
+
 class LobbyActivity : ComponentActivity() {
     private lateinit var lobbyID: String
     private lateinit var playerName: String
@@ -69,9 +67,6 @@ class LobbyActivity : ComponentActivity() {
         lobbyViewModel.initialize(lobbyID, playerName)
 
         setContent {
-            //für updates
-            //viewModel.observeLobby(lobbyid)
-
             LobbyScreen(viewModel = lobbyViewModel)
         }
     }

@@ -129,8 +129,6 @@ class HomeScreenActivity : ComponentActivity() {
                 Text("Lobby beitreten")
             }
             if (showTextField) {
-
-
                 LaunchedEffect(showTextField) {
                     delay(100) //bis Textfield im Layout ist
                     focusRequester.requestFocus()
