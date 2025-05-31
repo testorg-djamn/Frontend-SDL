@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -7,14 +7,15 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.R
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import at.aau.serg.sdlapp.model.game.ActionCard
 import com.google.gson.Gson
 
 
 class ActionCardActivity : ComponentActivity(){
 
-    private lateinit var stomp: MyStomp
+    private lateinit var stomp: StompConnectionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +23,7 @@ class ActionCardActivity : ComponentActivity(){
 
         val playerName = intent.getStringExtra("playerName") ?: "Spieler"
 
-        stomp = MyStomp { res -> handleResponse(res) }
+        stomp = StompConnectionManager { res -> handleResponse(res) }
         stomp.sendMove(playerName, "zieht Action Card")
     }
 

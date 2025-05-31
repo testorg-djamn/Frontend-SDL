@@ -1,5 +1,6 @@
 package at.aau.serg.sdlapp.network
 
+import at.aau.serg.sdlapp.network.message.lobby.LobbyResponseMessage
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

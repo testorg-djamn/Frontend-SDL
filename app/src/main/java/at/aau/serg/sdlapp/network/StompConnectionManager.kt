@@ -3,6 +3,16 @@ package at.aau.serg.sdlapp.network
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import at.aau.serg.sdlapp.network.message.job.JobMessage
+import at.aau.serg.sdlapp.network.message.job.JobRequestMessage
+import at.aau.serg.sdlapp.network.message.lobby.LobbyRequestMessage
+import at.aau.serg.sdlapp.network.message.lobby.LobbyResponseMessage
+import at.aau.serg.sdlapp.network.message.MoveMessage
+import at.aau.serg.sdlapp.network.message.OutputMessage
+import at.aau.serg.sdlapp.network.message.PlayerListMessage
+import at.aau.serg.sdlapp.network.message.StompMessage
+import at.aau.serg.sdlapp.network.message.house.HouseBuyElseSellMessage
+import at.aau.serg.sdlapp.network.message.house.HouseMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,11 +27,11 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 
-//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
+private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
 
 
-class MyStomp(private val callback: (String) -> Unit) {
+class StompConnectionManager(private val callback: (String) -> Unit) {
 
     private var session: StompSession? = null
     private val scope = CoroutineScope(Dispatchers.IO)
@@ -216,8 +226,6 @@ class MyStomp(private val callback: (String) -> Unit) {
                     // Warte auf genau eine Nachricht mit den beiden Jobs
                     val rawMsg = session?.subscribeText(dest)?.first()
                     val jobs = gson.fromJson(rawMsg, Array<JobMessage>::class.java).toList()
-                    // Debug-Log
-                    sendToMainThread("📥 Jobs erhalten: ${jobs.joinToString(" + ") { it.title }}")
                     // Callback auf Main-Thread
                     withContext(Dispatchers.Main) {
                         onJobs(jobs)
@@ -289,7 +297,6 @@ class MyStomp(private val callback: (String) -> Unit) {
                 try {
                     // Leere Nachricht an diesen STOMP-Endpunkt
                     session?.sendText("/app/game/createJobRepo/$gameId", "")
-                    sendToMainThread("📨 Job-Repository für Spiel $gameId angefordert")
                 } catch (e: Exception) {
                     sendToMainThread("❌ Fehler beim Anfordern des Job-Repos: ${e.message}")
                 }
@@ -298,12 +305,11 @@ class MyStomp(private val callback: (String) -> Unit) {
     }
 
 
-    fun requestJobs(gameId: Int, playerName: String, hasDegree: Boolean) {
+    fun requestJobs(gameId: Int, playerName: String) {
         getSession()?.let {
             val request = JobRequestMessage(
                 playerName = playerName,
                 gameId = gameId,
-                hasDegree = hasDegree,
                 jobId = null
             )
             val json = gson.toJson(request)
@@ -311,7 +317,7 @@ class MyStomp(private val callback: (String) -> Unit) {
                 try {
                     val destination = "/app/jobs/$gameId/$playerName/request"
                     session?.sendText(destination, json)
-                    sendToMainThread("📨 Jobanfrage gesendet an $destination")
+
                 } catch (e: Exception) {
                     sendToMainThread("❌ Fehler bei Jobanfrage: ${e.message}")
                 }
@@ -326,7 +332,6 @@ class MyStomp(private val callback: (String) -> Unit) {
                 try {
                     val destination = "/app/jobs/$gameId/$playerName/select"
                     session?.sendText(destination, json)
-                    sendToMainThread("✅ Du hast Job „${job.title}“ (ID ${job.jobId}) ausgewählt")
                 } catch (e: Exception) {
                     sendToMainThread("❌ Fehler beim Senden der Jobauswahl: ${e.message}")
                 }
@@ -398,4 +403,152 @@ class MyStomp(private val callback: (String) -> Unit) {
             }
         }
     }
+
+    fun requestHouseRepository(gameId: Int) {
+        println(">> requestHouseRepository(gameId=$gameId) aufgerufen")
+        getSession()?.let {
+            scope.launch {
+                try {
+                    println("   → Sende leere Nachricht an /app/game/createHouseRepo/$gameId")
+                    session?.sendText("/app/game/createHouseRepo/$gameId", "")
+                    println("   ✓ Anfrage erfolgreich gesendet")
+                } catch (e: Exception) {
+                    println("   ✗ Fehler beim Anfordern des House-Repos: ${e.message}")
+                }
+            }
+        } ?: run {
+            println("   ✗ Keine aktive Session – Repository-Anfrage nicht gesendet")
+            sendToMainThread("Keine Verbindung aktiv")
+        }
+    }
+
+    fun subscribeHouses(
+        gameId: Int,
+        playerName: String,
+        onHouses: (List<HouseMessage>) -> Unit
+    ) {
+        val dest = "/topic/$gameId/houses/$playerName/options"
+        println(">> subscribeHouses: subscribe to $dest")
+        getSession()?.let {
+            scope.launch {
+                try {
+                    val rawMsg = session?.subscribeText(dest)?.first()
+                    println("   ← rawMsg: $rawMsg")
+                    val houses = gson.fromJson(rawMsg, Array<HouseMessage>::class.java).toList()
+                    println("   ✓ Parsed houses: ${houses.map { it.bezeichnung }}")
+                    withContext(Dispatchers.Main) {
+                        onHouses(houses)
+                    }
+                } catch (e: Exception) {
+                    println("   ✗ Fehler beim Subscriben (Häuser): ${e.message}")
+                    sendToMainThread("❌ Fehler beim Subscriben (Häuser): ${e.message}")
+                }
+            }
+        } ?: run {
+            println("   ✗ Keine aktive Session – Subscription fehlgeschlagen")
+            sendToMainThread("❌ Verbindung nicht aktiv – Subscription (Häuser) fehlgeschlagen")
+        }
+    }
+
+
+    fun buyHouse(gameId: Int, playerName: String) {
+        println(">> buyHouse(gameId=$gameId, playerName=$playerName) aufgerufen")
+        getSession()?.let {
+            val message = HouseBuyElseSellMessage(playerID = playerName, gameId = gameId, buyElseSell = true)
+            val json = gson.toJson(message)
+            scope.launch {
+                try {
+                    val destination = "/app/houses/$gameId/$playerName/choose"
+                    println("   → Sende Kaufanfrage an $destination mit Payload: $json")
+                    session?.sendText(destination, json)
+                    println("   ✓ Kaufanfrage gesendet")
+                } catch (e: Exception) {
+                    println("   ✗ Fehler beim Senden der Kaufanfrage: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Senden der Kaufanfrage: ${e.message}")
+                }
+            }
+        } ?: run {
+            println("   ✗ Keine aktive Session – Kaufanfrage fehlgeschlagen")
+            sendToMainThread("❌ Verbindung nicht aktiv – Kaufanfrage fehlgeschlagen")
+        }
+    }
+
+    fun sellHouse(gameId: Int, playerName: String) {
+        println(">> sellHouse(gameId=$gameId, playerName=$playerName) aufgerufen")
+        getSession()?.let {
+            val message = HouseBuyElseSellMessage(playerID = playerName, gameId = gameId, buyElseSell = false)
+            val json = gson.toJson(message)
+            scope.launch {
+                try {
+                    val destination = "/app/houses/$gameId/$playerName/choose"
+                    println("   → Sende Verkaufsanfrage an $destination mit Payload: $json")
+                    session?.sendText(destination, json)
+                    println("   ✓ Verkaufsanfrage gesendet")
+                } catch (e: Exception) {
+                    println("   ✗ Fehler beim Senden der Verkaufsanfrage: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Senden der Verkaufsanfrage: ${e.message}")
+                }
+            }
+        } ?: run {
+            println("   ✗ Keine aktive Session – Verkaufsanfrage fehlgeschlagen")
+            sendToMainThread("❌ Verbindung nicht aktiv – Verkaufsanfrage fehlgeschlagen")
+        }
+    }
+
+    fun finalizeHouseAction(gameId: Int, playerName: String, house: HouseMessage) {
+        println(">> finalizeHouseAction(gameId=$gameId, playerName=$playerName, houseId=${house.houseId}) aufgerufen")
+        getSession()?.let {
+            val json = gson.toJson(house)
+            scope.launch {
+                try {
+                    val destination = "/app/houses/$gameId/$playerName/finalize"
+                    println("   → Sende Finalisierungsanfrage an $destination mit Payload: $json")
+                    session?.sendText(destination, json)
+                    println("   ✓ Finalisierungsanfrage gesendet")
+                } catch (e: Exception) {
+                    println("   ✗ Fehler beim Senden der Finalisierungsanfrage: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Senden der Finalisierungsanfrage: ${e.message}")
+                }
+            }
+        } ?: run {
+            println("   ✗ Keine aktive Session – Finalisierungsanfrage fehlgeschlagen")
+            sendToMainThread("❌ Verbindung nicht aktiv – Finalisierungsanfrage fehlgeschlagen")
+        }
+    }
+    /**
+     * Lauscht genau auf die Bestätigung (ein einzelnes HouseMessage),
+     * die das Backend nach finalizeHouseAction sendet.
+     */
+    fun subscribeHouseConfirmation(
+        gameId: Int,
+        playerName: String,
+        onConfirm: (HouseMessage) -> Unit
+    ) {
+        val dest = "/topic/$gameId/houses/$playerName/confirmation"
+        println(">> subscribeHouseConfirmation: subscribe to $dest")
+        getSession()?.let {
+            scope.launch {
+                try {
+                    // warte auf genau eine Nachricht
+                    val raw = session
+                        ?.subscribeText(dest)
+                        ?.first()
+                    println("   ← Confirmation raw: $raw")
+                    if (raw != null) {
+                        // parse single HouseMessage
+                        val house = gson.fromJson(raw, HouseMessage::class.java)
+                        println("   ✓ Parsed confirmation: ${house.bezeichnung} (taken=${house.isTaken})")
+                        withContext(Dispatchers.Main) {
+                            onConfirm(house)
+                        }
+                    } else {
+                        println("   ✗ confirmation payload null")
+                    }
+                } catch (e: Exception) {
+                    println("   ✗ Fehler beim Subscriben (Confirmation): ${e.message}")
+                }
+            }
+        } ?: println("   ✗ Keine aktive Session – Confirmation-Subscription fehlgeschlagen")
+    }
+
 }

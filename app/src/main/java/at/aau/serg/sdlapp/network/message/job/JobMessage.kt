@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.network
+package at.aau.serg.sdlapp.network.message.job
 
 data class JobMessage(
     val jobId: Int,

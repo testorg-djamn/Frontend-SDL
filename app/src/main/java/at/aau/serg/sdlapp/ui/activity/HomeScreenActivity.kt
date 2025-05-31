@@ -1,4 +1,4 @@
-package at.aau.serg.sdlapp.ui
+package at.aau.serg.sdlapp.ui.activity
 
 import android.content.Intent
 import android.os.Bundle
@@ -32,7 +32,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import at.aau.serg.sdlapp.network.viewModels.ConnectionViewModel
 import at.aau.serg.sdlapp.network.viewModels.getSharedViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +43,7 @@ import kotlinx.coroutines.withContext
 
 
 class HomeScreenActivity : ComponentActivity() {
-    private lateinit var stomp: MyStomp
+    private lateinit var stomp: StompConnectionManager
     private lateinit var playerName: String
     private val scope = CoroutineScope(Dispatchers.IO)
     private val viewModel: ConnectionViewModel by lazy { getSharedViewModel() }
