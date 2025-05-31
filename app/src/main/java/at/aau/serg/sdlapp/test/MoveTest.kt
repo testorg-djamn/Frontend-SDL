@@ -1,6 +1,6 @@
 package at.aau.serg.sdlapp.test
 
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.StompConnectionManager
 
 /**
  * Testklasse für die Spielerbewegungen. Nicht für automatisierte Tests, sondern für manuelle Verifikation.
@@ -9,7 +9,7 @@ class MoveTest {
     
     fun simulateMoves() {
         val callback: (String) -> Unit = { message -> println(message) }
-        val stompClient = MyStomp(callback)
+        val stompClient = StompConnectionManager(callback)
           // Bewegungs-Callback registrieren
         stompClient.onMoveReceived = { move ->
             println("TEST: Bewegung empfangen: Spieler ${move.playerName} zu Feld ${move.fieldIndex}")

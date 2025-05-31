@@ -6,19 +6,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.network.messaging.JobMessage
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.message.job.JobMessage
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 // Can be deleted later, just for Functionality Test
 class JobSelectionActivity : ComponentActivity() {
 
-    private lateinit var stomp: MyStomp
+    private lateinit var stomp: StompConnectionManager
     private lateinit var playerName: String
     private lateinit var leftJob: JobMessage
     private lateinit var rightJob: JobMessage
-    private var gameId: Int = 1
+    private var gameId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,16 +26,21 @@ class JobSelectionActivity : ComponentActivity() {
 
         // 1) Parameter aus Intent
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
-        gameId     = intent.getIntExtra("gameId", 1)
+        gameId     = intent.getIntExtra("gameId", gameId)
 
         // 2) STOMP-Client erzeugen und verbinden
-        stomp = MyStomp { showToast(it) }
+        stomp = StompConnectionManager { showToast(it) }
         stomp.connectAsync(playerName)
 
         // 3) Job-Liste aus Intent parsen
         val jobsJson = intent.getStringExtra("jobList") ?: "[]"
         val type     = object : TypeToken<List<JobMessage>>() {}.type
         val jobs: List<JobMessage> = Gson().fromJson(jobsJson, type)
+        if (jobs.size < 2) {
+            showToast("Nicht genügend Jobs empfangen")
+            finish()
+            return
+        }
         leftJob  = jobs[0]
         rightJob = jobs[1]
 

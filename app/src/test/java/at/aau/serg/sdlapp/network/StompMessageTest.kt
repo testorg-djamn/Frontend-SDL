@@ -1,6 +1,6 @@
 package at.aau.serg.sdlapp.network
 
-import at.aau.serg.sdlapp.network.messaging.StompMessage
+import at.aau.serg.sdlapp.network.message.StompMessage
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
