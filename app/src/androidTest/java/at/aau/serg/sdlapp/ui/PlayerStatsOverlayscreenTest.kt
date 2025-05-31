@@ -1,10 +1,7 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import at.aau.serg.sdlapp.ui.PlayerModell
-import at.aau.serg.sdlapp.ui.PlayerStatsOverlayScreen
-import at.aau.serg.sdlapp.ui.PlayerViewModel
 import org.junit.Rule
 import org.junit.Test
 

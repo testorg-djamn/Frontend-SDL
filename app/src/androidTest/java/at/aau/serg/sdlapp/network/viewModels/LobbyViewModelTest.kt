@@ -57,6 +57,7 @@ class LobbyViewModelTest {
         viewModel = LobbyViewModel(session)
         viewModel.initialize(lobbyId, "Anna")
         advanceUntilIdle()
+        // Ergänze Assertion, um zu prüfen, ob Spieler hinzugefügt wurde
         val result = viewModel.players.value
         assertEquals(listOf("Bob"), result)
     }

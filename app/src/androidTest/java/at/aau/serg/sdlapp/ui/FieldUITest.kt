@@ -1,12 +1,7 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import at.aau.serg.sdlapp.ui.FieldType
-import at.aau.serg.sdlapp.ui.FieldUI
-import at.aau.serg.sdlapp.ui.GameBoard
-import at.aau.serg.sdlapp.ui.GameField
-import at.aau.serg.sdlapp.ui.sampleFields
 import org.junit.Rule
 import org.junit.Test
 
