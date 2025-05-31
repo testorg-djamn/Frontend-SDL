@@ -1,11 +1,9 @@
-package at.aau.serg.sdlapp
+package at.aau.serg.sdlapp.ui
 
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import at.aau.serg.sdlapp.ui.GameBoard
-import at.aau.serg.sdlapp.ui.sampleFields
 import org.junit.Rule
 import org.junit.Test
 

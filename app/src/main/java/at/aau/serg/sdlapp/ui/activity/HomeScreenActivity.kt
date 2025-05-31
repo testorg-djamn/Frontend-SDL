@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +55,6 @@ class HomeScreenActivity : ComponentActivity() {
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
 
         viewModel.initializeStomp { message ->
-            Log.d("Debugging", "got here")
             runOnUiThread {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
             }
@@ -71,6 +71,9 @@ class HomeScreenActivity : ComponentActivity() {
         var showTextField by remember { mutableStateOf(false) }
         var lobbyId by remember { mutableStateOf("") }
         val context = LocalContext.current
+        var showWarning by remember { mutableStateOf(false) }
+        val focusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
 
         Column(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -126,8 +129,6 @@ class HomeScreenActivity : ComponentActivity() {
                 Text("Lobby beitreten")
             }
             if (showTextField) {
-                val focusRequester = remember { FocusRequester() }
-
                 LaunchedEffect(showTextField) {
                     delay(100) //bis Textfield im Layout ist
                     focusRequester.requestFocus()
@@ -140,7 +141,10 @@ class HomeScreenActivity : ComponentActivity() {
                 ) {
                     TextField(
                         value = lobbyId,
-                        onValueChange = { lobbyId = it },
+                        onValueChange = {
+                            lobbyId = it
+                            showWarning = false // Fehlermeldung zurücksetzen, wenn Nutzer tippt
+                        },
                         placeholder = {
                             Text(
                                 text = "Lobby-ID eingeben",
@@ -169,29 +173,26 @@ class HomeScreenActivity : ComponentActivity() {
                                         }
                                         context.startActivity(intent)
                                     } else {
-                                        showToast(
-                                            response?.message ?: "Beitritt fehlgeschlagen"
-                                        )
+                                        Log.e("Lobby-Beitritt", response?.message ?: "Beitritt fehlgeschlagen")
+                                        withContext(Dispatchers.Main) { showWarning = true }
                                     }
-
                                 }
                             }
                         )
-
                     )
+                    if (showWarning) {
+                        LaunchedEffect(showWarning) {
+                            focusManager.clearFocus()
+                        }
+                        Text(
+                            text = "Lobby-ID existiert nicht",
+                            fontSize = 15.sp,
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                 }
             }
-
-        }
-    }
-
-    //function to switch to lobby screen, using lobby id as parameter
-    @Composable
-    fun StartLobbyScreen(lobbyid: String?) {
-        val context = LocalContext.current
-        Intent(context, LobbyActivity::class.java).apply {
-            intent.putExtra("Lobby-ID", lobbyid)
-            startActivity(intent)
         }
     }
 

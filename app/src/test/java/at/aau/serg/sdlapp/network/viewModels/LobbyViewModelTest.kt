@@ -1,7 +1,6 @@
 package at.aau.serg.sdlapp.network.viewModels
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -10,11 +9,9 @@ import kotlinx.coroutines.test.*
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.subscribeText
 import org.junit.*
-import org.junit.runner.RunWith
 import org.junit.Assert.assertEquals
 
 @ExperimentalCoroutinesApi
-@RunWith(AndroidJUnit4::class)
 class LobbyViewModelTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -57,7 +54,6 @@ class LobbyViewModelTest {
         viewModel = LobbyViewModel(session)
         viewModel.initialize(lobbyId, "Anna")
         advanceUntilIdle()
-        // Ergänze Assertion, um zu prüfen, ob Spieler hinzugefügt wurde
         val result = viewModel.players.value
         assertEquals(listOf("Bob"), result)
     }

@@ -16,8 +16,6 @@ import at.aau.serg.sdlapp.network.message.house.HouseMessage
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
@@ -28,7 +26,7 @@ import org.json.JSONException
 import org.json.JSONObject
 
 private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket" //for testing
+//private const val WEBSOCKET_URI = "ws://192.168.8.140:8080/websocket-broker/websocket" //for testing
 
 
 class StompConnectionManager(private val callback: (String) -> Unit) {
@@ -38,7 +36,6 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     private val gson = Gson()
     private val _lobbyUpdates = MutableSharedFlow<LobbyResponseMessage>()
     var isConnected: Boolean = false
-    val lobbyUpdates: SharedFlow<LobbyResponseMessage> = _lobbyUpdates.asSharedFlow()
     private val client = StompClient(OkHttpWebSocketClient())
     var onMoveReceived: ((MoveMessage) -> Unit)? = null
     var onConnectionStateChanged: ((Boolean) -> Unit)? = null
@@ -146,9 +143,25 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
         } ?: sendToMainThread("Keine Verbindung aktiv")
     }
 
-    suspend fun sendLobbyCreate(playerName: String): String? = withContext(Dispatchers.IO) {
+    suspend fun sendLobbyLeave(playerName: String, lobbyID: String) {
         val session = getSession() ?: run {
-            sendToMainThread("Not connected")
+            sendToMainThread("Keine Verbindung aktiv")
+            return
+        }
+        try{
+            val request = LobbyRequestMessage(playerName)
+            val json = gson.toJson(request)
+            session.sendText("/app/$lobbyID/leave", json)
+            sendToMainThread("Lobby wird verlassen")
+
+        }catch (e: Exception){
+            Log.e("Lobby Error", "Error while leaving lobby: ${e.message}")
+        }
+    }
+
+    suspend fun sendLobbyCreate(playerName: String): String? = withContext(Dispatchers.IO) {
+        val session : StompSession = getSession() ?: run {
+            sendToMainThread("Keine Verbindung aktiv")
             return@withContext null
         }
         try {
@@ -180,7 +193,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMessage? =
         withContext(Dispatchers.IO) {
             val session = getSession() ?: run {
-                sendToMainThread("Not connected")
+                sendToMainThread("Keine Verbindung aktiv")
                 return@withContext null
             }
             try {
@@ -341,7 +354,8 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
 
     fun requestActivePlayers(player: String) {
         getSession()?.let {
-            val message = StompMessage(playerName = player, action = "get-all-players", gameId = player)
+            val message =
+                StompMessage(playerName = player, action = "get-all-players", gameId = player)
             val json = gson.toJson(message)
             sendToMainThread("👥 Frage aktive Spieler ab...")
             scope.launch {

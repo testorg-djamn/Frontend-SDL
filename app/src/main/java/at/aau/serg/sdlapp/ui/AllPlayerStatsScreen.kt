@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AllPlayerStatsScreen(viewModel: PlayerViewModel = viewModel()) {
+fun AllPlayerStatsScreen(viewModel: PlayerViewModel) {
     LaunchedEffect(Unit) {
         viewModel.loadAllPlayers()
     }

@@ -1,5 +1,4 @@
 package at.aau.serg.sdlapp.network.message
-
 /**
  * Nachricht vom Server mit Liste aller aktiven Spieler
  */

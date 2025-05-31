@@ -1,7 +1,6 @@
-package at.aau.serg.sdlapp.network
+package at.aau.serg.sdlapp.network.message.lobby
 
-import at.aau.serg.sdlapp.network.message.lobby.LobbyRequestMessage
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 
 class LobbyRequestMessageTest {
@@ -16,7 +15,7 @@ class LobbyRequestMessageTest {
         val original = LobbyRequestMessage("Anna")
         val copy = original.copy()
         assertEquals(original, copy)
-        assert(original !== copy)
+        assertNotSame(original, copy)
     }
 
     @Test
