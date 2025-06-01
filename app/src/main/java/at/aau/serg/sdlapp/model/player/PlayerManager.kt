@@ -1,7 +1,5 @@
 package at.aau.serg.sdlapp.model.player
 
-import at.aau.serg.sdlapp.model.board.Field
-
 /**
  * Verwaltet alle Spieler und ihre Positionen
  */

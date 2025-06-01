@@ -8,8 +8,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.network.StompConnectionManager
 import at.aau.serg.sdlapp.model.game.ActionCard
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import com.google.gson.Gson
 
 
