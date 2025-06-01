@@ -24,22 +24,22 @@ class BoardMoveManager(
      */
     fun handleMoveMessage(move: MoveMessage, playerId: Int, playerName: String, stompClient: StompConnectionManager) {
         // Den Spielerzug im PlayerManager aktualisieren
-        val movePlayerId = finalMove.playerId
+        val movePlayerId = move.playerId
         if (movePlayerId != -1) {
             // Unterscheiden zwischen lokalem und entferntem Spieler
             if (movePlayerId == playerId) {
                 println("🏠 LOKALER SPIELER bewegt sich")
-                handleLocalPlayerMove(finalMove)
+                handleLocalPlayerMove(move)
             } else {
                 println("🌍 REMOTE SPIELER (ID: $movePlayerId) bewegt sich")
-                handleRemotePlayerMove(movePlayerId, finalMove)
+                handleRemotePlayerMove(movePlayerId, move)
             }
 
             // Entferne alle bisherigen Highlight-Marker
             boardFigureManager.clearAllMarkers()
 
             // Füge Highlight-Marker für mögliche nächste Felder hinzu
-            addMarkersForNextPossibleFields(finalMove, stompClient, playerName)
+            addMarkersForNextPossibleFields(move, stompClient, playerName)
         } else {
             println("❌ Fehler: Spieler-ID ist -1, kann Bewegung nicht zuordnen")
             Toast.makeText(context, "Fehler: Ungültige Spieler-ID in Bewegungsnachricht", Toast.LENGTH_SHORT).show()
