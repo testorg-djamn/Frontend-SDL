@@ -21,7 +21,7 @@ class JobCardActivity : ComponentActivity() {
 
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
         gameId = intent.getIntExtra("gameId", gameId)
-        stomp = StompConnectionManager { showToast(it) }
+        stomp = StompConnectionManager ({ showToast(it) })
 
         findViewById<Button>(R.id.btnConnect).setOnClickListener {
             stomp.connectAsync(playerName)

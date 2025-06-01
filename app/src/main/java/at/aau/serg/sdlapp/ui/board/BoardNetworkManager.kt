@@ -4,8 +4,8 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.network.StompConnectionManager
+import at.aau.serg.sdlapp.network.message.MoveMessage
 import java.util.Timer
 import java.util.TimerTask
 
@@ -26,10 +26,10 @@ class BoardNetworkManager(
     private var playerListUpdateTimer: Timer? = null
     
     init {
-        stompClient = StompConnectionManager { log ->
+        stompClient = StompConnectionManager( { log ->
             println(log)
             // In einer vollständigen Implementierung würde man hier ein Log-Fenster einblenden
-        }
+        })
         initializeCallbacks()
     }
 

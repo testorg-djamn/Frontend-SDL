@@ -251,7 +251,7 @@ class BoardUIManager(
     /**
      * Interface für die UI-Callbacks
      */
-    interface UICallbacks {
+    fun interface UICallbacks {
         fun onStartFieldSelected(fieldIndex: Int)
     }
 }

@@ -26,7 +26,7 @@ class HouseCardFunctionalityActivity : ComponentActivity() {
         gameId = intent.getIntExtra("gameId", gameId)
 
         // STOMP-Verbindung initialisieren
-        stomp = StompConnectionManager { msg -> showToast(msg) }
+        stomp = StompConnectionManager( { msg -> showToast(msg) })
         stomp.connectAsync(playerName) { connected ->
             if (!connected) showToast("Verbindung fehlgeschlagen")
         }
