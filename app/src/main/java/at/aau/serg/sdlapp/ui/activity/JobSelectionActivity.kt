@@ -29,7 +29,7 @@ class JobSelectionActivity : ComponentActivity() {
         gameId     = intent.getIntExtra("gameId", gameId)
 
         // 2) STOMP-Client erzeugen und verbinden
-        stomp = StompConnectionManager { showToast(it) }
+        stomp = StompConnectionManager( { showToast(it) })
         stomp.connectAsync(playerName)
 
         // 3) Job-Liste aus Intent parsen

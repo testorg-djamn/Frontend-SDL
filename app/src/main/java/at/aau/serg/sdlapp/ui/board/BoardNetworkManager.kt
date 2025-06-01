@@ -26,10 +26,10 @@ class BoardNetworkManager(
     private var playerListUpdateTimer: Timer? = null
     
     init {
-        stompClient = StompConnectionManager { log ->
+        stompClient = StompConnectionManager( { log ->
             println(log)
             // In einer vollständigen Implementierung würde man hier ein Log-Fenster einblenden
-        }
+        })
         initializeCallbacks()
     }
 

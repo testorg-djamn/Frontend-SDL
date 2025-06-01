@@ -38,7 +38,7 @@ class SellOneHouseActivity : ComponentActivity() {
         house = houses.first()
 
         // STOMP-Verbindung initialisieren
-        stomp = StompConnectionManager { msg -> showToast(msg) }
+        stomp = StompConnectionManager( { msg -> showToast(msg) })
         stomp.connectAsync(playerName) { connected ->
             if (!connected) showToast("Verbindung fehlgeschlagen")
         }

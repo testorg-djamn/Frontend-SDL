@@ -2,6 +2,7 @@ package at.aau.serg.sdlapp.ui.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
@@ -23,7 +24,7 @@ class ActionCardActivity : ComponentActivity(){
 
         val playerName = intent.getStringExtra("playerName") ?: "Spieler"
 
-        stomp = StompConnectionManager { res -> handleResponse(res) }
+        stomp = StompConnectionManager({message -> Log.d("ActionCard", message)})
         stomp.sendMove(playerName, "zieht Action Card")
     }
 

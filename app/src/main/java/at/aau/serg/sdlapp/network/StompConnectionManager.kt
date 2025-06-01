@@ -31,8 +31,10 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 
-private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket"
 //private const val WEBSOCKET_URI = "ws://192.168.8.140:8080/websocket-broker/websocket" //for testing
+private const val NO_CONNECTION_MESSAGE = "Keine Verbindung aktiv"
+private const val NO_CONNECTION_SUBSCRIPTION_MESSAGE = "❌ Verbindung nicht aktiv – Subscription fehlgeschlagen"
 
 
 class StompConnectionManager(
@@ -151,15 +153,15 @@ class StompConnectionManager(
                     session?.sendText("/app/game/start/$gameId", "")
                     sendToMainThread("📨 Spielstart gesendet, Player=$playerName")
                 } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Senden des Spielstarts: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Senden des Spielstarts: \\${e.message}")
                 }
             }
-        } ?: sendToMainThread("Keine Verbindung aktiv")
+        } ?: sendToMainThread(NO_CONNECTION_MESSAGE)
     }
 
     suspend fun sendLobbyLeave(playerName: String, lobbyID: String) {
         val session = sessionOrNull ?: run {
-            sendToMainThread("Keine Verbindung aktiv")
+            sendToMainThread(NO_CONNECTION_MESSAGE)
             return
         }
         try{
@@ -175,7 +177,7 @@ class StompConnectionManager(
 
     suspend fun sendLobbyCreate(playerName: String): String? = withContext(ioDispatcher) {
         val session : StompSession = sessionOrNull ?: run {
-            sendToMainThread("Keine Verbindung aktiv")
+            sendToMainThread(NO_CONNECTION_MESSAGE)
             return@withContext null
         }
         try {
@@ -207,7 +209,7 @@ class StompConnectionManager(
     suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMessage? =
         withContext(ioDispatcher) {
             val session = sessionOrNull ?: run {
-                sendToMainThread("Keine Verbindung aktiv")
+                sendToMainThread(NO_CONNECTION_MESSAGE)
                 return@withContext null
             }
             try {
@@ -258,10 +260,10 @@ class StompConnectionManager(
                         onJobs(jobs)
                     }
                 } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Subscriben: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Subscriben: \\${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun sendMove(player: String, action: String) {
@@ -328,7 +330,7 @@ class StompConnectionManager(
                     sendToMainThread("❌ Fehler beim Anfordern des Job-Repos: ${e.message}")
                 }
             }
-        } ?: sendToMainThread("Keine Verbindung aktiv")
+        } ?: sendToMainThread(NO_CONNECTION_MESSAGE)
     }
 
 
@@ -446,7 +448,7 @@ class StompConnectionManager(
             }
         } ?: run {
             println("   ✗ Keine aktive Session – Repository-Anfrage nicht gesendet")
-            sendToMainThread("Keine Verbindung aktiv")
+            sendToMainThread(NO_CONNECTION_MESSAGE)
         }
     }
 
@@ -579,4 +581,11 @@ class StompConnectionManager(
         } ?: println("   ✗ Keine aktive Session – Confirmation-Subscription fehlgeschlagen")
     }
 
+}
+
+/**
+ * Interface für die Move-Callbacks
+ */
+fun interface MoveCallbacks {
+    fun onPlayersChanged()
 }
