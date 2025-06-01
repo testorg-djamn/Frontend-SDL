@@ -31,7 +31,7 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 
-private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket"
+private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
 //private const val WEBSOCKET_URI = "ws://192.168.8.140:8080/websocket-broker/websocket" //for testing
 private const val NO_CONNECTION_MESSAGE = "Keine Verbindung aktiv"
 private const val NO_CONNECTION_SUBSCRIPTION_MESSAGE = "❌ Verbindung nicht aktiv – Subscription fehlgeschlagen"
@@ -278,7 +278,7 @@ class StompConnectionManager(
                     sendToMainThread("❌ Fehler beim Senden (move): ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun sendRealMove(player: String, dice: Int, currentFieldIndex: Int = -1) {
@@ -298,7 +298,7 @@ class StompConnectionManager(
                     handleReconnect()
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun sendChat(player: String, text: String) {
@@ -313,7 +313,7 @@ class StompConnectionManager(
                     sendToMainThread("❌ Fehler beim Senden (chat): ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     /**
@@ -351,7 +351,7 @@ class StompConnectionManager(
                     sendToMainThread("❌ Fehler bei Jobanfrage: ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun selectJob(gameId: Int, playerName: String, job: JobMessage) {
@@ -365,7 +365,7 @@ class StompConnectionManager(
                     sendToMainThread("❌ Fehler beim Senden der Jobauswahl: ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun requestActivePlayers(player: String) {
@@ -476,7 +476,7 @@ class StompConnectionManager(
             }
         } ?: run {
             println("   ✗ Keine aktive Session – Subscription fehlgeschlagen")
-            sendToMainThread("❌ Verbindung nicht aktiv – Subscription (Häuser) fehlgeschlagen")
+            sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
         }
     }
 
