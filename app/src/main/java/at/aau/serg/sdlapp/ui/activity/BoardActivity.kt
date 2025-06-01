@@ -237,31 +237,41 @@ class BoardActivity : ComponentActivity(),
     
     /**
      * Implementiert eine lokale Bewegung als Fallback, wenn keine Server-Antwort kommt
-     */
-    private fun implementLocalMovement(diceRoll: Int, currentFieldIndex: Int) {
+     */    private fun implementLocalMovement(diceRoll: Int, currentFieldIndex: Int) {
         try {
             Log.d("BoardActivity", "Implementiere lokale Bewegung: Würfel $diceRoll von Feld $currentFieldIndex")
             Toast.makeText(this, "Verwende lokale Bewegung (Würfel $diceRoll)", Toast.LENGTH_SHORT).show()
             
-            // Berechne neues Feld basierend auf aktuellem Feld + Würfelzahl
-            // Dies ist eine vereinfachte Implementierung, die nicht alle Spielregeln berücksichtigt
+            // Berechne neues Feld basierend auf der nextFields-Liste des aktuellen Feldes und dem Würfelwert
             val currentField = at.aau.serg.sdlapp.model.board.BoardData.board.find { it.index == currentFieldIndex }
             if (currentField != null) {
                 // Finde alle verfügbaren Felder
                 val allFields = at.aau.serg.sdlapp.model.board.BoardData.board
                 
-                // Berechnen des Zielindex (einfache Addition als Fallback)
-                var targetIndex = currentFieldIndex + diceRoll
+                // Bestimme das Zielfeld basierend auf dem Würfelwert und der nextFields-Liste
+                var targetIndex: Int
                 
-                // Stelle sicher, dass wir nicht über das letzte Feld hinausgehen
-                val maxIndex = allFields.maxByOrNull { it.index }?.index ?: 20
-                if (targetIndex > maxIndex) {
-                    targetIndex = maxIndex
+                // Wenn es keine nextFields gibt, bleiben wir auf dem aktuellen Feld
+                if (currentField.nextFields.isEmpty()) {
+                    targetIndex = currentFieldIndex
+                    Log.d("BoardActivity", "Keine nextFields verfügbar, bleibe auf Feld $currentFieldIndex")
+                } else {
+                    // Bestimme den Zielindex basierend auf dem Würfelwert
+                    targetIndex = if (diceRoll <= currentField.nextFields.size) {
+                        // Wenn der Würfelwert kleiner oder gleich der Anzahl der nextFields ist,
+                        // nehmen wir den Eintrag an der Position (diceRoll - 1)
+                        // (weil Listen in Kotlin bei 0 beginnen)
+                        currentField.nextFields[diceRoll - 1]
+                    } else {
+                        // Wenn der Würfelwert größer ist als die Anzahl der nextFields,
+                        // nehmen wir den letzten verfügbaren Eintrag
+                        currentField.nextFields.last()
+                    }
+                    Log.d("BoardActivity", "Zielindex aus nextFields: $targetIndex (Würfel: $diceRoll, verfügbare nextFields: ${currentField.nextFields})")
                 }
                 
                 // Finde das Zielfeld
                 val targetField = allFields.find { it.index == targetIndex }
-                            ?: allFields.minByOrNull { Math.abs(it.index - targetIndex) }
                 
                 if (targetField != null) {
                     Log.d("BoardActivity", "Lokale Bewegung zu Feld ${targetField.index}")

@@ -10,22 +10,28 @@ class Board(val fields: List<Field>) {
     }
 
     fun movePlayer(playerId: Int, steps: Int) {
-        var currentField = playerPositions[playerId] ?: 0
-
-        repeat(steps) {
-            val field = fields[currentField]
-            if (field.nextFields.isEmpty()) {
-                // Am Ziel oder Sackgasse
-                return
-            }
-            // Bei mehreren Möglichkeiten stoppen (Player muss dann auswählen)
-            if (field.nextFields.size > 1) {
-                return
-            }
-            currentField = field.nextFields.first()
+        val currentFieldIndex = playerPositions[playerId] ?: 0
+        val currentField = fields[currentFieldIndex]
+        
+        // Wenn das aktuelle Feld keine nextFields hat, kann nicht bewegt werden
+        if (currentField.nextFields.isEmpty()) {
+            return
         }
-
-        playerPositions[playerId] = currentField
+        
+        // Bestimme das Zielfeld basierend auf dem Würfelwert
+        val targetIndex = if (steps <= currentField.nextFields.size) {
+            // Wenn der Würfelwert kleiner oder gleich der Anzahl der nextFields ist,
+            // nehmen wir den Eintrag an der Position (steps - 1)
+            // (weil Listen in Kotlin bei 0 beginnen)
+            currentField.nextFields[steps - 1]
+        } else {
+            // Wenn der Würfelwert größer ist als die Anzahl der nextFields,
+            // nehmen wir den letzten verfügbaren Eintrag
+            currentField.nextFields.last()
+        }
+        
+        // Aktualisiere die Position des Spielers
+        playerPositions[playerId] = targetIndex
     }
 
     fun getPlayerField(playerId: Int): Field {
