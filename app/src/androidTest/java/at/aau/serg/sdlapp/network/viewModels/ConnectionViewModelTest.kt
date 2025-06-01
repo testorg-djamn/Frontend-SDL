@@ -1,6 +1,6 @@
 package at.aau.serg.sdlapp.network.viewModels
 
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -28,12 +28,12 @@ class ConnectionViewModelTest {
         viewModel.initializeStomp(callback)
 
         Assert.assertNotNull(viewModel.myStomp.value)
-        Assert.assertTrue(viewModel.myStomp.value is MyStomp)
+        Assert.assertTrue(viewModel.myStomp.value is StompConnectionManager)
     }
 
     @Test
     fun `initializeStomp should NOT overwrite existing MyStomp`() {
-        val firstInstance = mockk<MyStomp>(relaxed = true)
+        val firstInstance = mockk<StompConnectionManager>(relaxed = true)
         viewModel.myStomp.value = firstInstance
 
         val callback: (String) -> Unit = { Assert.fail("Callback should not be called") }

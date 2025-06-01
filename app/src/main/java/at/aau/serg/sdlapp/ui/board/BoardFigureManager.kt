@@ -8,10 +8,9 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import at.aau.serg.sdlapp.R
-import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.CarColor
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.MyStomp
+import at.aau.serg.sdlapp.network.StompConnectionManager
 import com.otaliastudios.zoom.ZoomLayout
 
 /**
@@ -207,7 +206,7 @@ class BoardFigureManager(
     /**
      * Fügt einen klickbaren Marker für ein mögliches nächstes Feld hinzu
      */
-    fun addNextMoveMarker(xPercent: Float, yPercent: Float, fieldIndex: Int, stompClient: MyStomp, playerName: String) {
+    fun addNextMoveMarker(xPercent: Float, yPercent: Float, fieldIndex: Int, stompClient: StompConnectionManager, playerName: String) {
         boardImage.post {
             val marker = ImageView(context)
             marker.setImageResource(R.drawable.move_indicator) // Füge ein passendes Bild-Asset hinzu
