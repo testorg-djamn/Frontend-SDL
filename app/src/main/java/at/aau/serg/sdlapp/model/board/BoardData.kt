@@ -27,17 +27,17 @@ object BoardData {
         Field(index = 16, x = 0.308f, y = 0.712f, nextFields = listOf(17,18,19,20,21,22,23,24,25,26), type = FieldType.AKTION),
         Field(index = 17, x = 0.339f, y = 0.738f, nextFields = listOf(18,19,20,21,22,23,24,25,26,27), type = FieldType.FREUND),
         Field(index = 18, x = 0.372f, y = 0.71f, nextFields = listOf(19,20,21,22,23,24,25,26,27,28), type = FieldType.AKTION),
-        Field(index = 19, x = 0.405f, y = 0.68f, nextFields = listOf(20,21,22,23,24,25,26,27,28,29), type = FieldType.EXAMEN),
+        Field(index = 19, x = 0.405f, y = 0.68f, nextFields = listOf(20,21,22,23,24,25,26,27,28), type = FieldType.EXAMEN),
 // x größer ist rechts und y größer ist runter
         //Gemeinsamer Weg zur Heirat
-        Field(index = 20, x = 0.405f, y = 0.62f, nextFields = listOf(21,22,23,24,25,26,27,28,29), type = FieldType.ZAHLTAG),
-        Field(index = 21, x = 0.435f, y = 0.595f, nextFields = listOf(22,23,24,25,26,27,28,29), type = FieldType.AKTION),
-        Field(index = 22, x = 0.47f, y = 0.62f, nextFields = listOf(23,24,25,26,27,28,29), type = FieldType.HAUS),
-        Field(index = 23, x = 0.5f, y = 0.595f, nextFields = listOf(24,25,26,27,28,29), type = FieldType.AKTION),
-        Field(index = 24, x = 0.5f, y = 0.548f, nextFields = listOf(25,26,27,28,29), type = FieldType.ZAHLTAG),
-        Field(index = 25, x = 0.47f, y = 0.523f, nextFields = listOf(26,27,28,29), type = FieldType.AKTION),
-        Field(index = 26, x = 0.435f, y = 0.498f, nextFields = listOf(27,28,29), type = FieldType.FREUND),
-        Field(index = 27, x = 0.405f, y = 0.473f, nextFields = listOf(28,29), type = FieldType.AKTION),
+        Field(index = 20, x = 0.405f, y = 0.62f, nextFields = listOf(21,22,23,24,25,26,27,28), type = FieldType.ZAHLTAG),
+        Field(index = 21, x = 0.435f, y = 0.595f, nextFields = listOf(22,23,24,25,26,27,28), type = FieldType.AKTION),
+        Field(index = 22, x = 0.47f, y = 0.62f, nextFields = listOf(23,24,25,26,27,28), type = FieldType.HAUS),
+        Field(index = 23, x = 0.5f, y = 0.595f, nextFields = listOf(24,25,26,27,28), type = FieldType.AKTION),
+        Field(index = 24, x = 0.5f, y = 0.548f, nextFields = listOf(25,26,27,28), type = FieldType.ZAHLTAG),
+        Field(index = 25, x = 0.47f, y = 0.523f, nextFields = listOf(26,27,28), type = FieldType.AKTION),
+        Field(index = 26, x = 0.435f, y = 0.498f, nextFields = listOf(27,28), type = FieldType.FREUND),
+        Field(index = 27, x = 0.405f, y = 0.473f, nextFields = listOf(28), type = FieldType.AKTION),
         Field(index = 28, x = 0.37f, y = 0.44f, nextFields = listOf(29), type = FieldType.HEIRAT),
 // x größer ist rechts und y größer ist runter
         // Heirat Ja
