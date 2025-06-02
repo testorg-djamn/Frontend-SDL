@@ -3,20 +3,26 @@ package at.aau.serg.sdlapp.network
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import at.aau.serg.sdlapp.network.message.job.JobMessage
-import at.aau.serg.sdlapp.network.message.job.JobRequestMessage
-import at.aau.serg.sdlapp.network.message.lobby.LobbyRequestMessage
-import at.aau.serg.sdlapp.network.message.lobby.LobbyResponseMessage
 import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.network.message.OutputMessage
 import at.aau.serg.sdlapp.network.message.PlayerListMessage
 import at.aau.serg.sdlapp.network.message.StompMessage
 import at.aau.serg.sdlapp.network.message.house.HouseBuyElseSellMessage
 import at.aau.serg.sdlapp.network.message.house.HouseMessage
+import at.aau.serg.sdlapp.network.message.job.JobMessage
+import at.aau.serg.sdlapp.network.message.job.JobRequestMessage
+import at.aau.serg.sdlapp.network.message.lobby.LobbyRequestMessage
+import at.aau.serg.sdlapp.network.message.lobby.LobbyResponseMessage
 import com.google.gson.Gson
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
 import org.hildan.krossbow.stomp.sendText
@@ -26,14 +32,19 @@ import org.json.JSONException
 import org.json.JSONObject
 //
 private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
-//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
+//private const val WEBSOCKET_URI = "ws://192.168.8.140:8080/websocket-broker/websocket" //for testing
+private const val NO_CONNECTION_MESSAGE = "Keine Verbindung aktiv"
+private const val NO_CONNECTION_SUBSCRIPTION_MESSAGE = "❌ Verbindung nicht aktiv – Subscription fehlgeschlagen"
 
 
-
-class StompConnectionManager(private val callback: (String) -> Unit) {
+class StompConnectionManager(
+    private val callback: (String) -> Unit,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+) {
 
     private var session: StompSession? = null
-    private val scope = CoroutineScope(Dispatchers.IO)
+    private val scope = CoroutineScope(ioDispatcher)
     private val gson = Gson()
     private val _lobbyUpdates = MutableSharedFlow<LobbyResponseMessage>()
     var isConnected: Boolean = false
@@ -49,11 +60,15 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     private val maxReconnectAttempts = 5
     private var reconnectAttempts = 0
 
-    fun getSession(): StompSession? = synchronized(this) {
-        if (isConnected) session else null
-    }
+    /**
+     * Gibt die aktuelle Session zurück, falls verbunden, sonst null.
+     */
+    val sessionOrNull: StompSession?
+        get() = synchronized(this) {
+            if (isConnected) session else null
+        }
 
-    suspend fun connect(playerName: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun connect(playerName: String): Boolean = withContext(ioDispatcher) {
         try {
             session = client.connect(WEBSOCKET_URI, login = playerName)
             isConnected = true
@@ -72,7 +87,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     fun connectAsync(playerName: String, onResult: (Boolean) -> Unit = {}) {
         scope.launch {
             val result = connect(playerName)
-            withContext(Dispatchers.Main) {
+            withContext(mainDispatcher) {
                 onResult(result)
             }
         }
@@ -162,21 +177,21 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     }
 
     fun sendGameStart(gameId: Int, playerName: String) {
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     session?.sendText("/app/game/start/$gameId", "")
                     sendToMainThread("📨 Spielstart gesendet, Player=$playerName")
                 } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Senden des Spielstarts: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Senden des Spielstarts: \\${e.message}")
                 }
             }
-        } ?: sendToMainThread("Keine Verbindung aktiv")
+        } ?: sendToMainThread(NO_CONNECTION_MESSAGE)
     }
 
     suspend fun sendLobbyLeave(playerName: String, lobbyID: String) {
-        val session = getSession() ?: run {
-            sendToMainThread("Keine Verbindung aktiv")
+        val session = sessionOrNull ?: run {
+            sendToMainThread(NO_CONNECTION_MESSAGE)
             return
         }
         try{
@@ -190,9 +205,9 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
         }
     }
 
-    suspend fun sendLobbyCreate(playerName: String): String? = withContext(Dispatchers.IO) {
-        val session : StompSession = getSession() ?: run {
-            sendToMainThread("Keine Verbindung aktiv")
+    suspend fun sendLobbyCreate(playerName: String): String? = withContext(ioDispatcher) {
+        val session : StompSession = sessionOrNull ?: run {
+            sendToMainThread(NO_CONNECTION_MESSAGE)
             return@withContext null
         }
         try {
@@ -222,9 +237,9 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun sendLobbyJoin(playerName: String, lobbyID: String): LobbyResponseMessage? =
-        withContext(Dispatchers.IO) {
-            val session = getSession() ?: run {
-                sendToMainThread("Keine Verbindung aktiv")
+        withContext(ioDispatcher) {
+            val session = sessionOrNull ?: run {
+                sendToMainThread(NO_CONNECTION_MESSAGE)
                 return@withContext null
             }
             try {
@@ -263,7 +278,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
         playerName: String,
         onJobs: (List<JobMessage>) -> Unit
     ) {
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     val dest = "/topic/$gameId/jobs/$playerName"
@@ -271,18 +286,18 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     val rawMsg = session?.subscribeText(dest)?.first()
                     val jobs = gson.fromJson(rawMsg, Array<JobMessage>::class.java).toList()
                     // Callback auf Main-Thread
-                    withContext(Dispatchers.Main) {
+                    withContext(mainDispatcher) {
                         onJobs(jobs)
                     }
                 } catch (e: Exception) {
-                    sendToMainThread("❌ Fehler beim Subscriben: ${e.message}")
+                    sendToMainThread("❌ Fehler beim Subscriben: \\${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun sendMove(player: String, action: String) {
-        getSession()?.let {
+        sessionOrNull?.let {
             val message = StompMessage(playerName = player, action = action)
             val json = gson.toJson(message)
             scope.launch {
@@ -293,11 +308,11 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     sendToMainThread("❌ Fehler beim Senden (move): ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun sendRealMove(player: String, dice: Int, currentFieldIndex: Int = -1) {
-        getSession()?.let {
+        sessionOrNull?.let {
             val moveInfo = if (currentFieldIndex >= 0) "$dice gewürfelt:$currentFieldIndex" else "$dice gewürfelt"
             val message = StompMessage(playerName = player, action = moveInfo, gameId = player)
             val json = gson.toJson(message)
@@ -313,11 +328,11 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     handleReconnect()
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun sendChat(player: String, text: String) {
-        getSession()?.let {
+        sessionOrNull?.let {
             val message = StompMessage(playerName = player, messageText = text)
             val json = gson.toJson(message)
             scope.launch {
@@ -328,7 +343,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     sendToMainThread("❌ Fehler beim Senden (chat): ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     /**
@@ -336,7 +351,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     Später soll das Repo durch den Screen Change von Lobby zu Game im Backend direkt ohne Aufruf erzeugt werden
      */
     fun requestJobRepository(gameId: Int) {
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     // Leere Nachricht an diesen STOMP-Endpunkt
@@ -345,12 +360,12 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     sendToMainThread("❌ Fehler beim Anfordern des Job-Repos: ${e.message}")
                 }
             }
-        } ?: sendToMainThread("Keine Verbindung aktiv")
+        } ?: sendToMainThread(NO_CONNECTION_MESSAGE)
     }
 
 
     fun requestJobs(gameId: Int, playerName: String) {
-        getSession()?.let {
+        sessionOrNull?.let {
             val request = JobRequestMessage(
                 playerName = playerName,
                 gameId = gameId,
@@ -366,11 +381,11 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     sendToMainThread("❌ Fehler bei Jobanfrage: ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun selectJob(gameId: Int, playerName: String, job: JobMessage) {
-        getSession()?.let {
+        sessionOrNull?.let {
             val json = gson.toJson(job)
             scope.launch {
                 try {
@@ -380,11 +395,11 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                     sendToMainThread("❌ Fehler beim Senden der Jobauswahl: ${e.message}")
                 }
             }
-        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Subscription fehlgeschlagen")
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 
     fun requestActivePlayers(player: String) {
-        getSession()?.let {
+        sessionOrNull?.let {
             val message =
                 StompMessage(playerName = player, action = "get-all-players", gameId = player)
             val json = gson.toJson(message)
@@ -410,7 +425,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
      * @param payload Der Inhalt der Nachricht (als JSON-String oder einfacher String)
      */
     fun sendMessage(destination: String, payload: String) {
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     session?.sendText(destination, payload)
@@ -473,7 +488,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
 
     fun requestHouseRepository(gameId: Int) {
         println(">> requestHouseRepository(gameId=$gameId) aufgerufen")
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     println("   → Sende leere Nachricht an /app/game/createHouseRepo/$gameId")
@@ -485,7 +500,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
             }
         } ?: run {
             println("   ✗ Keine aktive Session – Repository-Anfrage nicht gesendet")
-            sendToMainThread("Keine Verbindung aktiv")
+            sendToMainThread(NO_CONNECTION_MESSAGE)
         }
     }
 
@@ -496,14 +511,14 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     ) {
         val dest = "/topic/$gameId/houses/$playerName/options"
         println(">> subscribeHouses: subscribe to $dest")
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     val rawMsg = session?.subscribeText(dest)?.first()
                     println("   ← rawMsg: $rawMsg")
                     val houses = gson.fromJson(rawMsg, Array<HouseMessage>::class.java).toList()
                     println("   ✓ Parsed houses: ${houses.map { it.bezeichnung }}")
-                    withContext(Dispatchers.Main) {
+                    withContext(mainDispatcher) {
                         onHouses(houses)
                     }
                 } catch (e: Exception) {
@@ -513,14 +528,14 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
             }
         } ?: run {
             println("   ✗ Keine aktive Session – Subscription fehlgeschlagen")
-            sendToMainThread("❌ Verbindung nicht aktiv – Subscription (Häuser) fehlgeschlagen")
+            sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
         }
     }
 
 
     fun buyHouse(gameId: Int, playerName: String) {
         println(">> buyHouse(gameId=$gameId, playerName=$playerName) aufgerufen")
-        getSession()?.let {
+        sessionOrNull?.let {
             val message = HouseBuyElseSellMessage(playerID = playerName, gameId = gameId, buyElseSell = true)
             val json = gson.toJson(message)
             scope.launch {
@@ -542,7 +557,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
 
     fun sellHouse(gameId: Int, playerName: String) {
         println(">> sellHouse(gameId=$gameId, playerName=$playerName) aufgerufen")
-        getSession()?.let {
+        sessionOrNull?.let {
             val message = HouseBuyElseSellMessage(playerID = playerName, gameId = gameId, buyElseSell = false)
             val json = gson.toJson(message)
             scope.launch {
@@ -564,7 +579,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
 
     fun finalizeHouseAction(gameId: Int, playerName: String, house: HouseMessage) {
         println(">> finalizeHouseAction(gameId=$gameId, playerName=$playerName, houseId=${house.houseId}) aufgerufen")
-        getSession()?.let {
+        sessionOrNull?.let {
             val json = gson.toJson(house)
             scope.launch {
                 try {
@@ -593,7 +608,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
     ) {
         val dest = "/topic/$gameId/houses/$playerName/confirmation"
         println(">> subscribeHouseConfirmation: subscribe to $dest")
-        getSession()?.let {
+        sessionOrNull?.let {
             scope.launch {
                 try {
                     // warte auf genau eine Nachricht
@@ -605,7 +620,7 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
                         // parse single HouseMessage
                         val house = gson.fromJson(raw, HouseMessage::class.java)
                         println("   ✓ Parsed confirmation: ${house.bezeichnung} (taken=${house.isTaken})")
-                        withContext(Dispatchers.Main) {
+                        withContext(mainDispatcher) {
                             onConfirm(house)
                         }
                     } else {
@@ -618,4 +633,11 @@ class StompConnectionManager(private val callback: (String) -> Unit) {
         } ?: println("   ✗ Keine aktive Session – Confirmation-Subscription fehlgeschlagen")
     }
 
+}
+
+/**
+ * Interface für die Move-Callbacks
+ */
+fun interface MoveCallbacks {
+    fun onPlayersChanged()
 }

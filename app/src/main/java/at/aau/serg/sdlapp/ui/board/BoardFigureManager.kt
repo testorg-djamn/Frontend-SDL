@@ -255,8 +255,7 @@ class BoardFigureManager(
 
             println("🎮 Neue Spielfigur für Spieler $playerId erstellt")
         }
-
-        return playerFigures[playerId]!!
+        return playerFigures[playerId] ?: throw IllegalStateException("No player figure found for playerId=$playerId")
     }
 
     /**

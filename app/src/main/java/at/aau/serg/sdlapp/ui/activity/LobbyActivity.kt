@@ -44,7 +44,7 @@ class LobbyActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        session = viewModel.myStomp.value?.getSession() ?: run {
+        session = viewModel.myStomp.value?.sessionOrNull ?: run {
             Log.d("Debugging", "session is null")
             finish()
             return

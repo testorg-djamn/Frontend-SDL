@@ -4,8 +4,8 @@ import android.content.Context
 import android.widget.Toast
 import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.network.StompConnectionManager
+import at.aau.serg.sdlapp.network.message.MoveMessage
 
 /**
  * Verwaltet die Spielzüge und Bewegungen auf dem Spielbrett
