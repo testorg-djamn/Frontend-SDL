@@ -30,7 +30,7 @@ import org.hildan.krossbow.stomp.subscribeText
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
-
+//
 private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket-broker/websocket"
 //private const val WEBSOCKET_URI = "ws://192.168.8.140:8080/websocket-broker/websocket" //for testing
 private const val NO_CONNECTION_MESSAGE = "Keine Verbindung aktiv"
@@ -53,6 +53,7 @@ class StompConnectionManager(
     var onConnectionStateChanged: ((Boolean) -> Unit)? = null
     var onConnectionError: ((String) -> Unit)? = null
     var onPlayerListReceived: ((List<Int>) -> Unit)? = null
+    var onBoardDataReceived: ((List<at.aau.serg.sdlapp.model.board.Field>) -> Unit)? = null
 
     // Reconnect-Logik
     private var shouldReconnect = true
@@ -109,10 +110,13 @@ class StompConnectionManager(
                     }
                 }
             }
+            scope.launch {
+                s.subscribeText("/topic/board/data").collect { msg ->
+                    handleBoardDataMessage(msg)
+                }
+            }
         }
-    }
-
-    private fun handleGameMessage(msg: String) {
+    }    private fun handleGameMessage(msg: String) {
         try {
             sendToMainThread("📥 Nachricht vom Server empfangen: ${msg.take(100)}${if (msg.length > 100) "..." else ""}")
 
@@ -127,13 +131,23 @@ class StompConnectionManager(
                 }
             }
 
-            val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
-            if (moveMessage.fieldIndex >= 0) {
-                sendToMainThread("🚗 Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
-                onMoveReceived?.invoke(moveMessage)
-            } else {
+            try {
+                val moveMessage = gson.fromJson(msg, MoveMessage::class.java)
+                if (moveMessage.fieldIndex >= 0) {
+                    sendToMainThread("🚗 MOVE ERKANNT: Spieler ${moveMessage.playerName} bewegt zu Feld ${moveMessage.fieldIndex}")
+                    sendToMainThread("🔢 Details: typ=${moveMessage.typeString}, nächste Felder=${moveMessage.nextPossibleFields}")
+                    onMoveReceived?.invoke(moveMessage)
+                    return
+                } 
+            } catch (e: Exception) {
+                sendToMainThread("⚠️ Nachricht ist keine gültige MoveMessage: ${e.message}")
+            }
+            
+            try {
                 val output = gson.fromJson(msg, OutputMessage::class.java)
                 sendToMainThread("🎲 ${output.playerName}: ${output.content} (${output.timestamp})")
+            } catch (e: Exception) {
+                sendToMainThread("⚠️ Nachricht ist auch keine OutputMessage: ${e.message}")
             }
         } catch (e: Exception) {
             sendToMainThread("⚠️ Fehler beim Verarbeiten einer Game-Nachricht: ${e.message}")
@@ -146,6 +160,22 @@ class StompConnectionManager(
             }
         }
     }
+
+    private fun handleBoardDataMessage(msg: String) {
+        try {
+            sendToMainThread("📊 Board-Daten vom Server empfangen")
+            val boardDataMessage = gson.fromJson(msg, BoardDataMessage::class.java)
+
+            // Konvertiere FieldDto zu lokalen Field-Objekten
+            val fields = boardDataMessage.fields.map { it.toField() }
+
+            // Rufe den Callback mit den Board-Daten auf
+            onBoardDataReceived?.invoke(fields)
+        } catch (e: Exception) {
+            sendToMainThread("⚠️ Fehler beim Verarbeiten der Board-Daten: ${e.message}")
+        }
+    }
+
     fun sendGameStart(gameId: Int, playerName: String) {
         sessionOrNull?.let {
             scope.launch {
@@ -386,6 +416,28 @@ class StompConnectionManager(
                 }
             }
         } ?: sendToMainThread("❌ Verbindung nicht aktiv bei Spielerabfrage!")
+    }
+
+    /**
+     * Sendet eine Nachricht an das angegebene Ziel
+     *
+     * @param destination Das Ziel, an das die Nachricht gesendet werden soll
+     * @param payload Der Inhalt der Nachricht (als JSON-String oder einfacher String)
+     */
+    fun sendMessage(destination: String, payload: String) {
+        sessionOrNull?.let {
+            scope.launch {
+                try {
+                    session?.sendText(destination, payload)
+                    sendToMainThread("✅ Nachricht an $destination gesendet")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden an $destination: ${e.message}")
+                    isConnected = false
+                    onConnectionStateChanged?.invoke(false)
+                    handleReconnect()
+                }
+            }
+        } ?: sendToMainThread("❌ Verbindung nicht aktiv – Senden fehlgeschlagen")
     }
 
     private fun sendToMainThread(message: String) {

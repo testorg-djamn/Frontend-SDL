@@ -69,8 +69,8 @@ class BoardUIManager(
         uniButton.setOnClickListener {
             try {
                 println("🎓 Uni-Start Button geklickt")
-                // Starte am Uni-Startfeld (Index 18)
-                val startFieldIndex = 18
+                // Starte am Uni-Startfeld (Index 10)
+                val startFieldIndex = 10
                 
                 uiCallbacks.onStartFieldSelected(startFieldIndex)
 

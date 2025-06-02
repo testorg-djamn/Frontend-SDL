@@ -3,6 +3,8 @@ package at.aau.serg.sdlapp.ui.board
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
+import at.aau.serg.sdlapp.model.board.Field
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.StompConnectionManager
 import at.aau.serg.sdlapp.network.message.MoveMessage
@@ -80,7 +82,7 @@ class BoardNetworkManager(
             Handler(Looper.getMainLooper()).post {
                 try {
                     // Verbesserte Logging für Debugging mit mehr Details
-                    println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.type}, " +
+                    println("📥 MoveMessage empfangen: Feld=${move.fieldIndex}, Typ=${move.typeString}, " +
                             "Spieler=${move.playerName} (ID=${move.playerId}), Nächste Felder=${move.nextPossibleFields.joinToString()}")
 
                     callbacks.onMoveReceived(move)
@@ -88,6 +90,14 @@ class BoardNetworkManager(
                     println("❌❌❌ Unerwarteter Fehler bei der Bewegungsverarbeitung: ${e.message}")
                     e.printStackTrace()
                 }
+            }
+        }
+
+        // Handler für Board-Daten
+        stompClient.onBoardDataReceived = { fields ->
+            Handler(Looper.getMainLooper()).post {
+                println("📊 Board-Daten vom Server erhalten (${fields.size} Felder)")
+                callbacks.onBoardDataReceived(fields)
             }
         }
     }
@@ -126,6 +136,42 @@ class BoardNetworkManager(
     fun requestActivePlayers() {
         stompClient.requestActivePlayers(playerName)
     }    /**
+     * Fordert die aktuellen Board-Daten vom Server an
+     */
+    fun requestBoardData() {
+        try {
+            println("📊 Fordere Board-Daten vom Server an")
+            stompClient.sendMessage("/app/board/data", "{\"request\":\"getBoard\"}")
+            
+            // Nach kurzer Verzögerung prüfen, ob wir eine Antwort bekommen haben
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (at.aau.serg.sdlapp.model.board.BoardData.board.isNotEmpty()) {
+                    println("✅ Board-Daten wurden geladen oder waren bereits verfügbar")
+                } else {
+                    println("⚠️ Keine Board-Daten nach Anfrage erhalten")
+                    // Zeige eine Warnung an
+                    Toast.makeText(
+                        context,
+                        "Warnung: Keine Board-Daten vom Server erhalten",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }, 2000) // 2 Sekunden warten
+            
+        } catch (e: Exception) {
+            println("❌ Fehler beim Anfordern der Board-Daten: ${e.message}")
+            e.printStackTrace()
+            
+            // Fehler anzeigen
+            Toast.makeText(
+                context,
+                "Fehler beim Anfordern der Brett-Daten",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    /**
      * Prüft, ob die Verbindung besteht
      */
     val isConnected: Boolean
@@ -175,5 +221,10 @@ class BoardNetworkManager(
         fun onConnectionStateChanged(isConnected: Boolean)
         fun onConnectionError(errorMessage: String)
         fun onMoveReceived(move: MoveMessage)
+
+        /**
+         * Wird aufgerufen, wenn Spiel-Brett-Daten vom Server empfangen wurden
+         */
+        fun onBoardDataReceived(fields: List<Field>)
     }
 }
