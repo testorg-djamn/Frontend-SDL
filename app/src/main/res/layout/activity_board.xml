@@ -93,4 +93,6 @@
         android:textSize="14sp"
         android:text="1 Spieler online" />
 
+
+
 </FrameLayout>

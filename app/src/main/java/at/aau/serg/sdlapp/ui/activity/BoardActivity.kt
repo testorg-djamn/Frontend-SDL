@@ -1,5 +1,6 @@
 package at.aau.serg.sdlapp.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -33,11 +34,13 @@ class BoardActivity : ComponentActivity(),
     BoardMoveManager.MoveCallbacks {
 
     // Kernkomponenten der Activity
-    private var playerId = 1
+    private lateinit var playerId: String
     private lateinit var boardImage: ImageView
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
     private lateinit var playerName: String
+    private lateinit var statsButton: ImageButton
+
 
     // Manager für verschiedene Aspekte des Spiels
     private lateinit var playerManager: PlayerManager
@@ -72,6 +75,8 @@ class BoardActivity : ComponentActivity(),
         zoomLayout = findViewById(R.id.zoomLayout)
         boardImage = findViewById(R.id.boardImag)
         diceButton = findViewById(R.id.diceButton)
+        statsButton = findViewById(R.id.statsButton)
+
 
         // Debug-Meldung zum Board-Status
         boardImage.post {
@@ -81,7 +86,7 @@ class BoardActivity : ComponentActivity(),
 
         // Player-ID aus Intent lesen
         playerName = intent.getStringExtra("playerName") ?: "1"
-        playerId = playerName.toIntOrNull() ?: 1
+        playerId = playerName
         Log.d("BoardActivity", "Spieler initialisiert: ID=$playerId, Name=$playerName")
     }
 
@@ -233,6 +238,14 @@ class BoardActivity : ComponentActivity(),
                 uiManager.showPlayerListOverlay()
             }, 500) // 500ms warten
         }
+
+        //Spieler Status anzeigen
+        statsButton.setOnClickListener {
+            val intent = Intent(this, PlayerStatsActivity::class.java)
+            intent.putExtra("playerId", playerId) // playerId ist jetzt ein String
+            startActivity(intent)
+        }
+
     }
     
     /**
@@ -310,7 +323,7 @@ class BoardActivity : ComponentActivity(),
 
     override fun onPlayerListReceived(playerIds: List<Int>) {
         // Füge alle neuen Spieler hinzu und verarbeite entfernte Spieler
-        val playerIdsToProcess = playerIds.toMutableList()
+        val playerIdsToProcess = playerIds.map { it.toString() }.toMutableList()
 
         // Stelle sicher, dass der lokale Spieler immer in der Liste ist
         if (!playerIdsToProcess.contains(playerId)) {
@@ -353,7 +366,7 @@ class BoardActivity : ComponentActivity(),
                     // Wenn der Spieler schon eine Position hat, bewegen wir ihn dorthin
                     val fieldIndex = remotePlayer.currentFieldIndex
                     if (fieldIndex > 0) {
-                        moveManager.updatePlayerPosition(remotePlayerId, fieldIndex)
+                        moveManager.updatePlayerPosition(remotePlayerId.toString(), fieldIndex)
                     }
                 }
             }
@@ -574,7 +587,7 @@ class BoardActivity : ComponentActivity(),
             if (localPlayer != null && currentFieldIndex > 0) {
                 // Position des lokalen Spielers aktualisieren
                 Log.d("BoardActivity", "Aktualisiere Position des lokalen Spielers zu Feld $currentFieldIndex")
-                moveManager.updatePlayerPosition(localPlayer.id, currentFieldIndex)
+                moveManager.updatePlayerPosition(localPlayer.id.toString(), currentFieldIndex)
                 
                 // Status-Text aktualisieren
                 updateStatusText()

@@ -119,7 +119,7 @@ class BoardUIManager(
     /**
      * Zeigt eine Benachrichtigung über entfernte Spieler an
      */
-    fun showRemovedPlayersNotification(removedPlayers: List<Int>) {
+    fun showRemovedPlayersNotification(removedPlayers: List<String>) {
         if (removedPlayers.size == 1) {
             Toast.makeText(
                 context,
