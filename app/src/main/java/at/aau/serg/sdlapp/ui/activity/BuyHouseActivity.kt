@@ -28,7 +28,7 @@ class BuyHouseActivity : ComponentActivity() {
         gameId     = intent.getIntExtra("gameId", -1)
 
         // 2) STOMP-Client erzeugen und verbinden
-        stomp = StompConnectionManager { showToast(it) }
+        stomp = StompConnectionManager( { showToast(it) })
         stomp.connectAsync(playerName)
 
         // 3) House-Liste aus Intent parsen

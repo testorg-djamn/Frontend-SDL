@@ -19,7 +19,7 @@ class HouseCardActivity : ComponentActivity() {
         setContentView(R.layout.activity_house_card)
 
         playerName = intent.getStringExtra("playerName") ?: "Spieler"
-        stomp = StompConnectionManager { showToast(it) }
+        stomp = StompConnectionManager( { showToast(it) })
 
         findViewById<Button>(R.id.btnConnect).setOnClickListener {
             stomp.connectAsync(playerName)

@@ -1,6 +1,5 @@
 package at.aau.serg.sdlapp.model.player
 
-import android.content.res.Resources
 import at.aau.serg.sdlapp.R
 
 /**

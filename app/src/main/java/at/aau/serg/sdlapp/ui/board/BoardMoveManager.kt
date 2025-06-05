@@ -4,8 +4,8 @@ import android.content.Context
 import android.widget.Toast
 import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.network.StompConnectionManager
+import at.aau.serg.sdlapp.network.message.MoveMessage
 
 /**
  * Verwaltet die Spielzüge und Bewegungen auf dem Spielbrett
@@ -28,8 +28,10 @@ class BoardMoveManager(
         if (movePlayerId != -1) {
             // Unterscheiden zwischen lokalem und entferntem Spieler
             if (movePlayerId == playerId) {
+                println("🏠 LOKALER SPIELER bewegt sich")
                 handleLocalPlayerMove(move)
             } else {
+                println("🌍 REMOTE SPIELER (ID: $movePlayerId) bewegt sich")
                 handleRemotePlayerMove(movePlayerId, move)
             }
 
@@ -39,15 +41,14 @@ class BoardMoveManager(
             // Füge Highlight-Marker für mögliche nächste Felder hinzu
             addMarkersForNextPossibleFields(move, stompClient, playerName)
         } else {
-            println("❌ Fehler: Feld mit ID ${move.fieldIndex} nicht gefunden in BoardData")
-            // Versuche, mehr Debugging-Informationen zu sammeln
-            println("📊 Verfügbare Felder im Frontend: ${BoardData.board.map { it.index }.sorted()}")
+            println("❌ Fehler: Spieler-ID ist -1, kann Bewegung nicht zuordnen")
+            Toast.makeText(context, "Fehler: Ungültige Spieler-ID in Bewegungsnachricht", Toast.LENGTH_SHORT).show()
         }
     }
 
     /**
      * Verarbeitet die Bewegung des lokalen Spielers
-     */
+     */    
     private fun handleLocalPlayerMove(move: MoveMessage) {
         // Lokaler Spieler - aktualisiere den currentFieldIndex
         val oldFieldIndex = currentFieldIndex
@@ -61,9 +62,53 @@ class BoardMoveManager(
         val field = BoardData.board.find { it.index == move.fieldIndex }
         if (field != null) {
             // Bewege Figur zu den X/Y-Koordinaten des Feldes
-            boardFigureManager.moveFigureToPosition(field.x, field.y, move.playerId)
-            // Log für Debugging
-            println("🚗 Lokale Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.type}")
+            println("🚗 BEWEGUNG STARTEN: Lokale Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.typeString}")
+            
+            try {
+                // Direkter Aufruf des Board Figure Managers um die Figur zu bewegen
+                boardFigureManager.moveFigureToPosition(field.x, field.y, move.playerId)
+                
+                Toast.makeText(context, "Figur bewegt zu Feld ${move.fieldIndex}", Toast.LENGTH_SHORT).show()
+                println("🚗 BEWEGUNG ABGESCHLOSSEN: Lokale Figur bewegt zu Feld ${move.fieldIndex} (${field.x}, ${field.y}) - Typ: ${move.typeString}")
+            } catch (e: Exception) {
+                println("⚠️ FEHLER bei der Bewegung: ${e.message}")
+                e.printStackTrace()
+                
+                // Notlösung: Versuche eine alternative Methode, falls die normale Bewegung fehlschlägt
+                try {
+                    println("🔄 Versuche alternative Bewegungsmethode...")
+                    
+                    // Stelle sicher, dass die Figur existiert
+                    val playerFigure = boardFigureManager.getOrCreatePlayerFigure(move.playerId)
+                    
+                    // Verzögere die Bewegung leicht, um UI-Thread-Probleme zu vermeiden
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        try {
+                            boardFigureManager.moveFigureToPosition(field.x, field.y, move.playerId)
+                            Toast.makeText(context, "Alternative Bewegung zu Feld ${move.fieldIndex}", Toast.LENGTH_SHORT).show()
+                        } catch (e2: Exception) {
+                            println("⚠️ Auch alternative Bewegung fehlgeschlagen: ${e2.message}")
+                            e2.printStackTrace()
+                        }
+                    }, 500)
+                } catch (e2: Exception) {
+                    println("⚠️ Alternative Bewegung Vorbereitung fehlgeschlagen: ${e2.message}")
+                    e2.printStackTrace()
+                }
+            }
+        } else {
+            println("❌ FEHLER: Feld mit Index ${move.fieldIndex} nicht gefunden in BoardData!")
+            println("📊 Verfügbare Felder: ${BoardData.board.map { it.index }.sorted()}")
+            println("📊 Empfangenes Feld aus Backend: ${move.fieldIndex}")
+            Toast.makeText(context, "Fehler: Feld ${move.fieldIndex} nicht gefunden!", Toast.LENGTH_LONG).show()
+            
+            // Versuch, ein ähnliches Feld zu finden
+            val similarField = BoardData.board.minByOrNull { Math.abs(it.index - move.fieldIndex) }
+            if (similarField != null) {
+                println("🔍 Ähnlichstes Feld ist: ${similarField.index}")
+                Toast.makeText(context, "Bewege zu ähnlichstem Feld ${similarField.index}", Toast.LENGTH_SHORT).show()
+                boardFigureManager.moveFigureToPosition(similarField.x, similarField.y, move.playerId)
+            }
         }
     }
 
@@ -165,13 +210,19 @@ class BoardMoveManager(
                 boardFigureManager.moveFigureToPosition(field.x, field.y, playerId)
             }
         }
-    }
-
-    /**
+    }    /**
      * Getter für currentFieldIndex
+     * Returns the current field index of the local player if available,
+     * otherwise returns the internally cached index
      */
     fun getCurrentFieldIndex(): Int {
-        return currentFieldIndex
+        // Try to get the current position from the playerManager first
+        val localPlayer = playerManager.getLocalPlayer()
+        return if (localPlayer != null) {
+            localPlayer.currentFieldIndex
+        } else {
+            currentFieldIndex
+        }
     }
 
     /**
