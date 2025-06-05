@@ -3,9 +3,9 @@ package at.aau.serg.sdlapp.model.player
 import android.util.Log
 
 /**
- * Verwaltet alle Spieler und ihre Positionen
+ * Verwaltet alle Spieler und ihre Positionen (Singleton)
  */
-class PlayerManager {
+object PlayerManager {
     // Liste aller aktiven Spieler
     private val players = mutableMapOf<String, Player>()
 
@@ -46,7 +46,13 @@ class PlayerManager {
      * @return Der lokale Spieler oder null, falls nicht gesetzt
      */
     fun getLocalPlayer(): Player? {
-        return players[localPlayerId]
+        val player = players[localPlayerId]
+        if (player == null) {
+            Log.w("PlayerManager", "⚠️ getLocalPlayer(): Spieler $localPlayerId NICHT gefunden!")
+        } else {
+            Log.d("PlayerManager", "✅ getLocalPlayer(): $player")
+        }
+        return player
     }
 
     /**

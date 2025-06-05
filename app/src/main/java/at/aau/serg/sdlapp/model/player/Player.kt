@@ -8,7 +8,15 @@ import at.aau.serg.sdlapp.R
 data class Player(
     val id: String,
     val name: String,
-    var currentFieldIndex: Int = 0
+    var currentFieldIndex: Int = 0,
+
+    // ➕ Zusätzliche Felder für Statistiken
+    var money: Int = 0,
+    var children: Int = 0,
+    var hasEducation: Boolean = false,
+    var investments: Int = 0,
+    val salary: Int = 0,                   // Standardwert
+    val relationship: String = "Unknown"   // Standardwert
 ) {
     // Farbe basierend auf der ID bestimmen
     val color: CarColor = when (id.toIntOrNull()?.rem(4) ?: 0) {
