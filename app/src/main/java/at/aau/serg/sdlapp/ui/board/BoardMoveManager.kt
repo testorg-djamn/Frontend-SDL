@@ -3,6 +3,7 @@ package at.aau.serg.sdlapp.ui.board
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.PlayerManager
@@ -175,8 +176,11 @@ class BoardMoveManager(
      * Gibt das aktuelle Feld des lokalen Spielers zurück
      */
     fun getCurrentFieldIndex(): Int {
-        return playerManager.getLocalPlayer()?.currentFieldIndex ?: currentFieldIndex
+        val local = playerManager.getLocalPlayer()
+        Log.d("BoardMoveManager", "📍 getCurrentFieldIndex – localPlayer = $local")
+        return local?.currentFieldIndex ?: currentFieldIndex
     }
+
 
     /**
      * Setzt den aktuellen Feldindex manuell

@@ -19,6 +19,7 @@ data class Player(
         else -> CarColor.BLUE
     }
 
+
     // Liefert die Ressourcen-ID des Auto-Bildes
     fun getCarImageResource(): Int {
         return when (color) {

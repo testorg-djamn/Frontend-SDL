@@ -88,6 +88,9 @@ class BoardActivity : ComponentActivity(),
         playerName = intent.getStringExtra("playerName") ?: "1"
         playerId = playerName
         Log.d("BoardActivity", "Spieler initialisiert: ID=$playerId, Name=$playerName")
+        Log.d("BoardActivity", "🧾 Intent enthält playerName = ${intent.getStringExtra("playerName")}")
+        Log.d("BoardActivity", "➡️ Initialisierte playerId = $playerId")
+
     }
 
     /**
@@ -97,6 +100,8 @@ class BoardActivity : ComponentActivity(),
         // Player Manager initialisieren
         playerManager = PlayerManager()
         playerManager.setLocalPlayer(playerId)
+        val local = playerManager.getLocalPlayer()
+        Log.d("BoardActivity", "✅ Nach setLocalPlayer: localPlayer = $local")
 
         val boardContainer = findViewById<FrameLayout>(R.id.boardContainer)
 
