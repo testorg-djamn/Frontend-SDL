@@ -7,7 +7,7 @@ import android.util.Log
  */
 object PlayerManager {
     // Liste aller aktiven Spieler
-    private val players = mutableMapOf<String, Player>()
+    val players = mutableMapOf<String, Player>()
 
     // Der lokale Spieler (dieser Client)
     private var localPlayerId: String = "1"
@@ -136,5 +136,10 @@ object PlayerManager {
                 players.values.joinToString(", ") {
                     "${it.id}:${it.color}" + if (it.id == localPlayerId) "*" else ""
                 }
+    }
+
+    fun clearPlayers() {
+        players.clear()
+        localPlayerId = "1" // Optional: Zurücksetzen, falls relevant für Tests
     }
 }
