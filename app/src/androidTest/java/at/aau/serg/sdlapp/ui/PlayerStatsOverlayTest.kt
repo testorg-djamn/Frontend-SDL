@@ -20,7 +20,7 @@ class PlayerStatsOverlayTest {
             salary = 5000,
             children = 2,
             education = true,
-            relationship = false.toString()
+            relationship = false
         )
 
         composeTestRule.setContent {
@@ -53,7 +53,7 @@ class PlayerStatsOverlayTest {
             salary = 4000,
             children = 0,
             education = false,
-            relationship = false.toString()
+            relationship = false
         )
 
         composeTestRule.setContent {

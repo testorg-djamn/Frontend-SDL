@@ -27,7 +27,7 @@ class PlayerStatsOverlayScreenTest {
     @Test
     fun showsPlayer_whenDataIsLoaded() {
         val viewModel = PlayerViewModel().apply {
-            player = PlayerModell("5", 9000, 1000, 2000, 0, false, false.toString())
+            player = PlayerModell("5", 9000, 1000, 2000, 0, false, false)
         }
 
         composeTestRule.setContent {
