@@ -18,7 +18,7 @@ class BoardNetworkManager(
     private val context: Context,
     private val playerManager: PlayerManager,
     private val playerName: String,
-    private val playerId: Int,
+    private val playerId: String,
     private val callbacks: NetworkCallbacks
 ) {
     // STOMP-Client für die Verbindung zum Backend
