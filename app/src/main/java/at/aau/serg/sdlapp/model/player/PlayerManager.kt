@@ -1,6 +1,7 @@
 package at.aau.serg.sdlapp.model.player
 
 import android.util.Log
+import at.aau.serg.sdlapp.model.game.GameConstants
 
 /**
  * Verwaltet alle Spieler und ihre Positionen (Singleton)
@@ -16,6 +17,13 @@ object PlayerManager {
 
     // Der lokale Spieler (dieser Client)
     private var localPlayerId: String = "1"
+
+    // Status, ob das Spiel bereits beendet wurde
+    private var gameFinished = false
+    fun markGameFinished() {
+        gameFinished = true
+    }
+    fun isGameFinished(): Boolean = gameFinished
 
     /**
      * Fügt einen neuen Spieler hinzu
@@ -119,6 +127,12 @@ object PlayerManager {
                     "${it.id}:${it.color}" + if (it.id == localPlayerId) "*" else ""
                 }
     }
+    //prüft, ob alle Spieler auf dem Endspielfeld stehen
+    fun haveAllPlayersFinished(): Boolean {
+        return players.values.all { it.currentFieldIndex in GameConstants.FINAL_FIELD_INDICES }
+    }
+
+
 
     /**
      * Entfernt alle Spieler – für Tests
