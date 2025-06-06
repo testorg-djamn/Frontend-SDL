@@ -135,6 +135,14 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- ✅ Endscreen Activity -->
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.EndScreenActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+
     </application>
 
 </manifest>

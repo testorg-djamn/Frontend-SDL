@@ -127,11 +127,24 @@ object PlayerManager {
                     "${it.id}:${it.color}" + if (it.id == localPlayerId) "*" else ""
                 }
     }
-    //prüft, ob alle Spieler auf dem Endspielfeld stehen
-    fun haveAllPlayersFinished(): Boolean {
-        return players.values.all { it.currentFieldIndex in GameConstants.FINAL_FIELD_INDICES }
-    }
 
+    //prüft, ob ein oder alle Spieler auf dem Endfeld stehen
+    fun haveAllPlayersFinished(): Boolean {
+        val allPlayers = players.values.toList()
+
+        // Debug-Ausgabe
+        allPlayers.forEach {
+            Log.d("FinishCheck", "Spieler ${it.name} auf Feld ${it.currentFieldIndex}")
+        }
+
+        // Wenn nur 1 Spieler → genügt, wenn dieser auf einem Endfeld steht
+        if (allPlayers.size == 1) {
+            return allPlayers.first().currentFieldIndex in GameConstants.FINAL_FIELD_INDICES
+        }
+
+        // Sonst: alle müssen auf einem Endfeld sein
+        return allPlayers.all { it.currentFieldIndex in GameConstants.FINAL_FIELD_INDICES }
+    }
 
 
     /**

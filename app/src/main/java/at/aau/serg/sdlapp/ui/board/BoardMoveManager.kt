@@ -96,13 +96,16 @@ class BoardMoveManager(
             }
         }
 
-        if (!playerManager.isGameFinished() && playerManager.haveAllPlayersFinished()) {
-            playerManager.markGameFinished()
+
+        if (playerManager.haveAllPlayersFinished()) {
+            Toast.makeText(context, "🎉 Alle Spieler haben das Spiel beendet!", Toast.LENGTH_LONG).show()
+
             Handler(Looper.getMainLooper()).post {
                 val intent = Intent(context, EndScreenActivity::class.java)
                 context.startActivity(intent)
             }
         }
+
 
 
     }
