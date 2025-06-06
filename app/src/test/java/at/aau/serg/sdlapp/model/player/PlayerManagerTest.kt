@@ -13,7 +13,7 @@ class PlayerManagerTest {
 
     @Test
     fun `test add and retrieve player`() {
-        val player = PlayerManager.addPlayer("1", "Alice")
+        PlayerManager.addPlayer("1", "Alice")
         val fetched = PlayerManager.getPlayer("1")
 
         assertNotNull(fetched)
