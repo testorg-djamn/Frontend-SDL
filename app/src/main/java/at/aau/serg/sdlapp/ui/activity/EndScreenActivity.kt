@@ -31,7 +31,6 @@ class EndScreenActivity : ComponentActivity() {
             }
         }
     }
-
     @Composable
     fun EndScreen() {
         val players = remember {
@@ -40,77 +39,88 @@ class EndScreenActivity : ComponentActivity() {
         }
         val context = LocalContext.current
 
-        // Schöner Farbverlauf
+        // 🎨 Hintergrund mit Farbverlauf
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFFe3f2fd), Color(0xFFbbdefb), Color(0xFF90caf9))
+                        colors = listOf(
+                            Color(0xFF1E3C72), // Blau oben
+                            Color(0xFF2A5298)  // Blau unten
+                        )
                     )
                 )
                 .padding(16.dp)
         ) {
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("🏁 Spiel beendet", fontSize = 32.sp, fontWeight = FontWeight.ExtraBold)
-                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "🏁 Spiel beendet",
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White
+                )
 
-                Text("🏆 Leaderboard", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(24.dp))
 
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                Text("🏆 Leaderboard", fontSize = 24.sp, color = Color.White)
+
+                LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
                     itemsIndexed(players) { index, player ->
                         Text(
                             text = "${index + 1}. ${player.name}: ${player.money + player.investments} €",
-                            modifier = Modifier.padding(8.dp)
+                            color = Color.White,
+                            modifier = Modifier.padding(6.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("📊 Kategorien", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text("📊 Kategorien", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = Color.White)
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 CategoryItem("👶 Meiste Kinder", players.maxByOrNull { it.children }?.name ?: "-")
                 CategoryItem("📈 Top-Investor", players.maxByOrNull { it.investments }?.name ?: "-")
                 CategoryItem("💼 Höchstes Gehalt", players.maxByOrNull { it.salary }?.name ?: "-")
-                CategoryItem("🎓 Akademiker:innen", players.filter { it.hasEducation }.joinToString { it.name }.ifBlank { "–" })
+                CategoryItem(
+                    "🎓 Akademiker:innen",
+                    players.filter { it.hasEducation }.joinToString { it.name }.ifBlank { "–" }
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 🎉 Hauptmenü-Button mit Stil
+                // 🎉 Stylischer Button
                 Button(
                     onClick = {
+                        PlayerManager.clearPlayers()
                         val intent = Intent(context, StartActivity::class.java)
                         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                         context.startActivity(intent)
-                        if (context is Activity) context.finish()
+                        (context as? Activity)?.finish()
                     },
                     modifier = Modifier
                         .padding(12.dp)
-                        .height(56.dp)
+                        .fillMaxWidth(0.8f)
                 ) {
-                    Text("🔙 Zurück zum Hauptmenü", fontSize = 18.sp)
+                    Text("🔙 Zurück zum Hauptmenü")
                 }
             }
-
-            // 🎊 Fake-Confetti (nur Demo – echte Animation optional möglich)
-            Text("🎉", fontSize = 48.sp, modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(8.dp)
-            )
-            Text("🎉", fontSize = 48.sp, modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-            )
         }
     }
 
     @Composable
     fun CategoryItem(label: String, winner: String) {
-        Text("• $label: $winner", fontSize = 16.sp, modifier = Modifier.padding(4.dp))
+        Text(
+            "• $label: $winner",
+            fontSize = 16.sp,
+            color = Color.White,
+            modifier = Modifier.padding(4.dp)
+        )
     }
+
 
 }
