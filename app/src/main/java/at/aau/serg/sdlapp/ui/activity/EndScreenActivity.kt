@@ -1,25 +1,23 @@
 package at.aau.serg.sdlapp.ui.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.sdlapp.model.player.PlayerManager
-import android.app.Activity
-import android.content.Intent
-import androidx.compose.material3.Button
-import androidx.compose.ui.platform.LocalContext
 
 class EndScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +47,6 @@ class EndScreenActivity : ComponentActivity() {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text("🏆 Leaderboard (nach Gesamtvermögen)", fontSize = 22.sp)
-
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 itemsIndexed(players) { index, player ->
                     Text(
@@ -73,19 +70,21 @@ class EndScreenActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Button(onClick = {
-                PlayerManager.clearPlayers() // Wichtig, dass die Spielr wieder zurückgesetzt werden
-                val intent = Intent(context, StartActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-                (context as? Activity)?.finish()
-            }) {
+            // 🏠 Button zurück zum Hauptmenü
+            Button(
+                onClick = {
+                    val intent = Intent(context, StartActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                    context.startActivity(intent)
+                    if (context is Activity) {
+                        context.finish()
+                    }
+                }
+            ) {
                 Text("Zurück zum Hauptmenü")
             }
-
         }
     }
-
 
     @Composable
     fun CategoryItem(label: String, winner: String) {
