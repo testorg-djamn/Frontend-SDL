@@ -255,7 +255,8 @@ class BoardActivity : ComponentActivity(),
 
     /**
      * Implementiert eine lokale Bewegung als Fallback, wenn keine Server-Antwort kommt
-     */    private fun implementLocalMovement(diceRoll: Int, currentFieldIndex: Int) {
+     */
+    private fun implementLocalMovement(diceRoll: Int, currentFieldIndex: Int) {
         try {
             Log.d("BoardActivity", "Implementiere lokale Bewegung: Würfel $diceRoll von Feld $currentFieldIndex")
             Toast.makeText(this, "Verwende lokale Bewegung (Würfel $diceRoll)", Toast.LENGTH_SHORT).show()
@@ -267,7 +268,7 @@ class BoardActivity : ComponentActivity(),
                 val allFields = at.aau.serg.sdlapp.model.board.BoardData.board
 
                 // Bestimme das Zielfeld basierend auf dem Würfelwert und der nextFields-Liste
-                var targetIndex: Int
+                val targetIndex: Int
 
                 // Wenn es keine nextFields gibt, bleiben wir auf dem aktuellen Feld
                 if (currentField.nextFields.isEmpty()) {
@@ -301,12 +302,21 @@ class BoardActivity : ComponentActivity(),
                         moveManager.setCurrentFieldIndex(targetField.index)
                         playerManager.updatePlayerPosition(player.id, targetField.index)
                         Toast.makeText(this, "Figur zu Feld ${targetField.index} bewegt", Toast.LENGTH_SHORT).show()
+
+                        // 🏁 Prüfe, ob alle Spieler fertig sind
+                        if (PlayerManager.haveAllPlayersFinished()) {
+                            Log.d("BoardActivity", "🎯 (Fallback) Alle Spieler haben beendet – EndScreen wird gestartet.")
+                            val intent = Intent(this, EndScreenActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
                     } else {
                         Log.e("BoardActivity", "Lokaler Spieler ist null")
                     }
                 } else {
                     Log.e("BoardActivity", "Konnte kein passendes Zielfeld finden")
                 }
+
             } else {
                 Log.e("BoardActivity", "Aktuelles Feld nicht gefunden: $currentFieldIndex")
 

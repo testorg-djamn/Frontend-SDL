@@ -99,8 +99,10 @@ class BoardMoveManager(
 
         if (playerManager.haveAllPlayersFinished()) {
             Toast.makeText(context, "🎉 Alle Spieler haben das Spiel beendet!", Toast.LENGTH_LONG).show()
+            Log.d("BoardMoveManager", "🔍 context-Klasse: ${context::class.java.name}")
 
             Handler(Looper.getMainLooper()).post {
+                Log.d("BoardMoveManager", "🎯 Alle Spieler haben beendet – EndScreen wird gestartet.")
                 val intent = Intent(context, EndScreenActivity::class.java)
                 context.startActivity(intent)
             }
