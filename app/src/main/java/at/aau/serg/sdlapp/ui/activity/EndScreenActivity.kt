@@ -69,7 +69,11 @@ class EndScreenActivity : ComponentActivity() {
 
                 Text("🏆 Leaderboard", fontSize = 24.sp, color = Color.White)
 
-                LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)
+                ) {
                     itemsIndexed(players) { index, player ->
                         Text(
                             text = "${index + 1}. ${player.name}: ${player.money + player.investments} €",
@@ -78,6 +82,7 @@ class EndScreenActivity : ComponentActivity() {
                         )
                     }
                 }
+
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("📊 Kategorien", fontSize = 22.sp, fontWeight = FontWeight.Medium, color = Color.White)
@@ -93,7 +98,7 @@ class EndScreenActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 🎉 Stylischer Button
+                // 🎉 Button
                 Button(
                     onClick = {
                         PlayerManager.clearPlayers()
@@ -122,5 +127,5 @@ class EndScreenActivity : ComponentActivity() {
         )
     }
 
-
 }
+
