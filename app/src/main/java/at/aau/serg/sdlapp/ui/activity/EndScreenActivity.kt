@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import at.aau.serg.sdlapp.model.player.PlayerManager
@@ -125,6 +126,21 @@ class EndScreenActivity : ComponentActivity() {
             color = Color.White,
             modifier = Modifier.padding(4.dp)
         )
+    }
+
+    @Composable
+    @Preview(showBackground = true, showSystemUi = true)
+    fun PreviewEndScreen() {
+        MaterialTheme {
+            // Optional: Dummy-Daten setzen
+            // PlayerManager.addPlayer("1", "Alice")
+            // PlayerManager.getPlayer("1")?.apply {
+            //     money = 1000
+            //     investments = 500
+            // }
+
+            EndScreenActivity().EndScreen()
+        }
     }
 
 }
