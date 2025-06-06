@@ -6,34 +6,34 @@ import android.util.Log
  * Verwaltet alle Spieler und ihre Positionen (Singleton)
  */
 object PlayerManager {
-    // Liste aller aktiven Spieler
-    val players = mutableMapOf<String, Player>()
+
+    // ❗ Spieler-Map ist jetzt privat und kann von außen nicht mehr direkt verändert werden
+    private val _players = mutableMapOf<String, Player>()
+
+    // Getter gibt nur eine Kopie zurück (immutable view)
+    val players: Map<String, Player>
+        get() = _players.toMap()
 
     // Der lokale Spieler (dieser Client)
     private var localPlayerId: String = "1"
 
     /**
      * Fügt einen neuen Spieler hinzu
-     * @param playerId Die eindeutige Spieler-ID (z.B. "chris" oder "42")
-     * @param name Anzeigename des Spielers
-     * @param initialFieldIndex Startfeld des Spielers (standardmäßig 0)
-     * @return Der erstellte Spieler
      */
     fun addPlayer(playerId: String, name: String, initialFieldIndex: Int = 0): Player {
         val player = Player(playerId, name, initialFieldIndex)
-        players[playerId] = player
+        _players[playerId] = player
         Log.d("PlayerManager", "🆕 Spieler hinzugefügt: $playerId -> Feld $initialFieldIndex")
         return player
     }
 
     /**
      * Setzt den lokalen Spieler (dieser Client)
-     * Wenn der Spieler noch nicht existiert, wird er automatisch hinzugefügt.
      */
     fun setLocalPlayer(playerId: String) {
         Log.d("PlayerManager", "🌟 setLocalPlayer aufgerufen mit: $playerId")
         localPlayerId = playerId
-        if (!players.containsKey(playerId)) {
+        if (!_players.containsKey(playerId)) {
             Log.d("PlayerManager", "➕ Lokaler Spieler $playerId nicht gefunden – wird erstellt")
             addPlayer(playerId, "Spieler $playerId")
         } else {
@@ -43,10 +43,9 @@ object PlayerManager {
 
     /**
      * Gibt den lokalen Spieler zurück
-     * @return Der lokale Spieler oder null, falls nicht gesetzt
      */
     fun getLocalPlayer(): Player? {
-        val player = players[localPlayerId]
+        val player = _players[localPlayerId]
         if (player == null) {
             Log.w("PlayerManager", "⚠️ getLocalPlayer(): Spieler $localPlayerId NICHT gefunden!")
         } else {
@@ -58,26 +57,18 @@ object PlayerManager {
     /**
      * Gibt eine Liste aller aktuell bekannten Spieler zurück
      */
-    fun getAllPlayers(): List<Player> {
-        return players.values.toList()
-    }
+    fun getAllPlayers(): List<Player> = _players.values.toList()
 
     /**
      * Gibt einen bestimmten Spieler anhand seiner ID zurück
-     * @param playerId Die Spieler-ID (String)
-     * @return Der Spieler oder null
      */
-    fun getPlayer(playerId: String): Player? {
-        return players[playerId]
-    }
+    fun getPlayer(playerId: String): Player? = _players[playerId]
 
     /**
      * Aktualisiert die Position eines Spielers
-     * @param playerId Die Spieler-ID
-     * @param newFieldIndex Das neue Feld, auf dem sich der Spieler befindet
      */
     fun updatePlayerPosition(playerId: String, newFieldIndex: Int) {
-        players[playerId]?.let { player ->
+        _players[playerId]?.let { player ->
             Log.d("PlayerManager", "📍 Spieler $playerId bewegt sich zu Feld $newFieldIndex")
             player.currentFieldIndex = newFieldIndex
         }
@@ -86,28 +77,22 @@ object PlayerManager {
     /**
      * Prüft, ob es sich bei der ID um den lokalen Spieler handelt
      */
-    fun isLocalPlayer(playerId: String): Boolean {
-        return playerId == localPlayerId
-    }
+    fun isLocalPlayer(playerId: String): Boolean = playerId == localPlayerId
 
     /**
-     * Synchronisiert die aktuelle Spielerliste mit der vom Server übermittelten Liste.
-     * Entfernt Spieler, die nicht mehr aktiv sind.
-     * @param activePlayerIds Liste der aktiven IDs
-     * @return Liste der entfernten Spieler
+     * Synchronisiert die aktuelle Spielerliste mit der vom Server übermittelten Liste
      */
-    fun syncWithActivePlayersList(activePlayerIds: MutableList<String>): List<String> {
-        val currentPlayers = players.keys.toSet()
+    fun syncWithActivePlayersList(activePlayerIds: List<String>): List<String> {
+        val currentPlayers = _players.keys.toSet()
         val removedPlayers = mutableListOf<String>()
 
         for (playerId in currentPlayers) {
             if (!activePlayerIds.contains(playerId) && playerId != localPlayerId) {
-                players.remove(playerId)
+                _players.remove(playerId)
                 Log.d("PlayerManager", "❌ Spieler $playerId entfernt")
                 removedPlayers.add(playerId)
             }
         }
-
         return removedPlayers
     }
 
@@ -117,29 +102,29 @@ object PlayerManager {
     fun removePlayer(playerId: String): Player? {
         if (playerId == localPlayerId) return null
         Log.d("PlayerManager", "🚫 Entferne Spieler $playerId")
-        return players.remove(playerId)
+        return _players.remove(playerId)
     }
 
     /**
      * Prüft, ob ein Spieler mit dieser ID existiert
      */
-    fun playerExists(playerId: String): Boolean {
-        return players.containsKey(playerId)
-    }
+    fun playerExists(playerId: String): Boolean = _players.containsKey(playerId)
 
     /**
      * Erstellt eine Debug-Zusammenfassung aller Spieler
-     * z.B. "Spieler (3): chris:RED*, max:GREEN, guest:YELLOW"
      */
     fun getDebugSummary(): String {
-        return "Spieler (${players.size}): " +
-                players.values.joinToString(", ") {
+        return "Spieler (${_players.size}): " +
+                _players.values.joinToString(", ") {
                     "${it.id}:${it.color}" + if (it.id == localPlayerId) "*" else ""
                 }
     }
 
+    /**
+     * Entfernt alle Spieler – für Tests
+     */
     fun clearPlayers() {
-        players.clear()
-        localPlayerId = "1" // Optional: Zurücksetzen, falls relevant für Tests
+        _players.clear()
+        localPlayerId = "1"
     }
 }
