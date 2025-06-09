@@ -135,6 +135,14 @@
             android:screenOrientation="landscape"
             android:theme="@style/Theme.MyApplication" />
 
+        <activity
+            android:name="at.aau.serg.sdlapp.ui.activity.WheelActivity"
+            android:exported="false"
+            android:label="Glücksrad"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.MyApplication" />
+
+
     </application>
 
 </manifest>
