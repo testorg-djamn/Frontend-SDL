@@ -34,30 +34,30 @@ class LobbyViewModel(
         updatesJob?.cancel()
         updatesJob = viewModelScope.launch {
             try{
-            session.subscribeText("/topic/$lobbyId").collect { payload ->
-                val json = JSONObject(payload)
-                // Prüfe auf vollständige Spielerliste (LobbyUpdateMessage)
-                if (json.has("player1")) {
-                    val players = listOfNotNull(
-                        json.optString("player1").takeIf { !it.isNullOrBlank() },
-                        json.optString("player2").takeIf { !it.isNullOrBlank() },
-                        json.optString("player3").takeIf { !it.isNullOrBlank() },
-                        json.optString("player4").takeIf { !it.isNullOrBlank() }
-                    )
-                    _players.value = players
-                }
-                // Prüfe auf einzelne Join-Response (LobbyResponseMessage)
-                else if (json.has("playerName")) {
-                    val playerName = json.getString("playerName")
-                    _players.update { currentPlayers ->
-                        if(!currentPlayers.contains(playerName)) {
-                            currentPlayers + playerName
-                        } else{
-                            currentPlayers
+                session.subscribeText("/topic/$lobbyId").collect { payload ->
+                    val json = JSONObject(payload)
+                    // Prüfe auf vollständige Spielerliste (LobbyUpdateMessage)
+                    if (json.has("player1")) {
+                        val players = listOfNotNull(
+                            json.optString("player1").takeIf { !it.isNullOrBlank() },
+                            json.optString("player2").takeIf { !it.isNullOrBlank() },
+                            json.optString("player3").takeIf { !it.isNullOrBlank() },
+                            json.optString("player4").takeIf { !it.isNullOrBlank() }
+                        )
+                        _players.value = players
+                    }
+                    // Prüfe auf einzelne Join-Response (LobbyResponseMessage)
+                    else if (json.has("playerName")) {
+                        val playerName = json.getString("playerName")
+                        _players.update { currentPlayers ->
+                            if(!currentPlayers.contains(playerName)) {
+                                currentPlayers + playerName
+                            } else{
+                                currentPlayers
+                            }
                         }
                     }
                 }
-            }
             } catch (e: Exception) {
                 Log.e("LobbyViewModel", "Error in updates flow", e)
             }
