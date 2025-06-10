@@ -49,14 +49,12 @@ class PlayerManager {
     fun getPlayer(playerId: String): Player? {
         return players[playerId]
     }
-    
-    /**
-     * Aktualisiert die Position eines Spielers
+      /**
+     * Aktualisiert die Position eines Spielers. Erstellt den Spieler, wenn er noch nicht existiert.
      */
     fun updatePlayerPosition(playerId: String, newFieldIndex: Int) {
-        players[playerId]?.let { player ->
-            player.currentFieldIndex = newFieldIndex
-        }
+        val player = players[playerId] ?: addPlayer(playerId, "Spieler $playerId")
+        player.currentFieldIndex = newFieldIndex
     }
     
     /**

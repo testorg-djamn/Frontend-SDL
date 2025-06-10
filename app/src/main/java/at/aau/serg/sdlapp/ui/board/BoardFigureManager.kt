@@ -299,16 +299,37 @@ class BoardFigureManager(
         nextMoveMarkers.clear()
     }    /**
      * Spielt eine Animation ab, wenn ein neuer Spieler beigetreten ist
+     */    /**
+     * Spielt eine Animation für eine neue Spielfigur
      */
     fun playNewPlayerAnimation(playerId: String) {
-        val newPlayerAnimation = AlphaAnimation(0f, 1f)
-        newPlayerAnimation.duration = 1500 // 1.5 Sekunden Einblenden
-        newPlayerAnimation.repeatMode = Animation.REVERSE
-        newPlayerAnimation.repeatCount = 1
-
-        // Gebe dem Spielfigur die Animation
-        val playerFigure = playerFigures[playerId]
-        playerFigure?.startAnimation(newPlayerAnimation)
+        val playerFigure = playerFigures[playerId] ?: return
+        
+        // Erstelle eine Animation, die die Figur blinken lässt
+        val blinkAnimation = AlphaAnimation(0.3f, 1.0f)
+        blinkAnimation.duration = 500 // 0.5 Sekunden pro Blinken
+        blinkAnimation.repeatMode = Animation.REVERSE
+        blinkAnimation.repeatCount = 5 // 5x blinken (insgesamt 5 Sekunden)
+        
+        // Zusätzlich eine Größenänderung für mehr Aufmerksamkeit
+        playerFigure.scaleX = 0.5f
+        playerFigure.scaleY = 0.5f
+        playerFigure.animate()
+            .scaleX(1.3f)
+            .scaleY(1.3f)
+            .setDuration(500)
+            .setInterpolator(OvershootInterpolator())
+            .withEndAction {
+                playerFigure.animate()
+                    .scaleX(1.0f)
+                    .scaleY(1.0f)
+                    .setDuration(300)
+                    .start()
+                
+                // Starte das Blinken nach der Größenänderung
+                playerFigure.startAnimation(blinkAnimation)
+            }
+            .start()
     }
 
     /**

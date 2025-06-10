@@ -204,11 +204,8 @@ class BoardMoveManager(
                 boardFigureManager.moveFigureToPosition(field.x, field.y, playerId)
             }
         }
-    }    /**
-     * Getter für currentFieldIndex
-     * Returns the current field index of the local player if available,
-     * otherwise returns the internally cached index
-     */
+    }
+
     fun getCurrentFieldIndex(): Int {
         // Try to get the current position from the playerManager first
         val localPlayer = playerManager.getLocalPlayer()
@@ -220,11 +217,16 @@ class BoardMoveManager(
     }
 
     /**
-     * Setter für currentFieldIndex
+     * Setzt den aktuellen Field-Index
+     *
+     * @param fieldIndex Der zu setzende Field-Index
      */
-    fun setCurrentFieldIndex(index: Int) {
-        currentFieldIndex = index
+    fun setCurrentFieldIndex(fieldIndex: Int) {
+        this.currentFieldIndex = fieldIndex
+        println("🔄 Field-Index aktualisiert: $fieldIndex")
     }
+    
+
 
     /**
      * Interface für die Move-Callbacks

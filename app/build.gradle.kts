@@ -170,6 +170,7 @@ dependencies {
     implementation(libs.androidx.ui.viewbinding)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.okhttp)
+    implementation(libs.androidx.runtime)
 
     // --- Unit-Test Dependencies ---
     testImplementation(libs.junit)
