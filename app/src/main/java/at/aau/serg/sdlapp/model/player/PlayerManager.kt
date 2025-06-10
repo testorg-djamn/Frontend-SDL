@@ -5,15 +5,15 @@ package at.aau.serg.sdlapp.model.player
  */
 class PlayerManager {
     // Liste aller aktiven Spieler
-    private val players = mutableMapOf<Int, Player>()
+    private val players = mutableMapOf<String, Player>()
     
     // Der lokale Spieler (dieser Client)
-    private var localPlayerId: Int = 1
+    private var localPlayerId: String = "1"
     
     /**
      * Fügt einen neuen Spieler hinzu
      */
-    fun addPlayer(playerId: Int, name: String, initialFieldIndex: Int = 0): Player {
+    fun addPlayer(playerId: String, name: String, initialFieldIndex: Int = 0): Player {
         val player = Player(playerId, name, initialFieldIndex)
         players[playerId] = player
         return player
@@ -22,15 +22,14 @@ class PlayerManager {
     /**
      * Setzt den lokalen Spieler
      */
-    fun setLocalPlayer(playerId: Int) {
+    fun setLocalPlayer(playerId: String) {
         localPlayerId = playerId
         // Stelle sicher, dass der lokale Spieler in der Map existiert
         if (!players.containsKey(playerId)) {
             addPlayer(playerId, "Spieler $playerId")
         }
     }
-    
-    /**
+      /**
      * Gibt den lokalen Spieler zurück
      */
     fun getLocalPlayer(): Player? {
@@ -47,14 +46,14 @@ class PlayerManager {
     /**
      * Gibt einen Spieler anhand seiner ID zurück
      */
-    fun getPlayer(playerId: Int): Player? {
+    fun getPlayer(playerId: String): Player? {
         return players[playerId]
     }
     
     /**
      * Aktualisiert die Position eines Spielers
      */
-    fun updatePlayerPosition(playerId: Int, newFieldIndex: Int) {
+    fun updatePlayerPosition(playerId: String, newFieldIndex: Int) {
         players[playerId]?.let { player ->
             player.currentFieldIndex = newFieldIndex
         }
@@ -63,7 +62,7 @@ class PlayerManager {
     /**
      * Prüft, ob es sich um den lokalen Spieler handelt
      */
-    fun isLocalPlayer(playerId: Int): Boolean {
+    fun isLocalPlayer(playerId: String): Boolean {
         return playerId == localPlayerId
     }
     
@@ -74,9 +73,9 @@ class PlayerManager {
      * @param activePlayerIds Liste der aktiven Spieler-IDs vom Server
      * @return Liste der entfernten Spieler-IDs
      */
-    fun syncWithActivePlayersList(activePlayerIds: List<Int>): List<Int> {
+    fun syncWithActivePlayersList(activePlayerIds: List<String>): List<String> {
         val currentPlayers = players.keys.toSet()
-        val removedPlayers = mutableListOf<Int>()
+        val removedPlayers = mutableListOf<String>()
         
         // Spieler entfernen, die nicht mehr in der Liste sind (außer lokaler Spieler)
         for (playerId in currentPlayers) {
@@ -92,7 +91,7 @@ class PlayerManager {
     /**
      * Entfernt einen Spieler aus der Liste
      */
-    fun removePlayer(playerId: Int): Player? {
+    fun removePlayer(playerId: String): Player? {
         // Den lokalen Spieler nicht entfernen
         if (playerId == localPlayerId) {
             return null
@@ -103,7 +102,7 @@ class PlayerManager {
     /**
      * Prüft, ob der angegebene Spieler existiert
      */
-    fun playerExists(playerId: Int): Boolean {
+    fun playerExists(playerId: String): Boolean {
         return players.containsKey(playerId)
     }
     

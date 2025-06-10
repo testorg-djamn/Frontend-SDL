@@ -18,7 +18,7 @@ class BoardNetworkManager(
     private val context: Context,
     private val playerManager: PlayerManager,
     private val playerName: String,
-    private val playerId: Int,
+    private val playerId: String,
     private val callbacks: NetworkCallbacks
 ) {
     // STOMP-Client für die Verbindung zum Backend
@@ -211,13 +211,11 @@ class BoardNetworkManager(
         playerListUpdateTimer?.cancel()
         playerListUpdateTimer = null
         println("⏰ Spielerlisten-Update-Timer gestoppt")
-    }
-
-    /**
+    }    /**
      * Interface für die Netzwerk-Callbacks
      */
     interface NetworkCallbacks {
-        fun onPlayerListReceived(playerIds: List<Int>)
+        fun onPlayerListReceived(playerIds: List<String>)
         fun onConnectionStateChanged(isConnected: Boolean)
         fun onConnectionError(errorMessage: String)
         fun onMoveReceived(move: MoveMessage)

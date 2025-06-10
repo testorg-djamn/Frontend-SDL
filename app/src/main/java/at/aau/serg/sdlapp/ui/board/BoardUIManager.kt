@@ -103,12 +103,10 @@ class BoardUIManager(
 
             println("❌ Fehlerdialog angezeigt: $title - $message")
         }
-    }
-
-    /**
+    }    /**
      * Zeigt eine Benachrichtigung über einen neuen Spieler an
      */
-    fun showNewPlayerNotification(playerId: Int) {
+    fun showNewPlayerNotification(playerId: String) {
         Toast.makeText(
             context,
             "Neuer Spieler beigetreten: Spieler $playerId",
@@ -119,7 +117,7 @@ class BoardUIManager(
     /**
      * Zeigt eine Benachrichtigung über entfernte Spieler an
      */
-    fun showRemovedPlayersNotification(removedPlayers: List<Int>) {
+    fun showRemovedPlayersNotification(removedPlayers: List<String>) {
         if (removedPlayers.size == 1) {
             Toast.makeText(
                 context,

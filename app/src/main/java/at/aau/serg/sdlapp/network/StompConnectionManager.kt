@@ -52,7 +52,7 @@ class StompConnectionManager(
     var onMoveReceived: ((MoveMessage) -> Unit)? = null
     var onConnectionStateChanged: ((Boolean) -> Unit)? = null
     var onConnectionError: ((String) -> Unit)? = null
-    var onPlayerListReceived: ((List<Int>) -> Unit)? = null
+    var onPlayerListReceived: ((List<String>) -> Unit)? = null
     var onBoardDataReceived: ((List<at.aau.serg.sdlapp.model.board.Field>) -> Unit)? = null
 
     // Reconnect-Logik

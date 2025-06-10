@@ -33,7 +33,7 @@ class BoardActivity : ComponentActivity(),
     BoardMoveManager.MoveCallbacks {
 
     // Kernkomponenten der Activity
-    private var playerId = 1
+    private var playerId = "1"
     private lateinit var boardImage: ImageView
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
@@ -77,11 +77,9 @@ class BoardActivity : ComponentActivity(),
         boardImage.post {
             Log.d("BoardActivity", "Board geladen: Größe ${boardImage.width}x${boardImage.height}")
             Toast.makeText(this, "Board geladen: ${boardImage.width}x${boardImage.height}", Toast.LENGTH_SHORT).show()
-        }
-
-        // Player-ID aus Intent lesen
+        }        // Player-ID aus Intent lesen
         playerName = intent.getStringExtra("playerName") ?: "1"
-        playerId = playerName.toIntOrNull() ?: 1
+        playerId = playerName
         Log.d("BoardActivity", "Spieler initialisiert: ID=$playerId, Name=$playerName")
     }
 
@@ -306,9 +304,7 @@ class BoardActivity : ComponentActivity(),
             Log.e("BoardActivity", "Fehler bei lokaler Bewegung: ${e.message}", e)
             Toast.makeText(this, "Fehler bei lokaler Bewegung: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    override fun onPlayerListReceived(playerIds: List<Int>) {
+    }    override fun onPlayerListReceived(playerIds: List<String>) {
         // Füge alle neuen Spieler hinzu und verarbeite entfernte Spieler
         val playerIdsToProcess = playerIds.toMutableList()
 

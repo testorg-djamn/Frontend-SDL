@@ -24,16 +24,16 @@ class BoardFigureManager(
     private val zoomLayout: ZoomLayout
 ) {
     // Map für alle Spielerfiguren: playerId -> ImageView
-    private val playerFigures = mutableMapOf<Int, ImageView>()
+    private val playerFigures = mutableMapOf<String, ImageView>()
 
     // Map für alle Spieler-Badges: playerId -> TextView
-    private val playerBadges = mutableMapOf<Int, TextView>()
+    private val playerBadges = mutableMapOf<String, TextView>()
 
     // Liste der aktuellen Highlight-Marker für mögliche Felder
     private val nextMoveMarkers = mutableListOf<ImageView>()    /**
      * Bewegt eine Spielfigur zu einer bestimmten Position auf dem Brett
      */
-    fun moveFigureToPosition(xPercent: Float, yPercent: Float, playerId: Int) {
+    fun moveFigureToPosition(xPercent: Float, yPercent: Float, playerId: String) {
         println("⭐⭐⭐ MOVE FIGURE: Beginne moveFigureToPosition für Spieler $playerId zu Position $xPercent, $yPercent")
         
         // Überprüfung auf ungültige Eingabeparameter
@@ -157,12 +157,10 @@ class BoardFigureManager(
             println("❌ Fehler vor der Figurenbewegung: ${e.message}")
             e.printStackTrace()
         }
-    }
-
-    /**
+    }    /**
      * Erstellt eine Spielfigur mit ID-Badge zur besseren Unterscheidung
      */
-    fun getOrCreatePlayerFigure(playerId: Int): ImageView {
+    fun getOrCreatePlayerFigure(playerId: String): ImageView {
         // Prüfen, ob die Figur bereits existiert
         if (!playerFigures.containsKey(playerId)) {
             // Erstelle eine neue Spielfigur
@@ -299,12 +297,10 @@ class BoardFigureManager(
             boardContainer.removeView(marker)
         }
         nextMoveMarkers.clear()
-    }
-
-    /**
+    }    /**
      * Spielt eine Animation ab, wenn ein neuer Spieler beigetreten ist
      */
-    fun playNewPlayerAnimation(playerId: Int) {
+    fun playNewPlayerAnimation(playerId: String) {
         val newPlayerAnimation = AlphaAnimation(0f, 1f)
         newPlayerAnimation.duration = 1500 // 1.5 Sekunden Einblenden
         newPlayerAnimation.repeatMode = Animation.REVERSE
@@ -318,7 +314,7 @@ class BoardFigureManager(
     /**
      * Entfernt die Figur eines Spielers vom Brett
      */
-    fun removePlayerFigure(playerId: Int) {
+    fun removePlayerFigure(playerId: String) {
         val figure = playerFigures[playerId]
         val badge = playerBadges[playerId]
 

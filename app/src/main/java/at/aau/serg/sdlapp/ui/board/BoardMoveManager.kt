@@ -22,10 +22,10 @@ class BoardMoveManager(
     /**
      * Verarbeitet eine empfangene MoveMessage vom Server
      */
-    fun handleMoveMessage(move: MoveMessage, playerId: Int, playerName: String, stompClient: StompConnectionManager) {
+    fun handleMoveMessage(move: MoveMessage, playerId: String, playerName: String, stompClient: StompConnectionManager) {
         // Den Spielerzug im PlayerManager aktualisieren
         val movePlayerId = move.playerId
-        if (movePlayerId != -1) {
+        if (movePlayerId.isNotEmpty()) {
             // Unterscheiden zwischen lokalem und entferntem Spieler
             if (movePlayerId == playerId) {
                 println("🏠 LOKALER SPIELER bewegt sich")
@@ -41,7 +41,7 @@ class BoardMoveManager(
             // Füge Highlight-Marker für mögliche nächste Felder hinzu
             addMarkersForNextPossibleFields(move, stompClient, playerName)
         } else {
-            println("❌ Fehler: Spieler-ID ist -1, kann Bewegung nicht zuordnen")
+            println("❌ Fehler: Spieler-ID ist leer, kann Bewegung nicht zuordnen")
             Toast.makeText(context, "Fehler: Ungültige Spieler-ID in Bewegungsnachricht", Toast.LENGTH_SHORT).show()
         }
     }
@@ -110,12 +110,10 @@ class BoardMoveManager(
                 boardFigureManager.moveFigureToPosition(similarField.x, similarField.y, move.playerId)
             }
         }
-    }
-
-    /**
+    }    /**
      * Verarbeitet die Bewegung eines entfernten Spielers
      */
-    private fun handleRemotePlayerMove(playerId: Int, moveMessage: MoveMessage) {
+    private fun handleRemotePlayerMove(playerId: String, moveMessage: MoveMessage) {
         // Prüfen, ob wir den Spieler bereits kennen
         if (playerManager.getPlayer(playerId) == null) {
             // Neuen Spieler hinzufügen
@@ -171,12 +169,10 @@ class BoardMoveManager(
                 }
             }
         }
-    }
-
-    /**
+    }    /**
      * Platziert den Spieler auf dem angegebenen Startfeld
      */
-    fun placePlayerAtStartField(playerId: Int, fieldIndex: Int, stompClient: StompConnectionManager, playerName: String) {
+    fun placePlayerAtStartField(playerId: String, fieldIndex: Int, stompClient: StompConnectionManager, playerName: String) {
         // Aktuellen Feld-Index setzen
         currentFieldIndex = fieldIndex
 
@@ -193,12 +189,10 @@ class BoardMoveManager(
         // Sende Start-Nachricht an Backend
         stompClient.sendMove(playerName, "join:$fieldIndex")
         println("🎮 Sende join:$fieldIndex an Backend")
-    }
-
-    /**
+    }    /**
      * Aktualisiert die Position eines Spielers, falls notwendig
      */
-    fun updatePlayerPosition(playerId: Int, fieldIndex: Int) {
+    fun updatePlayerPosition(playerId: String, fieldIndex: Int) {
         // Nur aktualisieren, wenn sich die Position ändert
         if (playerManager.getPlayer(playerId)?.currentFieldIndex != fieldIndex) {
             // Position aktualisieren
