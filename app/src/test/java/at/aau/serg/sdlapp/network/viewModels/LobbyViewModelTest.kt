@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.*
 import org.hildan.krossbow.stomp.StompSession
@@ -53,7 +54,7 @@ class LobbyViewModelTest {
         coEvery { session.subscribeText("/topic/$lobbyId") } returns fakeFlow
         viewModel = LobbyViewModel(session)
         viewModel.initialize(lobbyId, "Anna")
-        advanceUntilIdle()
+        runCurrent()
         val result = viewModel.players.value
         assertEquals(listOf("Bob"), result)
     }
@@ -68,7 +69,7 @@ class LobbyViewModelTest {
         coEvery { session.subscribeText("/topic/$lobbyId") } returns fakeFlow
         viewModel = LobbyViewModel(session)
         viewModel.initialize(lobbyId, "Anna")
-        advanceUntilIdle()
+        runCurrent()
         val result = viewModel.players.value
         assertEquals(listOf("Anna"), result)
     }
