@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.androidTestImplementation
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -83,7 +84,6 @@ android {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
             all {
-                it.useJUnitPlatform()
                 it.systemProperty("robolectric.logging", "stdout")
                 it.systemProperty("robolectric.graphicsMode", "NATIVE")
                 it.finalizedBy(tasks.named("jacocoTestReport"))
@@ -173,8 +173,6 @@ dependencies {
 
     // --- Unit-Test Dependencies ---
     testImplementation(libs.junit)
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
@@ -213,7 +211,7 @@ dependencies {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "11"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
