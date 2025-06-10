@@ -1,6 +1,7 @@
 package at.aau.serg.sdlapp.ui.board
 
 import android.content.Context
+import android.view.Gravity
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.OvershootInterpolator
@@ -24,269 +25,153 @@ class BoardFigureManager(
     private val zoomLayout: ZoomLayout
 ) {
     // Map für alle Spielerfiguren: playerId -> ImageView
-    private val playerFigures = mutableMapOf<Int, ImageView>()
+    private val playerFigures = mutableMapOf<String, ImageView>()
 
     // Map für alle Spieler-Badges: playerId -> TextView
-    private val playerBadges = mutableMapOf<Int, TextView>()
+    private val playerBadges = mutableMapOf<String, TextView>()
 
     // Liste der aktuellen Highlight-Marker für mögliche Felder
-    private val nextMoveMarkers = mutableListOf<ImageView>()    /**
+    private val nextMoveMarkers = mutableListOf<ImageView>()
+
+    /**
      * Bewegt eine Spielfigur zu einer bestimmten Position auf dem Brett
      */
-    fun moveFigureToPosition(xPercent: Float, yPercent: Float, playerId: Int) {
-        println("⭐⭐⭐ MOVE FIGURE: Beginne moveFigureToPosition für Spieler $playerId zu Position $xPercent, $yPercent")
-        
-        // Überprüfung auf ungültige Eingabeparameter
-        if (xPercent < 0 || xPercent > 1 || yPercent < 0 || yPercent > 1) {
-            println("⚠️ WARNING: Ungültige Koordinaten außerhalb des gültigen Bereichs: x=$xPercent, y=$yPercent")
-            // Koordinaten begrenzen
-            val safeX = xPercent.coerceIn(0f, 1f)
-            val safeY = yPercent.coerceIn(0f, 1f)
-            println("🔄 Koordinaten korrigiert zu: x=$safeX, y=$safeY")
+    fun moveFigureToPosition(xPercent: Float, yPercent: Float, playerId: String) {
+        if (xPercent !in 0f..1f || yPercent !in 0f..1f) {
+            println("⚠️ Ungültige Koordinaten ($xPercent, $yPercent), Korrektur wird durchgeführt.")
         }
-        
 
-
-        
         if (boardImage.width <= 0 || boardImage.height <= 0) {
-            println("❌ KRITISCHER FEHLER: boardImage hat ungültige Dimensionen: ${boardImage.width}x${boardImage.height}")
-            
-            // Versuche, die Bewegung zu verzögern, falls das Board noch nicht gemessen wurde
             boardImage.post {
-                println("🔄 Versuche verzögerte Bewegung, neue Dimensionen: ${boardImage.width}x${boardImage.height}")
-                if (boardImage.width > 0 && boardImage.height > 0) {
-                    // Rekursiver Aufruf mit kurzer Verzögerung
-                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                        moveFigureToPosition(xPercent, yPercent, playerId)
-                    }, 500)
-                }
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    moveFigureToPosition(xPercent, yPercent, playerId)
+                }, 500)
             }
             return
         }
-        
-        try {
-            boardImage.post {
-                try {
-                    // Berechne die Position relativ zum Spielbrett
-                    val x = xPercent * boardImage.width
-                    val y = yPercent * boardImage.height
 
-                    // Debug-Ausgabe
-                    println("🚗 Bewege Figur von Spieler $playerId zu Position: $xPercent, $yPercent -> ${x}px, ${y}px")
-                    println("📏 Bretteigenschaften: width=${boardImage.width}, height=${boardImage.height}")
+        boardImage.post {
+            val x = xPercent * boardImage.width
+            val y = yPercent * boardImage.height
 
-                    // Hole die entsprechende Spielfigur aus der Map
-                    val playerFigure = getOrCreatePlayerFigure(playerId)
-                    val playerBadge = playerBadges[playerId]
-                    
-                    println("🎮 Spielfigur für ID $playerId: ${if (playerFigure != null) "gefunden" else "NICHT GEFUNDEN"}")
-                    println("🏷️ Badge für ID $playerId: ${if (playerBadge != null) "gefunden" else "NICHT GEFUNDEN"}")
+            val playerFigure = getOrCreatePlayerFigure(playerId)
+            val playerBadge = playerBadges[playerId]
 
-                    // Beende laufende Animationen und setze absolute Position
-                    playerFigure.clearAnimation()
-                    playerBadge?.clearAnimation()
+            val targetX = x - playerFigure.width / 2f
+            val targetY = y - playerFigure.height / 2f
+            val badgeX = targetX + playerFigure.width - 20
+            val badgeY = targetY - 15
 
-                    // Zentriere die Figur auf dem Feld
-                    val targetX = x - playerFigure.width / 2f
-                    val targetY = y - playerFigure.height / 2f
-
-                    // Position für das Badge (rechts oben vom Auto)
-                    val badgeX = targetX + playerFigure.width - 20
-                    val badgeY = targetY - 15
-
-                    // Debug log für Ziel-Positionen
-                    println("🎯 Ziel-Positionen - Figur: ($targetX, $targetY), Badge: ($badgeX, $badgeY)")
-
-                    // Bewege die Figur mit verbesserter Animation
-                    playerFigure.animate()
-                        .x(targetX)
-                        .y(targetY)
-                        .setDuration(800)  // 800ms Animation
-                        .setInterpolator(OvershootInterpolator(1.2f)) // Überschwingender Effekt
-                        .withStartAction {
-                            // Vor der Animation: kleine Vergrößerung
-                            playerFigure.animate()
-                                .scaleX(1.2f)
-                                .scaleY(1.2f)
-                                .setDuration(200)
-                                .start()
-                        }
-                        .withEndAction {
-                            // Nach der Animation: Größe normalisieren
-                            playerFigure.animate()
-                                .scaleX(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
-                                .scaleY(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
-                                .setDuration(200)
-                                .start()
-
-                            // Setze absolute Position nach Animation
-                            playerFigure.x = targetX
-                            playerFigure.y = targetY
-                            
-                            // Debug-Log nach Animation
-                            println("✅ Figur-Animation abgeschlossen, finale Position: (${playerFigure.x}, ${playerFigure.y})")
-                        }
-                        .start()
-
-                    // Bewege auch das Badge mit Animation
-                    playerBadge?.animate()
-                        ?.x(badgeX)
-                        ?.y(badgeY)
-                        ?.setDuration(800)
-                        ?.setInterpolator(OvershootInterpolator(1.2f))
-                        ?.withEndAction {
-                            // Setze absolute Position nach Animation
-                            playerBadge.x = badgeX
-                            playerBadge.y = badgeY
-                            
-                            // Debug-Log nach Badge-Animation
-                            println("✅ Badge-Animation abgeschlossen, finale Position: (${playerBadge.x}, ${playerBadge.y})")
-                        }
-                        ?.start()
-                        
-                    // Stellen Sie sicher, dass die Figur sichtbar ist
-                    playerFigure.visibility = android.view.View.VISIBLE
-                    playerBadge?.visibility = android.view.View.VISIBLE
-                    
-                } catch (e: Exception) {
-                    println("❌ Fehler während der Figurenbewegung: ${e.message}")
-                    e.printStackTrace()
+            // Figur animieren
+            playerFigure.animate()
+                .x(targetX).y(targetY).setDuration(800)
+                .setInterpolator(OvershootInterpolator(1.2f))
+                .withStartAction {
+                    playerFigure.animate().scaleX(1.2f).scaleY(1.2f).duration = 200
                 }
-            }
-        } catch (e: Exception) {
-            println("❌ Fehler vor der Figurenbewegung: ${e.message}")
-            e.printStackTrace()
+                .withEndAction {
+                    playerFigure.animate().scaleX(1.0f).scaleY(1.0f).duration = 200
+                    playerFigure.x = targetX
+                    playerFigure.y = targetY
+                }.start()
+
+            // Badge animieren
+            playerBadge?.animate()
+                ?.x(badgeX)?.y(badgeY)?.duration = 800
+            playerBadge?.x = badgeX
+            playerBadge?.y = badgeY
+
+            playerFigure.visibility = android.view.View.VISIBLE
+            playerBadge?.visibility = android.view.View.VISIBLE
         }
     }
 
     /**
      * Erstellt eine Spielfigur mit ID-Badge zur besseren Unterscheidung
      */
-    fun getOrCreatePlayerFigure(playerId: Int): ImageView {
-        // Prüfen, ob die Figur bereits existiert
+    fun getOrCreatePlayerFigure(playerId: String): ImageView {
         if (!playerFigures.containsKey(playerId)) {
-            // Erstelle eine neue Spielfigur
-            val newPlayerFigure = ImageView(context).apply {
+            val player = playerManager.getPlayer(playerId)
+                ?: playerManager.addPlayer(playerId, "Spieler $playerId")
+
+            val newFigure = ImageView(context).apply {
                 layoutParams = FrameLayout.LayoutParams(
                     context.resources.getDimensionPixelSize(R.dimen.player_figure_size),
                     context.resources.getDimensionPixelSize(R.dimen.player_figure_size)
                 )
-
-                // Setze das richtige Auto-Bild basierend auf der Spieler-ID
-                val player = playerManager.getPlayer(playerId) ?:
-                playerManager.addPlayer(playerId, "Spieler $playerId")
-
                 setImageResource(player.getCarImageResource())
-
-                // Setze die Z-Achse höher als das Brett
                 translationZ = 10f
+                alpha = if (playerManager.isLocalPlayer(playerId)) 1.0f else 0.9f
+                scaleX = if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f
+                scaleY = if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f
 
-                // Markiere den lokalen Spieler besonders
-                if (playerManager.isLocalPlayer(playerId)) {
-                    // Hervorheben des eigenen Spielers
-                    alpha = 1.0f
-
-                    // Leichter Schatten für bessere Sichtbarkeit
-                    elevation = 8f
-
-                    // Skalierung etwas größer für den lokalen Spieler
-                    scaleX = 1.1f
-                    scaleY = 1.1f
-                } else {
-                    alpha = 0.9f
-                }
-
-                // Zeige eine Tooltip beim Klicken auf die Figur
                 setOnClickListener {
-                    val playerInfo = playerManager.getPlayer(playerId)
-                    val message = "Spieler ${playerInfo?.id} (${playerInfo?.color})"
-                    android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+                    val info = playerManager.getPlayer(playerId)
+                    android.widget.Toast.makeText(
+                        context,
+                        "Spieler ${info?.id} (${info?.color})",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
-            // Füge die neue Figur zum Layout hinzu
-            boardContainer.addView(newPlayerFigure)
-
-            // Spieler-ID-Badge hinzufügen
-            val playerBadge = TextView(context).apply {
-                text = playerId.toString()
+            val badge = TextView(context).apply {
+                text = playerId
                 setTextColor(android.graphics.Color.WHITE)
-
-                val badgeBackground = playerManager.getPlayer(playerId)?.color?.let { color ->
-                    when(color) {
+                setBackgroundResource(
+                    when (player.color) {
                         CarColor.BLUE -> R.drawable.badge_blue
                         CarColor.GREEN -> R.drawable.badge_green
                         CarColor.RED -> R.drawable.badge_red
                         CarColor.YELLOW -> R.drawable.badge_yellow
-                        else -> R.drawable.badge_blue // Fallback für andere Farben
                     }
-                } ?: R.drawable.badge_blue // Fallback bei null
-
-                setBackgroundResource(badgeBackground)
+                )
                 textSize = 12f
-                gravity = android.view.Gravity.CENTER
+                gravity = Gravity.CENTER
                 setPadding(8, 4, 8, 4)
-
-                // Mittlerer Layer für das Badge
                 translationZ = 15f
-
-                // Layout-Parameter für das Badge (kleinerer Kreis)
                 layoutParams = FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.WRAP_CONTENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    // Position rechts oben vom Auto
-                    gravity = android.view.Gravity.TOP or android.view.Gravity.START
-                }
-
-                // Lokalen Spieler markieren
-                if (playerManager.isLocalPlayer(playerId)) {
-                    textSize = 14f // Etwas größer
-                    typeface = android.graphics.Typeface.DEFAULT_BOLD
-                }
+                )
             }
 
-            // Badge zum Layout hinzufügen
-            boardContainer.addView(playerBadge)
+            boardContainer.addView(newFigure)
+            boardContainer.addView(badge)
 
-            // Speichere die Figur und das Badge in der Map
-            playerFigures[playerId] = newPlayerFigure
-            playerBadges[playerId] = playerBadge
-
-            println("🎮 Neue Spielfigur für Spieler $playerId erstellt")
+            playerFigures[playerId] = newFigure
+            playerBadges[playerId] = badge
         }
-        return playerFigures[playerId] ?: throw IllegalStateException("No player figure found for playerId=$playerId")
+        return playerFigures[playerId]!!
     }
 
     /**
      * Fügt einen klickbaren Marker für ein mögliches nächstes Feld hinzu
      */
-    fun addNextMoveMarker(xPercent: Float, yPercent: Float, fieldIndex: Int, stompClient: StompConnectionManager, playerName: String) {
+    fun addNextMoveMarker(
+        xPercent: Float,
+        yPercent: Float,
+        fieldIndex: Int,
+        stompClient: StompConnectionManager,
+        playerName: String
+    ) {
         boardImage.post {
             val marker = ImageView(context)
-            marker.setImageResource(R.drawable.move_indicator) // Füge ein passendes Bild-Asset hinzu
+            marker.setImageResource(R.drawable.move_indicator)
 
-            // Berechne die Position relativ zum Spielbrett
             val x = xPercent * boardImage.width
             val y = yPercent * boardImage.height
-
-            // Setze Größe und Position des Markers
-            val size = context.resources.getDimensionPixelSize(R.dimen.marker_size) // Definiere eine angemessene Größe
+            val size = context.resources.getDimensionPixelSize(R.dimen.marker_size)
             val params = FrameLayout.LayoutParams(size, size)
             marker.layoutParams = params
-
-            // Position setzen (zentriert auf dem Feld)
             marker.x = x - size / 2f
             marker.y = y - size / 2f
 
-            // Marker zum Layout hinzufügen
             boardContainer.addView(marker)
             nextMoveMarkers.add(marker)
 
-            // Marker anklickbar machen für direkte Bewegung
             marker.setOnClickListener {
                 stompClient.sendMove(playerName, "move:$fieldIndex")
-                println("🎯 Direkte Bewegung zu Feld $fieldIndex angefordert")
             }
         }
     }
@@ -295,40 +180,32 @@ class BoardFigureManager(
      * Entfernt alle aktuellen Highlight-Marker vom Brett
      */
     fun clearAllMarkers() {
-        for (marker in nextMoveMarkers) {
-            boardContainer.removeView(marker)
-        }
+        nextMoveMarkers.forEach { boardContainer.removeView(it) }
         nextMoveMarkers.clear()
     }
 
     /**
      * Spielt eine Animation ab, wenn ein neuer Spieler beigetreten ist
      */
-    fun playNewPlayerAnimation(playerId: Int) {
-        val newPlayerAnimation = AlphaAnimation(0f, 1f)
-        newPlayerAnimation.duration = 1500 // 1.5 Sekunden Einblenden
-        newPlayerAnimation.repeatMode = Animation.REVERSE
-        newPlayerAnimation.repeatCount = 1
-
-        // Gebe dem Spielfigur die Animation
-        val playerFigure = playerFigures[playerId]
-        playerFigure?.startAnimation(newPlayerAnimation)
+    fun playNewPlayerAnimation(playerId: String) {
+        val anim = AlphaAnimation(0f, 1f).apply {
+            duration = 1500
+            repeatMode = Animation.REVERSE
+            repeatCount = 1
+        }
+        playerFigures[playerId]?.startAnimation(anim)
     }
 
     /**
      * Entfernt die Figur eines Spielers vom Brett
      */
-    fun removePlayerFigure(playerId: Int) {
-        val figure = playerFigures[playerId]
-        val badge = playerBadges[playerId]
-
-        // Entferne die Views aus dem Layout
-        if (figure != null) {
-            boardContainer.removeView(figure)
+    fun removePlayerFigure(playerId: String) {
+        playerFigures[playerId]?.let {
+            boardContainer.removeView(it)
             playerFigures.remove(playerId)
         }
-        if (badge != null) {
-            boardContainer.removeView(badge)
+        playerBadges[playerId]?.let {
+            boardContainer.removeView(it)
             playerBadges.remove(playerId)
         }
     }
