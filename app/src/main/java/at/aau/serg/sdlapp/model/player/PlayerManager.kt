@@ -1,7 +1,10 @@
 package at.aau.serg.sdlapp.model.player
 
+import android.util.Log
+import at.aau.serg.sdlapp.model.game.GameConstants
+
 /**
- * Verwaltet alle Spieler und ihre Positionen
+ * Verwaltet alle Spieler und ihre Positionen (Singleton)
  */
 class PlayerManager {
     // Liste aller aktiven Spieler
@@ -34,18 +37,22 @@ class PlayerManager {
      * Gibt den lokalen Spieler zurück
      */
     fun getLocalPlayer(): Player? {
-        return players[localPlayerId]
+        val player = _players[localPlayerId]
+        if (player == null) {
+            Log.w("PlayerManager", "⚠️ getLocalPlayer(): Spieler $localPlayerId NICHT gefunden!")
+        } else {
+            Log.d("PlayerManager", "✅ getLocalPlayer(): $player")
+        }
+        return player
     }
-    
+
     /**
-     * Gibt alle Spieler zurück
+     * Gibt eine Liste aller aktuell bekannten Spieler zurück
      */
-    fun getAllPlayers(): List<Player> {
-        return players.values.toList()
-    }
-    
+    fun getAllPlayers(): List<Player> = _players.values.toList()
+
     /**
-     * Gibt einen Spieler anhand seiner ID zurück
+     * Gibt einen bestimmten Spieler anhand seiner ID zurück
      */
     fun getPlayer(playerId: String): Player? {
         return players[playerId]
@@ -57,20 +64,16 @@ class PlayerManager {
         val player = players[playerId] ?: addPlayer(playerId, "Spieler $playerId")
         player.currentFieldIndex = newFieldIndex
     }
-    
+
     /**
-     * Prüft, ob es sich um den lokalen Spieler handelt
+     * Prüft, ob es sich bei der ID um den lokalen Spieler handelt
      */
     fun isLocalPlayer(playerId: String): Boolean {
         return playerId == localPlayerId
     }
     
     /**
-     * Aktualisiert die Liste der aktiven Spieler basierend auf der vom Server empfangenen Liste
-     * Entfernt Spieler, die nicht mehr aktiv sind (außer dem lokalen Spieler)
-     * 
-     * @param activePlayerIds Liste der aktiven Spieler-IDs vom Server
-     * @return Liste der entfernten Spieler-IDs
+     * Synchronisiert die aktuelle Spielerliste mit der vom Server übermittelten Liste
      */
     fun syncWithActivePlayersList(activePlayerIds: List<String>): List<String> {
         val currentPlayers = players.keys.toSet()
@@ -79,16 +82,16 @@ class PlayerManager {
         // Spieler entfernen, die nicht mehr in der Liste sind (außer lokaler Spieler)
         for (playerId in currentPlayers) {
             if (!activePlayerIds.contains(playerId) && playerId != localPlayerId) {
-                players.remove(playerId)
+                _players.remove(playerId)
+                Log.d("PlayerManager", "❌ Spieler $playerId entfernt")
                 removedPlayers.add(playerId)
             }
         }
-        
         return removedPlayers
     }
-    
+
     /**
-     * Entfernt einen Spieler aus der Liste
+     * Entfernt einen Spieler aus der Map – aber nicht den lokalen Spieler!
      */
     fun removePlayer(playerId: String): Player? {
         // Den lokalen Spieler nicht entfernen
@@ -97,22 +100,22 @@ class PlayerManager {
         }
         return players.remove(playerId)
     }
-    
+
     /**
-     * Prüft, ob der angegebene Spieler existiert
+     * Prüft, ob ein Spieler mit dieser ID existiert
      */
     fun playerExists(playerId: String): Boolean {
         return players.containsKey(playerId)
     }
     
     /**
-     * Erstellt eine Zusammenfassung der Spieler für Debug-Zwecke
+     * Erstellt eine Debug-Zusammenfassung aller Spieler
      */
     fun getDebugSummary(): String {
-        return "Spieler (${players.size}): " + 
-               players.values.joinToString(", ") { 
-                   "${it.id}:${it.color}" + (if (it.id == localPlayerId) "*" else "") 
-               }
+        return "Spieler (${_players.size}): " +
+                _players.values.joinToString(", ") {
+                    "${it.id}:${it.color}" + if (it.id == localPlayerId) "*" else ""
+                }
     }
     
     /**

@@ -1,5 +1,7 @@
 package at.aau.serg.sdlapp.ui.activity
 
+import at.aau.serg.sdlapp.model.player.PlayerManager
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,7 +17,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.board.Field
-import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.message.MoveMessage
 import at.aau.serg.sdlapp.ui.board.BoardFigureManager
 import at.aau.serg.sdlapp.ui.board.BoardMoveManager
@@ -38,6 +39,8 @@ class BoardActivity : ComponentActivity(),
     private lateinit var zoomLayout: ZoomLayout
     private lateinit var diceButton: ImageButton
     private lateinit var playerName: String
+    private lateinit var statsButton: ImageButton
+
 
     // Manager für verschiedene Aspekte des Spiels
     private lateinit var playerManager: PlayerManager
@@ -73,6 +76,8 @@ class BoardActivity : ComponentActivity(),
         zoomLayout = findViewById(R.id.zoomLayout)
         boardImage = findViewById(R.id.boardImag)
         diceButton = findViewById(R.id.diceButton)
+        statsButton = findViewById(R.id.statsButton)
+
 
         // Debug-Meldung zum Board-Status
         boardImage.post {
@@ -96,8 +101,10 @@ class BoardActivity : ComponentActivity(),
      */
     private fun initializeManagers() {
         // Player Manager initialisieren
-        playerManager = PlayerManager()
+        playerManager = PlayerManager
         playerManager.setLocalPlayer(playerId)
+        val local = playerManager.getLocalPlayer()
+        Log.d("BoardActivity", "✅ Nach setLocalPlayer: localPlayer = $local")
 
         val boardContainer = findViewById<FrameLayout>(R.id.boardContainer)
 
@@ -249,6 +256,14 @@ class BoardActivity : ComponentActivity(),
                 uiManager.showPlayerListOverlay()
             }, 500) // 500ms warten
         }
+
+        //Spieler Status anzeigen
+        statsButton.setOnClickListener {
+            val intent = Intent(this, PlayerStatsActivity::class.java)
+            intent.putExtra("playerId", playerId) // playerId ist jetzt ein String
+            startActivity(intent)
+        }
+
     }
 
     /**
@@ -321,6 +336,7 @@ class BoardActivity : ComponentActivity(),
                 } else {
                     Log.e("BoardActivity", "Konnte kein passendes Zielfeld finden")
                 }
+
             } else {
                 Log.e("BoardActivity", "Aktuelles Feld nicht gefunden: $currentFieldIndex")
 
@@ -343,7 +359,7 @@ class BoardActivity : ComponentActivity(),
 
     override fun onPlayerListReceived(playerIds: List<String>) {
         // Füge alle neuen Spieler hinzu und verarbeite entfernte Spieler
-        val playerIdsToProcess = playerIds.toMutableList()
+        val playerIdsToProcess = playerIds.map { it.toString() }.toMutableList()
 
         // Stelle sicher, dass der lokale Spieler immer in der Liste ist
         if (!playerIdsToProcess.contains(playerId)) {
@@ -386,7 +402,7 @@ class BoardActivity : ComponentActivity(),
                     // Wenn der Spieler schon eine Position hat, bewegen wir ihn dorthin
                     val fieldIndex = remotePlayer.currentFieldIndex
                     if (fieldIndex > 0) {
-                        moveManager.updatePlayerPosition(remotePlayerId, fieldIndex)
+                        moveManager.updatePlayerPosition(remotePlayerId.toString(), fieldIndex)
                     }
                 }
             }

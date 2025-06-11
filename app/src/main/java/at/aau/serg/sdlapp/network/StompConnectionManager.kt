@@ -69,6 +69,7 @@ class StompConnectionManager(
     private val maxReconnectAttempts = 5
     private var reconnectAttempts = 0
 
+
     /**
      * Gibt die aktuelle Session zurück, falls verbunden, sonst null.
      */

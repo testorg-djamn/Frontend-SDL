@@ -91,7 +91,6 @@ class LobbyViewModel(
                         }
                     }
                 }
-            }
             } catch (e: Exception) {
                 Log.e("LobbyViewModel", "Error in updates flow", e)
             }

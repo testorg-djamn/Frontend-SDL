@@ -9,6 +9,14 @@ data class Player(
     val id: String,
     val name: String,
     var currentFieldIndex: Int = 0,
+
+    // ➕ Zusätzliche Felder für Statistiken
+    var money: Int = 0,
+    var children: Int = 0,
+    var hasEducation: Boolean = false,
+    var investments: Int = 0,
+    var salary: Int = 0,                   // Standardwert
+    val relationship: Boolean = false,
     var color: CarColor = CarColor.BLUE
 ) {
     
