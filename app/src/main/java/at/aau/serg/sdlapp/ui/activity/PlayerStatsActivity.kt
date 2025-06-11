@@ -50,7 +50,7 @@ class PlayerStatsActivity : ComponentActivity() {
                     education = player.hasEducation,
                     investments = player.investments,
                     salary = 5000,               // Beispielwert
-                    relationship = "Single"      // Beispielwert
+                    relationship = player.relationship
                 )
 
                 PlayerStatsOverlay(player = playerModell)

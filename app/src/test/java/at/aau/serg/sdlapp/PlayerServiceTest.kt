@@ -15,7 +15,7 @@ class PlayerServiceTest {
             salary = 5000,
             children = 0,
             education = true,
-            relationship = "false"
+            relationship = false
         )
         val total = player.money + player.investments
         assertEquals(11000, total)
@@ -30,7 +30,7 @@ class PlayerServiceTest {
             salary = 6000,
             children = 3,
             education = true,
-            relationship = "true"
+            relationship = true
         )
         assertEquals(3, player.children)
     }
@@ -44,7 +44,7 @@ class PlayerServiceTest {
             salary = 3000,
             children = 1,
             education = true,
-            relationship = "true"
+            relationship = true
         )
         assertTrue(player.education)
     }
@@ -58,9 +58,9 @@ class PlayerServiceTest {
             salary = 2500,
             children = 0,
             education = false,
-            relationship = "false"
+            relationship = false
         )
-        assertFalse(player.relationship.toBoolean())
+        assertFalse(player.relationship)
     }
 
     @Test
@@ -72,7 +72,7 @@ class PlayerServiceTest {
             salary = 2000,
             children = 2,
             education = false,
-            relationship = "true"
+            relationship = true
         )
         val futureMoney = player.money + player.salary
         assertEquals(7000, futureMoney)
@@ -89,7 +89,7 @@ class PlayerServiceTest {
             salary = 4000,
             children = 1,
             education = true,
-            relationship = "false"
+            relationship = false
         )
         val totalWealth = player.money + player.investments + player.salary
         assertEquals(19000, totalWealth)
@@ -104,7 +104,7 @@ class PlayerServiceTest {
             salary = 2000,
             children = 0,
             education = true,
-            relationship = "true"
+            relationship = true
         )
         val bonus = if (player.education) 1000 else 0
         val total = player.money + bonus
@@ -120,7 +120,7 @@ class PlayerServiceTest {
             salary = 2000,
             children = 0,
             education = false,
-            relationship = "false"
+            relationship = false
         )
         val netWorth = player.money + player.investments
         assertEquals(-1500, netWorth)
@@ -135,10 +135,10 @@ class PlayerServiceTest {
             salary = 0,
             children = 0,
             education = false,
-            relationship = "false"
+            relationship = false
         )
         assertEquals(0, player.money + player.investments + player.salary)
         assertFalse(player.education)
-        assertFalse(player.relationship.toBoolean())
+        assertFalse(player.relationship)
     }
 }

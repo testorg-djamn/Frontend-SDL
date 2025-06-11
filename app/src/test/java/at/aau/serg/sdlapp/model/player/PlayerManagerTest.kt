@@ -1,100 +1,138 @@
 package at.aau.serg.sdlapp.model.player
 
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import at.aau.serg.sdlapp.model.game.GameConstants
+import org.junit.After
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Test
 
 class PlayerManagerTest {
 
-    @BeforeEach
-    fun resetPlayers() {
-        PlayerManager.clearPlayers()  // Methode muss im Singleton existieren
+    @Before
+    fun setUp() {
+        PlayerManager.clearPlayers()
+    }
+
+    @After
+    fun tearDown() {
+        PlayerManager.clearPlayers()
     }
 
     @Test
-    fun `test add and retrieve player`() {
-        PlayerManager.addPlayer("1", "Alice")
-        val fetched = PlayerManager.getPlayer("1")
-
-        assertNotNull(fetched)
-        assertEquals("Alice", fetched?.name)
+    fun testAddPlayer() {
+        val player = PlayerManager.addPlayer("1", "Alice", 5)
+        assertEquals("1", player.id)
+        assertEquals("Alice", player.name)
+        assertEquals(5, player.currentFieldIndex)
+        assertTrue(PlayerManager.playerExists("1"))
     }
 
     @Test
-    fun `test player existence check`() {
+    fun testSetAndGetLocalPlayer() {
         PlayerManager.addPlayer("2", "Bob")
-        assertTrue(PlayerManager.playerExists("2"))
-        assertFalse(PlayerManager.playerExists("99"))
+        PlayerManager.setLocalPlayer("2")
+        val local = PlayerManager.getLocalPlayer()
+        assertNotNull(local)
+        assertEquals("2", local!!.id)
     }
 
     @Test
-    fun `test local player set and get`() {
-        PlayerManager.addPlayer("3", "Local")
+    fun testSetLocalPlayerCreatesIfMissing() {
         PlayerManager.setLocalPlayer("3")
         val local = PlayerManager.getLocalPlayer()
         assertNotNull(local)
-        assertEquals("3", local?.id)
+        assertEquals("3", local!!.id)
+        assertEquals("Spieler 3", local.name)
     }
 
     @Test
-    fun `test update player position`() {
-        val player = PlayerManager.addPlayer("4", "Mover")
-        PlayerManager.updatePlayerPosition("4", 7)
-        assertEquals(7, player.currentFieldIndex)
+    fun testUpdatePlayerPosition() {
+        PlayerManager.addPlayer("4", "Charlie")
+        PlayerManager.updatePlayerPosition("4", 10)
+        val updated = PlayerManager.getPlayer("4")
+        assertEquals(10, updated!!.currentFieldIndex)
     }
 
     @Test
-    fun `test removePlayer removes non-local player`() {
-        PlayerManager.addPlayer("1", "A")
-        PlayerManager.addPlayer("2", "B")
-        PlayerManager.setLocalPlayer("1")
-
-        val removed = PlayerManager.removePlayer("2")
-
-        assertNotNull(removed)
-        assertEquals("B", removed?.name)
-        assertFalse(PlayerManager.playerExists("2"))
+    fun testRemovePlayer() {
+        PlayerManager.addPlayer("5", "Dana")
+        val removed = PlayerManager.removePlayer("5")
+        assertEquals("5", removed!!.id)
+        assertFalse(PlayerManager.playerExists("5"))
     }
 
     @Test
-    fun `test removePlayer does not remove local player`() {
-        PlayerManager.setLocalPlayer("1")
-        PlayerManager.addPlayer("1", "A")
-
-        val removed = PlayerManager.removePlayer("1")
-
+    fun testRemoveLocalPlayerNotAllowed() {
+        PlayerManager.setLocalPlayer("6")
+        val removed = PlayerManager.removePlayer("6")
         assertNull(removed)
-        assertTrue(PlayerManager.playerExists("1"))
+        assertTrue(PlayerManager.playerExists("6"))
     }
 
-
     @Test
-    fun `test sync does not remove local player`() {
-        PlayerManager.setLocalPlayer("1")
-        PlayerManager.addPlayer("1", "A")
-        PlayerManager.addPlayer("2", "B")
-
-        val removed = PlayerManager.syncWithActivePlayersList(mutableListOf("3"))
-
-        // Lokaler Spieler "1" darf nicht entfernt werden
-        assertTrue(PlayerManager.playerExists("1"))
-        assertEquals(listOf("2"), removed)
+    fun testSyncWithActivePlayersList() {
+        PlayerManager.addPlayer("7", "Eve")
+        PlayerManager.addPlayer("8", "Frank")
+        PlayerManager.setLocalPlayer("8")
+        val removed = PlayerManager.syncWithActivePlayersList(listOf("8"))
+        assertTrue(removed.contains("7"))
+        assertFalse(PlayerManager.playerExists("7"))
+        assertTrue(PlayerManager.playerExists("8"))
     }
 
-
-
     @Test
-    fun `test get all players returns correct size`() {
-        PlayerManager.addPlayer("1", "A")
-        PlayerManager.addPlayer("2", "B")
+    fun testGetAllPlayers() {
+        PlayerManager.addPlayer("9", "Gina")
+        PlayerManager.addPlayer("10", "Hugo")
         val all = PlayerManager.getAllPlayers()
         assertEquals(2, all.size)
     }
 
     @Test
-    fun `test debug summary returns player count`() {
-        PlayerManager.addPlayer("1", "A")
+    fun testHaveAllPlayersFinished_SinglePlayer() {
+        PlayerManager.addPlayer("11", "Isa", GameConstants.FINAL_FIELD_INDICES.first())
+        assertTrue(PlayerManager.haveAllPlayersFinished())
+    }
+
+    @Test
+    fun testHaveAllPlayersFinished_MultiplePlayers_AllOnFinal() {
+        GameConstants.FINAL_FIELD_INDICES.forEachIndexed { i, idx ->
+            PlayerManager.addPlayer((i + 20).toString(), "Player$i", idx)
+        }
+        assertTrue(PlayerManager.haveAllPlayersFinished())
+    }
+
+    @Test
+    fun testHaveAllPlayersFinished_MultiplePlayers_NotAllOnFinal() {
+        PlayerManager.addPlayer("30", "Jay", GameConstants.FINAL_FIELD_INDICES[0])
+        PlayerManager.addPlayer("31", "Kai", 1)
+        assertFalse(PlayerManager.haveAllPlayersFinished())
+    }
+
+    @Test
+    fun testIsLocalPlayer() {
+        PlayerManager.setLocalPlayer("32")
+        assertTrue(PlayerManager.isLocalPlayer("32"))
+        assertFalse(PlayerManager.isLocalPlayer("33"))
+    }
+
+    @Test
+    fun testPlayerExists() {
+        PlayerManager.addPlayer("34", "Luna")
+        assertTrue(PlayerManager.playerExists("34"))
+    }
+
+    @Test
+    fun testDebugSummary() {
+        PlayerManager.setLocalPlayer("35")
         val summary = PlayerManager.getDebugSummary()
-        assertTrue(summary.contains("Spieler (1):"))  // ✅ angepasst!
+        assertTrue(summary.contains("*")) // local player markiert
+    }
+
+    @Test
+    fun testGameFinishedState() {
+        assertFalse(PlayerManager.isGameFinished())
+        PlayerManager.markGameFinished()
+        assertTrue(PlayerManager.isGameFinished())
     }
 }

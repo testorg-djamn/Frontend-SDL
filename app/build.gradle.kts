@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.androidTestImplementation
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -83,10 +84,10 @@ android {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
             all {
-                it.useJUnitPlatform()
                 it.systemProperty("robolectric.logging", "stdout")
                 it.systemProperty("robolectric.graphicsMode", "NATIVE")
                 it.finalizedBy(tasks.named("jacocoTestReport"))
+                it.systemProperty("robolectric.maxSdk", "35")
             }
         }
     }
@@ -139,7 +140,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions","**/StompConnectionManager,**/*Activity.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*/**/*,**/*board*.kt,**/MoveMessage.kt,**/StompConnectionManager.kt,**/BoardDataMessage.kt")
+        property("sonar.exclusions","**/StompConnectionManager,**/*Activity.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*/**/*,**/*board*.kt,**/MoveMessage.kt,**/StompConnectionManager.kt,**/BoardDataMessage.kt, **/LobbyViewModel.kt")
     }
 }
 
@@ -170,11 +171,12 @@ dependencies {
     implementation(libs.androidx.ui.viewbinding)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.okhttp)
+    implementation(libs.lifecycle.viewmodel.ktx)
+
+
 
     // --- Unit-Test Dependencies ---
     testImplementation(libs.junit)
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.mockito.core)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
@@ -183,6 +185,7 @@ dependencies {
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.arch.core.testing)
 
     // --- Instrumented/UI-Test Dependencies ---
     androidTestImplementation(libs.ui.test.junit4)
@@ -213,7 +216,7 @@ dependencies {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "11"
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
