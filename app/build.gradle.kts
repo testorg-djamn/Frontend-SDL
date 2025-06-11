@@ -43,7 +43,7 @@ android {
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
         minSdk = 30
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -170,6 +170,7 @@ dependencies {
     implementation(libs.androidx.ui.viewbinding)
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.okhttp)
+    implementation(libs.lifecycle.viewmodel.ktx)
 
 
 
@@ -183,6 +184,7 @@ dependencies {
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.arch.core.testing)
 
     // --- Instrumented/UI-Test Dependencies ---
     androidTestImplementation(libs.ui.test.junit4)
