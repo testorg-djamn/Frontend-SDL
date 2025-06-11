@@ -112,34 +112,4 @@ fun CategoryItem(label: String, winner: String) {
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewEndScreenUI() {
-    // Simuliert Beispielspieler
-    PlayerManager.clearPlayers()
-    PlayerManager.addPlayer("1", "Alice")
-    PlayerManager.addPlayer("2", "Bob")
-
-    PlayerManager.getPlayer("1")?.apply {
-        money = 1500
-        investments = 500
-        salary = 1200
-        children = 1
-        hasEducation = true
-    }
-
-    PlayerManager.getPlayer("2")?.apply {
-        money = 1200
-        investments = 1000
-        salary = 1000
-        children = 2
-        hasEducation = false
-    }
-
-    val mockViewModel = GameResultViewModel()
-
-    MaterialTheme {
-        EndScreen(viewModel = mockViewModel)
-    }
-}
 

@@ -43,7 +43,7 @@ android {
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -87,6 +87,7 @@ android {
                 it.systemProperty("robolectric.logging", "stdout")
                 it.systemProperty("robolectric.graphicsMode", "NATIVE")
                 it.finalizedBy(tasks.named("jacocoTestReport"))
+                it.systemProperty("robolectric.maxSdk", "35")
             }
         }
     }
