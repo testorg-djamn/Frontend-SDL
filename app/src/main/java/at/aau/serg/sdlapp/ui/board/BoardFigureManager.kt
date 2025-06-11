@@ -30,12 +30,14 @@ class BoardFigureManager(
     private val playerBadges = mutableMapOf<String, TextView>()
 
     // Liste der aktuellen Highlight-Marker für mögliche Felder
-    private val nextMoveMarkers = mutableListOf<ImageView>()    /**
+    private val nextMoveMarkers = mutableListOf<ImageView>()
+
+    /**
      * Bewegt eine Spielfigur zu einer bestimmten Position auf dem Brett
      */
     fun moveFigureToPosition(xPercent: Float, yPercent: Float, playerId: String) {
         println("⭐⭐⭐ MOVE FIGURE: Beginne moveFigureToPosition für Spieler $playerId zu Position $xPercent, $yPercent")
-        
+
         // Überprüfung auf ungültige Eingabeparameter
         if (xPercent < 0 || xPercent > 1 || yPercent < 0 || yPercent > 1) {
             println("⚠️ WARNING: Ungültige Koordinaten außerhalb des gültigen Bereichs: x=$xPercent, y=$yPercent")
@@ -44,13 +46,13 @@ class BoardFigureManager(
             val safeY = yPercent.coerceIn(0f, 1f)
             println("🔄 Koordinaten korrigiert zu: x=$safeX, y=$safeY")
         }
-        
 
 
-        
+
+
         if (boardImage.width <= 0 || boardImage.height <= 0) {
             println("❌ KRITISCHER FEHLER: boardImage hat ungültige Dimensionen: ${boardImage.width}x${boardImage.height}")
-            
+
             // Versuche, die Bewegung zu verzögern, falls das Board noch nicht gemessen wurde
             boardImage.post {
                 println("🔄 Versuche verzögerte Bewegung, neue Dimensionen: ${boardImage.width}x${boardImage.height}")
@@ -63,7 +65,7 @@ class BoardFigureManager(
             }
             return
         }
-        
+
         try {
             boardImage.post {
                 try {
@@ -78,7 +80,7 @@ class BoardFigureManager(
                     // Hole die entsprechende Spielfigur aus der Map
                     val playerFigure = getOrCreatePlayerFigure(playerId)
                     val playerBadge = playerBadges[playerId]
-                    
+
                     println("🎮 Spielfigur für ID $playerId: ${if (playerFigure != null) "gefunden" else "NICHT GEFUNDEN"}")
                     println("🏷️ Badge für ID $playerId: ${if (playerBadge != null) "gefunden" else "NICHT GEFUNDEN"}")
 
@@ -122,7 +124,7 @@ class BoardFigureManager(
                             // Setze absolute Position nach Animation
                             playerFigure.x = targetX
                             playerFigure.y = targetY
-                            
+
                             // Debug-Log nach Animation
                             println("✅ Figur-Animation abgeschlossen, finale Position: (${playerFigure.x}, ${playerFigure.y})")
                         }
@@ -138,16 +140,16 @@ class BoardFigureManager(
                             // Setze absolute Position nach Animation
                             playerBadge.x = badgeX
                             playerBadge.y = badgeY
-                            
+
                             // Debug-Log nach Badge-Animation
                             println("✅ Badge-Animation abgeschlossen, finale Position: (${playerBadge.x}, ${playerBadge.y})")
                         }
                         ?.start()
-                        
+
                     // Stellen Sie sicher, dass die Figur sichtbar ist
                     playerFigure.visibility = android.view.View.VISIBLE
                     playerBadge?.visibility = android.view.View.VISIBLE
-                    
+
                 } catch (e: Exception) {
                     println("❌ Fehler während der Figurenbewegung: ${e.message}")
                     e.printStackTrace()
@@ -157,7 +159,9 @@ class BoardFigureManager(
             println("❌ Fehler vor der Figurenbewegung: ${e.message}")
             e.printStackTrace()
         }
-    }    /**
+    }
+
+    /**
      * Erstellt eine Spielfigur mit ID-Badge zur besseren Unterscheidung
      */
     fun getOrCreatePlayerFigure(playerId: String): ImageView {
@@ -171,8 +175,10 @@ class BoardFigureManager(
                 )
 
                 // Setze das richtige Auto-Bild basierend auf der Spieler-ID
-                val player = playerManager.getPlayer(playerId) ?:
-                playerManager.addPlayer(playerId, "Spieler $playerId")
+                val player = playerManager.getPlayer(playerId) ?: playerManager.addPlayer(
+                    playerId,
+                    "Spieler $playerId"
+                )
 
                 setImageResource(player.getCarImageResource())
 
@@ -198,7 +204,11 @@ class BoardFigureManager(
                 setOnClickListener {
                     val playerInfo = playerManager.getPlayer(playerId)
                     val message = "Spieler ${playerInfo?.id} (${playerInfo?.color})"
-                    android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+                    android.widget.Toast.makeText(
+                        context,
+                        message,
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -211,7 +221,7 @@ class BoardFigureManager(
                 setTextColor(android.graphics.Color.WHITE)
 
                 val badgeBackground = playerManager.getPlayer(playerId)?.color?.let { color ->
-                    when(color) {
+                    when (color) {
                         CarColor.BLUE -> R.drawable.badge_blue
                         CarColor.GREEN -> R.drawable.badge_green
                         CarColor.RED -> R.drawable.badge_red
@@ -253,13 +263,20 @@ class BoardFigureManager(
 
             println("🎮 Neue Spielfigur für Spieler $playerId erstellt")
         }
-        return playerFigures[playerId] ?: throw IllegalStateException("No player figure found for playerId=$playerId")
+        return playerFigures[playerId]
+            ?: throw IllegalStateException("No player figure found for playerId=$playerId")
     }
 
     /**
      * Fügt einen klickbaren Marker für ein mögliches nächstes Feld hinzu
      */
-    fun addNextMoveMarker(xPercent: Float, yPercent: Float, fieldIndex: Int, stompClient: StompConnectionManager, playerName: String) {
+    fun addNextMoveMarker(
+        xPercent: Float,
+        yPercent: Float,
+        fieldIndex: Int,
+        stompClient: StompConnectionManager,
+        playerName: String
+    ) {
         boardImage.post {
             val marker = ImageView(context)
             marker.setImageResource(R.drawable.move_indicator) // Füge ein passendes Bild-Asset hinzu
@@ -269,7 +286,8 @@ class BoardFigureManager(
             val y = yPercent * boardImage.height
 
             // Setze Größe und Position des Markers
-            val size = context.resources.getDimensionPixelSize(R.dimen.marker_size) // Definiere eine angemessene Größe
+            val size =
+                context.resources.getDimensionPixelSize(R.dimen.marker_size) // Definiere eine angemessene Größe
             val params = FrameLayout.LayoutParams(size, size)
             marker.layoutParams = params
 
@@ -297,20 +315,22 @@ class BoardFigureManager(
             boardContainer.removeView(marker)
         }
         nextMoveMarkers.clear()
-    }    /**
+    }
+    /**
      * Spielt eine Animation ab, wenn ein neuer Spieler beigetreten ist
-     */    /**
+     */
+    /**
      * Spielt eine Animation für eine neue Spielfigur
      */
     fun playNewPlayerAnimation(playerId: String) {
         val playerFigure = playerFigures[playerId] ?: return
-        
+
         // Erstelle eine Animation, die die Figur blinken lässt
         val blinkAnimation = AlphaAnimation(0.3f, 1.0f)
         blinkAnimation.duration = 500 // 0.5 Sekunden pro Blinken
         blinkAnimation.repeatMode = Animation.REVERSE
         blinkAnimation.repeatCount = 5 // 5x blinken (insgesamt 5 Sekunden)
-        
+
         // Zusätzlich eine Größenänderung für mehr Aufmerksamkeit
         playerFigure.scaleX = 0.5f
         playerFigure.scaleY = 0.5f
@@ -325,7 +345,7 @@ class BoardFigureManager(
                     .scaleY(1.0f)
                     .setDuration(300)
                     .start()
-                
+
                 // Starte das Blinken nach der Größenänderung
                 playerFigure.startAnimation(blinkAnimation)
             }
@@ -349,4 +369,47 @@ class BoardFigureManager(
             playerBadges.remove(playerId)
         }
     }
+
+    /**
+     * Aktualisiert das Aussehen einer Spielfigur nach einer Farbänderung
+     */
+    fun updateFigureAppearance(playerId: String) {
+        // Hole die existierende Figur und das Badge
+        val playerFigure = playerFigures[playerId] ?: return
+        val playerBadge = playerBadges[playerId]
+
+        // Hole den Spieler aus dem PlayerManager
+        val player = playerManager.getPlayer(playerId) ?: return
+
+        // Aktualisiere das Bild der Figur basierend auf der neuen Farbe
+        playerFigure.setImageResource(player.getCarImageResource())
+
+        // Aktualisiere das Hintergrundbild des Badges basierend auf der neuen Farbe
+        playerBadge?.setBackgroundResource(
+            when (player.color) {
+                CarColor.BLUE -> R.drawable.badge_blue
+                CarColor.GREEN -> R.drawable.badge_green
+                CarColor.RED -> R.drawable.badge_red
+                CarColor.YELLOW -> R.drawable.badge_yellow
+            }
+        )
+
+        // Spiele eine kurze Animation zur Verdeutlichung der Änderung
+        playerFigure.animate()
+            .rotationBy(360f)
+            .scaleX(1.3f)
+            .scaleY(1.3f)
+            .setDuration(500)
+            .withEndAction {
+                playerFigure.animate()
+                    .scaleX(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
+                    .scaleY(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
+                    .setDuration(300)
+                    .start()
+            }
+            .start()
+
+        println("🎨 Spielfigur für $playerId wurde mit neuer Farbe ${player.color} aktualisiert")
+    }
+
 }

@@ -47,9 +47,7 @@ class BoardNetworkManager(
                 joinExistingGame(lobbyId)
             }, 500)
         }
-    }
-
-    /**
+    }    /**
      * Initialisiert alle Callbacks für den STOMP-Client
      */
     private fun initializeCallbacks() {
@@ -60,6 +58,19 @@ class BoardNetworkManager(
 
                 // Übergebe Spielerliste an Callback-Methode
                 callbacks.onPlayerListReceived(playerIds)
+            }
+        }
+        
+        // Handler für Farbänderungen von Spielern
+        stompClient.onPlayerColorChanged = { playerId, colorName ->
+            Handler(Looper.getMainLooper()).post {
+                println("🎨 Farbänderung für Spieler $playerId: $colorName")
+                
+                // Aktualisiere die Spielerfarbe im PlayerManager
+                playerManager.updatePlayerColor(playerId, colorName)
+                
+                // Übergebe Farbwechsel an Callback-Methode
+                callbacks.onPlayerColorChanged(playerId, colorName)
             }
         }
 
@@ -337,15 +348,14 @@ class BoardNetworkManager(
                 }
             }
         }
-    }
-
-    /**
+    }    /**
      * Interface für die Netzwerk-Callbacks
      */    interface NetworkCallbacks {
         fun onPlayerListReceived(playerIds: List<String>)
         fun onConnectionStateChanged(isConnected: Boolean)
         fun onConnectionError(errorMessage: String)
         fun onMoveReceived(move: MoveMessage)
+        fun onPlayerColorChanged(playerId: String, colorName: String)
 
         /**
          * Wird aufgerufen, wenn Spiel-Brett-Daten vom Server empfangen wurden

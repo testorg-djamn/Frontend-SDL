@@ -32,8 +32,8 @@ import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import org.json.JSONException
 import org.json.JSONObject
 //
-//private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket"
-private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
+private const val WEBSOCKET_URI = "ws://se2-demo.aau.at:53217/websocket"
+//private const val WEBSOCKET_URI = "ws://10.0.2.2:8080/websocket-broker/websocket"
 //private const val WEBSOCKET_URI = "ws://192.168.8.140:8080/websocket-broker/websocket" //for testing
 private const val NO_CONNECTION_MESSAGE = "Keine Verbindung aktiv"
 private const val NO_CONNECTION_SUBSCRIPTION_MESSAGE = "❌ Verbindung nicht aktiv – Subscription fehlgeschlagen"
@@ -57,6 +57,12 @@ class StompConnectionManager(
     var onPlayerListReceived: ((List<String>) -> Unit)? = null
     var onBoardDataReceived: ((List<at.aau.serg.sdlapp.model.board.Field>) -> Unit)? = null
     var onPlayerPositionsReceived: ((Map<String, Int>) -> Unit)? = null
+
+    /**
+     * Callback für Farbänderungen von Spielern
+     * Wird aufgerufen, wenn ein Spieler seine Farbe ändert
+     */
+    var onPlayerColorChanged: ((playerId: String, color: String) -> Unit)? = null
 
     // Reconnect-Logik
     private var shouldReconnect = true
@@ -94,9 +100,7 @@ class StompConnectionManager(
                 onResult(result)
             }
         }
-    }
-
-    private fun launchMessageCollectors() {
+    }    private fun launchMessageCollectors() {
         session?.let { s ->
             scope.launch {
                 s.subscribeText("/topic/game").collect { msg ->
@@ -123,8 +127,13 @@ class StompConnectionManager(
                     handlePlayerPositionsMessage(msg)
                 }
             }
+            scope.launch {
+                s.subscribeText("/topic/player/colors").collect { msg ->
+                    handlePlayerColorMessage(msg)
+                }
+            }
         }
-    }    private fun handleGameMessage(msg: String) {
+    }private fun handleGameMessage(msg: String) {
         try {
             sendToMainThread("📥 Nachricht vom Server empfangen: ${msg.take(100)}${if (msg.length > 100) "..." else ""}")
 
@@ -198,6 +207,26 @@ class StompConnectionManager(
         } catch (e: Exception) {
             sendToMainThread("⚠️ Fehler beim Verarbeiten der Spielerpositionen: ${e.message}")
             e.printStackTrace()
+        }
+    }    /**
+     * Verarbeitet eine Nachricht über die Farbänderung eines Spielers
+     */
+    private fun handlePlayerColorMessage(msg: String) {
+        try {
+            val stompMessage = gson.fromJson(msg, StompMessage::class.java)
+            
+            // Prüfe, ob es sich um eine color_selected-Nachricht handelt
+            if (stompMessage.action?.startsWith("color_selected:") == true) {
+                val color = stompMessage.action.substring("color_selected:".length)
+                val playerId = stompMessage.playerName
+                
+                sendToMainThread("🎨 Spieler $playerId hat Farbe $color ausgewählt")
+                
+                // Rufe den Callback für Farbänderungen auf
+                onPlayerColorChanged?.invoke(playerId, color)
+            }
+        } catch (e: Exception) {
+            sendToMainThread("⚠️ Fehler beim Verarbeiten der Farbänderung: ${e.message}")
         }
     }
 
@@ -749,6 +778,21 @@ class StompConnectionManager(
                 }
             }
         } ?: Log.e("StompConnectionManager", NO_CONNECTION_SUBSCRIPTION_MESSAGE)
+    }
+
+    fun sendColorSelection(player: String, color: String) {
+        sessionOrNull?.let {
+            val message = StompMessage(playerName = player, action = "color:$color")
+            val json = gson.toJson(message)
+            scope.launch {
+                try {
+                    session?.sendText("/app/player/color", json)
+                    sendToMainThread("🎨 Farbauswahl '$color' gesendet")
+                } catch (e: Exception) {
+                    sendToMainThread("❌ Fehler beim Senden der Farbauswahl: ${e.message}")
+                }
+            }
+        } ?: sendToMainThread(NO_CONNECTION_SUBSCRIPTION_MESSAGE)
     }
 }
 

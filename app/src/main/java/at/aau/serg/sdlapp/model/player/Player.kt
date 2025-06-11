@@ -9,10 +9,8 @@ data class Player(
     val id: String,
     val name: String,
     var currentFieldIndex: Int = 0,
-    val colorOverride: CarColor? = null
+    var color: CarColor = CarColor.BLUE
 ) {
-    // Farbe aus colorOverride oder Fallback auf Blau
-    val color: CarColor = colorOverride ?: CarColor.BLUE
     
     // Liefert die Ressourcen-ID des Auto-Bildes
     fun getCarImageResource(): Int {

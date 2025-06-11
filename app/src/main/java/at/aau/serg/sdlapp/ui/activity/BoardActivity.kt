@@ -725,4 +725,27 @@ class BoardActivity : ComponentActivity(),
             ).show()
         }
     }
+
+    /**
+     * Wird aufgerufen, wenn ein Spieler seine Farbe geändert hat
+     */
+    override fun onPlayerColorChanged(playerId: String, colorName: String) {
+        Log.d("BoardActivity", "🎨 Spieler $playerId hat Farbe zu $colorName geändert")
+        
+        try {
+            // Aktualisiere das Aussehen der Spielfigur
+            figureManager.updateFigureAppearance(playerId)
+            
+            // Zeige eine Benachrichtigung an
+            if (playerId != this.playerId) {
+                Toast.makeText(
+                    this,
+                    "Spieler $playerId spielt jetzt mit Farbe $colorName",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: Exception) {
+            Log.e("BoardActivity", "❌ Fehler bei Farbaktualisierung für $playerId: ${e.message}")
+        }
+    }
 }

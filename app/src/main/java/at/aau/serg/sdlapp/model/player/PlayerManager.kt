@@ -9,24 +9,25 @@ class PlayerManager {
     
     // Der lokale Spieler (dieser Client)
     private var localPlayerId: String = "1"
-    
-    /**
+      /**
      * Fügt einen neuen Spieler hinzu
      */
-    fun addPlayer(playerId: String, name: String, initialFieldIndex: Int = 0): Player {
-        val player = Player(playerId, name, initialFieldIndex)
+    fun addPlayer(playerId: String, name: String, initialFieldIndex: Int = 0, color: CarColor = CarColor.BLUE): Player {
+        val player = Player(playerId, name, initialFieldIndex, color)
         players[playerId] = player
         return player
     }
-    
-    /**
+      /**
      * Setzt den lokalen Spieler
      */
-    fun setLocalPlayer(playerId: String) {
+    fun setLocalPlayer(playerId: String, color: CarColor = CarColor.BLUE) {
         localPlayerId = playerId
         // Stelle sicher, dass der lokale Spieler in der Map existiert
         if (!players.containsKey(playerId)) {
-            addPlayer(playerId, "Spieler $playerId")
+            addPlayer(playerId, "Spieler $playerId", color = color)
+        } else {
+            // Wenn der Spieler bereits existiert, aktualisiere seine Farbe
+            players[playerId]?.color = color
         }
     }
       /**
@@ -112,5 +113,24 @@ class PlayerManager {
                players.values.joinToString(", ") { 
                    "${it.id}:${it.color}" + (if (it.id == localPlayerId) "*" else "") 
                }
+    }
+    
+    /**
+     * Aktualisiert die Farbe eines Spielers
+     */
+    fun updatePlayerColor(playerId: String, colorName: String) {
+        val player = players[playerId] ?: return
+        
+        // Konvertiere den String zur Enum
+        val color = try {
+            CarColor.valueOf(colorName)
+        } catch (e: Exception) {
+            println("❌ Fehler beim Konvertieren der Farbe: $colorName")
+            return
+        }
+        
+        // Setze die Farbe
+        player.color = color
+        println("🎨 Farbe für Spieler $playerId auf $colorName aktualisiert")
     }
 }
