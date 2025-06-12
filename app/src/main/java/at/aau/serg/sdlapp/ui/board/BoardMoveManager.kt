@@ -1,6 +1,7 @@
 package at.aau.serg.sdlapp.ui.board
 
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -9,6 +10,7 @@ import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.StompConnectionManager
 import at.aau.serg.sdlapp.network.message.MoveMessage
+import at.aau.serg.sdlapp.ui.activity.EndScreenActivity
 
 /**
  * Verwaltet die Spielzüge und Bewegungen auf dem Spielbrett
@@ -93,6 +95,21 @@ class BoardMoveManager(
                 boardFigureManager.moveFigureToPosition(similarField.x, similarField.y, playerId)
             }
         }
+
+
+        if (playerManager.haveAllPlayersFinished()) {
+            Toast.makeText(context, "🎉 Alle Spieler haben das Spiel beendet!", Toast.LENGTH_LONG).show()
+            Log.d("BoardMoveManager", "🔍 context-Klasse: ${context::class.java.name}")
+
+            Handler(Looper.getMainLooper()).post {
+                Log.d("BoardMoveManager", "🎯 Alle Spieler haben beendet – EndScreen wird gestartet.")
+                val intent = Intent(context, EndScreenActivity::class.java)
+                context.startActivity(intent)
+            }
+        }
+
+
+
     }
 
     /**
