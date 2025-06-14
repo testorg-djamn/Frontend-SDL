@@ -415,7 +415,7 @@ class BoardActivity : ComponentActivity(),
         updateStatusText()
 
         // Zeigt eine kleine Benachrichtigung über die anderen Spieler, aber nur bei Änderungen
-        val allPlayers = playerManager.getAllPlayers()
+        val allPlayers = playerManager.getAllPlayersAsList()
         val hasChanges =
             removedPlayers.isNotEmpty() || playerIdsToProcess.any { !playerManager.playerExists(it) }
         uiManager.showOtherPlayersNotification(allPlayers, hasChanges)
@@ -684,7 +684,7 @@ class BoardActivity : ComponentActivity(),
         Log.d("BoardActivity", "📍 Spielerpositionen vom Server empfangen: ${positions.size} Positionen")
 
         try {
-            val existingPlayerIds = playerManager.getAllPlayers().map { it.id }
+            val existingPlayerIds = playerManager.getAllPlayerIds()
             val newPlayers = mutableListOf<String>()
             
             // Verarbeite alle erhaltenen Positionen

@@ -6,9 +6,11 @@ import at.aau.serg.sdlapp.model.game.GameConstants
 /**
  * Verwaltet alle Spieler und ihre Positionen (Singleton)
  */
-class PlayerManager {
+object PlayerManager {
     // Liste aller aktiven Spieler
-    private val players = mutableMapOf<String, Player>()
+    val players: Map<String, Player>
+        get() = _players.toMap()
+    private val _players = mutableMapOf<String, Player>()
     
     // Der lokale Spieler (dieser Client)
     private var localPlayerId: String = "1"
@@ -16,8 +18,8 @@ class PlayerManager {
      * Fügt einen neuen Spieler hinzu
      */
     fun addPlayer(playerId: String, name: String, initialFieldIndex: Int = 0, color: CarColor = CarColor.BLUE): Player {
-        val player = Player(playerId, name, initialFieldIndex, color)
-        players[playerId] = player
+        val player = Player(playerId, name, initialFieldIndex)
+        _players[playerId] = player
         return player
     }
       /**
@@ -49,7 +51,7 @@ class PlayerManager {
     /**
      * Gibt eine Liste aller aktuell bekannten Spieler zurück
      */
-    fun getAllPlayers(): List<Player> = _players.values.toList()
+    fun getAllPlayers(): Map<String, Player> = players
 
     /**
      * Gibt einen bestimmten Spieler anhand seiner ID zurück
@@ -98,7 +100,7 @@ class PlayerManager {
         if (playerId == localPlayerId) {
             return null
         }
-        return players.remove(playerId)
+        return _players.remove(playerId)
     }
 
     /**
@@ -136,4 +138,12 @@ class PlayerManager {
         player.color = color
         println("🎨 Farbe für Spieler $playerId auf $colorName aktualisiert")
     }
+
+    fun getAllPlayersAsList() : List<Player> = players.values.toList()
+
+    fun clearPlayers(){
+        _players.clear()
+    }
+
+    fun getAllPlayerIds() = _players.keys
 }

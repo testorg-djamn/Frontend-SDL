@@ -208,7 +208,7 @@ class BoardUIManager(
      * Nützlich für Debug-Zwecke oder als Info für den Benutzer
      */
     fun showActivePlayersInfo() {
-        val players = playerManager.getAllPlayers()
+        val players = playerManager.getAllPlayersAsList()
         if (players.isEmpty()) {
             println("👥 Keine Spieler vorhanden")
             return
@@ -234,7 +234,7 @@ class BoardUIManager(
      */
     fun showPlayerListOverlay() {
         // Spielerliste abrufen
-        val players = playerManager.getAllPlayers()
+        val players = playerManager.getAllPlayersAsList()
 
         // Dialog erstellen
         val dialogView = layoutInflater.inflate(R.layout.dialog_player_list, null)

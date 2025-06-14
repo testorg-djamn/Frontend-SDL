@@ -70,94 +70,95 @@ class BoardFigureManager(
                     val x = xPercent * boardImage.width
                     val y = yPercent * boardImage.height
 
-        boardImage.post {
-            val x = xPercent * boardImage.width
-            val y = yPercent * boardImage.height
+                    boardImage.post {
+                        val x = xPercent * boardImage.width
+                        val y = yPercent * boardImage.height
 
-                    // Hole die entsprechende Spielfigur aus der Map
-                    val playerFigure = getOrCreatePlayerFigure(playerId)
-                    val playerBadge = playerBadges[playerId]
+                        // Hole die entsprechende Spielfigur aus der Map
+                        val playerFigure = getOrCreatePlayerFigure(playerId)
+                        val playerBadge = playerBadges[playerId]
 
-                    println("🎮 Spielfigur für ID $playerId: ${if (playerFigure != null) "gefunden" else "NICHT GEFUNDEN"}")
-                    println("🏷️ Badge für ID $playerId: ${if (playerBadge != null) "gefunden" else "NICHT GEFUNDEN"}")
+                        println("🎮 Spielfigur für ID $playerId: ${if (playerFigure != null) "gefunden" else "NICHT GEFUNDEN"}")
+                        println("🏷️ Badge für ID $playerId: ${if (playerBadge != null) "gefunden" else "NICHT GEFUNDEN"}")
 
-            val targetX = x - playerFigure.width / 2f
-            val targetY = y - playerFigure.height / 2f
-            val badgeX = targetX + playerFigure.width - 20
-            val badgeY = targetY - 15
+                        val targetX = x - playerFigure.width / 2f
+                        val targetY = y - playerFigure.height / 2f
+                        val badgeX = targetX + playerFigure.width - 20
+                        val badgeY = targetY - 15
 
-            // Figur animieren
-            playerFigure.animate()
-                .x(targetX).y(targetY).setDuration(800)
-                .setInterpolator(OvershootInterpolator(1.2f))
-                .withStartAction {
-                    playerFigure.animate().scaleX(1.2f).scaleY(1.2f).duration = 200
-                }
-                .withEndAction {
-                    playerFigure.animate().scaleX(1.0f).scaleY(1.0f).duration = 200
-                    playerFigure.x = targetX
-                    playerFigure.y = targetY
-                }.start()
+                        // Figur animieren
+                        playerFigure.animate()
+                            .x(targetX).y(targetY).setDuration(800)
+                            .setInterpolator(OvershootInterpolator(1.2f))
+                            .withStartAction {
+                                playerFigure.animate().scaleX(1.2f).scaleY(1.2f).duration = 200
+                            }
+                            .withEndAction {
+                                playerFigure.animate().scaleX(1.0f).scaleY(1.0f).duration = 200
+                                playerFigure.x = targetX
+                                playerFigure.y = targetY
+                            }.start()
 
-            // Badge animieren
-            playerBadge?.animate()
-                ?.x(badgeX)?.y(badgeY)?.duration = 800
-            playerBadge?.x = badgeX
-            playerBadge?.y = badgeY
+                        // Badge animieren
+                        playerBadge?.animate()
+                            ?.x(badgeX)?.y(badgeY)?.duration = 800
+                        playerBadge?.x = badgeX
+                        playerBadge?.y = badgeY
 
-                    // Debug log für Ziel-Positionen
-                    println("🎯 Ziel-Positionen - Figur: ($targetX, $targetY), Badge: ($badgeX, $badgeY)")
+                        // Debug log für Ziel-Positionen
+                        println("🎯 Ziel-Positionen - Figur: ($targetX, $targetY), Badge: ($badgeX, $badgeY)")
 
-                    // Bewege die Figur mit verbesserter Animation
-                    playerFigure.animate()
-                        .x(targetX)
-                        .y(targetY)
-                        .setDuration(800)  // 800ms Animation
-                        .setInterpolator(OvershootInterpolator(1.2f)) // Überschwingender Effekt
-                        .withStartAction {
-                            // Vor der Animation: kleine Vergrößerung
-                            playerFigure.animate()
-                                .scaleX(1.2f)
-                                .scaleY(1.2f)
-                                .setDuration(200)
-                                .start()
-                        }
-                        .withEndAction {
-                            // Nach der Animation: Größe normalisieren
-                            playerFigure.animate()
-                                .scaleX(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
-                                .scaleY(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
-                                .setDuration(200)
-                                .start()
+                        // Bewege die Figur mit verbesserter Animation
+                        playerFigure.animate()
+                            .x(targetX)
+                            .y(targetY)
+                            .setDuration(800)  // 800ms Animation
+                            .setInterpolator(OvershootInterpolator(1.2f)) // Überschwingender Effekt
+                            .withStartAction {
+                                // Vor der Animation: kleine Vergrößerung
+                                playerFigure.animate()
+                                    .scaleX(1.2f)
+                                    .scaleY(1.2f)
+                                    .setDuration(200)
+                                    .start()
+                            }
+                            .withEndAction {
+                                // Nach der Animation: Größe normalisieren
+                                playerFigure.animate()
+                                    .scaleX(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
+                                    .scaleY(if (playerManager.isLocalPlayer(playerId)) 1.1f else 1.0f)
+                                    .setDuration(200)
+                                    .start()
 
-                            // Setze absolute Position nach Animation
-                            playerFigure.x = targetX
-                            playerFigure.y = targetY
+                                // Setze absolute Position nach Animation
+                                playerFigure.x = targetX
+                                playerFigure.y = targetY
 
-                            // Debug-Log nach Animation
-                            println("✅ Figur-Animation abgeschlossen, finale Position: (${playerFigure.x}, ${playerFigure.y})")
-                        }
-                        .start()
+                                // Debug-Log nach Animation
+                                println("✅ Figur-Animation abgeschlossen, finale Position: (${playerFigure.x}, ${playerFigure.y})")
+                            }
+                            .start()
 
-                    // Bewege auch das Badge mit Animation
-                    playerBadge?.animate()
-                        ?.x(badgeX)
-                        ?.y(badgeY)
-                        ?.setDuration(800)
-                        ?.setInterpolator(OvershootInterpolator(1.2f))
-                        ?.withEndAction {
-                            // Setze absolute Position nach Animation
-                            playerBadge.x = badgeX
-                            playerBadge.y = badgeY
+                        // Bewege auch das Badge mit Animation
+                        playerBadge?.animate()
+                            ?.x(badgeX)
+                            ?.y(badgeY)
+                            ?.setDuration(800)
+                            ?.setInterpolator(OvershootInterpolator(1.2f))
+                            ?.withEndAction {
+                                // Setze absolute Position nach Animation
+                                playerBadge.x = badgeX
+                                playerBadge.y = badgeY
 
-                            // Debug-Log nach Badge-Animation
-                            println("✅ Badge-Animation abgeschlossen, finale Position: (${playerBadge.x}, ${playerBadge.y})")
-                        }
-                        ?.start()
+                                // Debug-Log nach Badge-Animation
+                                println("✅ Badge-Animation abgeschlossen, finale Position: (${playerBadge.x}, ${playerBadge.y})")
+                            }
+                            ?.start()
 
-                    // Stellen Sie sicher, dass die Figur sichtbar ist
-                    playerFigure.visibility = android.view.View.VISIBLE
-                    playerBadge?.visibility = android.view.View.VISIBLE
+                        // Stellen Sie sicher, dass die Figur sichtbar ist
+                        playerFigure.visibility = android.view.View.VISIBLE
+                        playerBadge?.visibility = android.view.View.VISIBLE
+                    }
 
                 } catch (e: Exception) {
                     println("❌ Fehler während der Figurenbewegung: ${e.message}")
@@ -219,23 +220,23 @@ class BoardFigureManager(
                         CarColor.RED -> R.drawable.badge_red
                         CarColor.YELLOW -> R.drawable.badge_yellow
                     }
-                )
-                textSize = 12f
-                gravity = Gravity.CENTER
-                setPadding(8, 4, 8, 4)
-                translationZ = 15f
-                layoutParams = FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
+                    textSize = 12f
+                    gravity = Gravity.CENTER
+                    setPadding(8, 4, 8, 4)
+                    translationZ = 15f
+                    layoutParams = FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT
+                    )
+                }
             }
-
             boardContainer.addView(newFigure)
             boardContainer.addView(badge)
 
             playerFigures[playerId] = newFigure
             playerBadges[playerId] = badge
         }
+
         return playerFigures[playerId]
             ?: throw IllegalStateException("No player figure found for playerId=$playerId")
     }
