@@ -36,12 +36,16 @@ data class Player(
 
     //setzt die CarColor je nach ID, bei 0 bleibt Standardwert
     fun setCarColor() {
-        if(id.equals("1")){
-            color = CarColor.GREEN
-        } else if(id.equals("2")){
-            color = CarColor.RED
-        } else if(id.equals("3")){
-            color = CarColor.YELLOW
+        when (id) {
+            "1" -> {
+                color = CarColor.GREEN
+            }
+            "2" -> {
+                color = CarColor.RED
+            }
+            "3" -> {
+                color = CarColor.YELLOW
+            }
         }
     }
 }
