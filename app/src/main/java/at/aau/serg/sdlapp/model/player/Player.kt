@@ -19,6 +19,10 @@ data class Player(
     val relationship: Boolean = false,
     var color: CarColor = CarColor.BLUE
 ) {
+
+    init{
+        setCarColor()
+    }
     
     // Liefert die Ressourcen-ID des Auto-Bildes
     fun getCarImageResource(): Int {
@@ -27,6 +31,17 @@ data class Player(
             CarColor.GREEN -> R.drawable.car_green_0
             CarColor.RED -> R.drawable.car_red_0
             CarColor.YELLOW -> R.drawable.car_yellow_0
+        }
+    }
+
+    //setzt die CarColor je nach ID, bei 0 bleibt Standardwert
+    fun setCarColor() {
+        if(id.equals("1")){
+            color = CarColor.GREEN
+        } else if(id.equals("2")){
+            color = CarColor.RED
+        } else if(id.equals("3")){
+            color = CarColor.YELLOW
         }
     }
 }
