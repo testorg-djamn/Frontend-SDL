@@ -489,13 +489,10 @@ class BoardActivity : ComponentActivity(),
             // ✅ NEU: Spielende prüfen
             if (PlayerManager.haveAllPlayersFinished() && !PlayerManager.isGameFinished()) {
                 Log.d("BoardActivity", "🎉 Alle Spieler haben das Ziel erreicht!")
-
                 PlayerManager.markGameFinished()
-
-                val intent = Intent(this, EndScreenActivity::class.java)
-                startActivity(intent)
-                finish()
+                startEndscreen()
             }
+
 
         } catch (e: Exception) {
             Log.e("BoardActivity", "❌ Fehler bei der Verarbeitung einer Bewegungsnachricht: ${e.message}", e)
@@ -515,6 +512,14 @@ class BoardActivity : ComponentActivity(),
             playerName
         )
     }
+
+    private fun startEndscreen() {
+        val intent = Intent(this, EndScreenActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+        finish()
+    }
+
 
     override fun onPlayersChanged() {
         // Status-Text aktualisieren da sich die Spielerliste geändert hat
