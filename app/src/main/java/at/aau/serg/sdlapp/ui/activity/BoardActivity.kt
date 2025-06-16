@@ -470,64 +470,40 @@ class BoardActivity : ComponentActivity(),
 
         try {
             // Detaillierte Debug-Ausgabe
-            Log.d(
-                "BoardActivity",
-                "Bewegung für Spieler ${move.playerName} (ID=${move.playerId}) zu Feld ${move.fieldIndex}"
-            )
-            Log.d(
-                "BoardActivity",
-                "Feldtyp: ${move.typeString}, Nächste Felder: ${move.nextPossibleFields}"
-            )
+            Log.d("BoardActivity", "Bewegung für Spieler ${move.playerName} (ID=${move.playerId}) zu Feld ${move.fieldIndex}")
+            Log.d("BoardActivity", "Feldtyp: ${move.typeString}, Nächste Felder: ${move.nextPossibleFields}")
 
             // Toast mit Info anzeigen
-            Toast.makeText(
-                this,
-                "Bewegung für Spieler ${move.playerName} zu Feld ${move.fieldIndex}",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "Bewegung für Spieler ${move.playerName} zu Feld ${move.fieldIndex}", Toast.LENGTH_SHORT).show()
 
             // Verfügbarkeit des Zielfelds prüfen
-            val fieldExists =
-                at.aau.serg.sdlapp.model.board.BoardDataManager.fieldExists(move.fieldIndex)
+            val fieldExists = at.aau.serg.sdlapp.model.board.BoardDataManager.fieldExists(move.fieldIndex)
             if (!fieldExists) {
-                Log.w(
-                    "BoardActivity",
-                    "⚠️ Zielfeld ${move.fieldIndex} existiert nicht in lokalen BoardData"
-                )
-
-                // Toast mit Warnung anzeigen
-                Toast.makeText(
-                    this,
-                    "Warnung: Feld ${move.fieldIndex} nicht lokal vorhanden",
-                    Toast.LENGTH_LONG
-                ).show()
+                Log.w("BoardActivity", "⚠️ Zielfeld ${move.fieldIndex} existiert nicht in lokalen BoardData")
+                Toast.makeText(this, "Warnung: Feld ${move.fieldIndex} nicht lokal vorhanden", Toast.LENGTH_LONG).show()
             }
 
             // Bewegungsnachricht an Move-Manager übergeben
-            moveManager.handleMoveMessage(
-                move,
-                playerId,
-                playerName,
-                networkManager.getStompClient()
-            )
+            moveManager.handleMoveMessage(move, playerId, playerName, networkManager.getStompClient())
+
+            // ✅ NEU: Spielende prüfen
+            if (PlayerManager.haveAllPlayersFinished() && !PlayerManager.isGameFinished()) {
+                Log.d("BoardActivity", "🎉 Alle Spieler haben das Ziel erreicht!")
+
+                PlayerManager.markGameFinished()
+
+                val intent = Intent(this, EndScreenActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
 
         } catch (e: Exception) {
-            // Bei einem Fehler ausführliche Log-Ausgabe und Toast
-            Log.e(
-                "BoardActivity",
-                "❌ Fehler bei der Verarbeitung einer Bewegungsnachricht: ${e.message}",
-                e
-            )
-            Toast.makeText(
-                this,
-                "Fehler bei der Verarbeitung der Bewegung: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
+            Log.e("BoardActivity", "❌ Fehler bei der Verarbeitung einer Bewegungsnachricht: ${e.message}", e)
+            Toast.makeText(this, "Fehler bei der Verarbeitung der Bewegung: ${e.message}", Toast.LENGTH_LONG).show()
 
-            // Versuche, durch Neuladung der Brett-Daten zu beheben
             Handler(Looper.getMainLooper()).postDelayed({
                 reloadBoardDataAndPositions()
-            }, 2000) // 2 Sekunden Verzögerung
+            }, 2000)
         }
     }
 
