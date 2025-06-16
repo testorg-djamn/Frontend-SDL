@@ -172,6 +172,8 @@ dependencies {
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.core.ktx)
+
 
 
 

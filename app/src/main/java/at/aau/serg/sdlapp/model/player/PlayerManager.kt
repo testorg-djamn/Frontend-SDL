@@ -141,6 +141,36 @@ object PlayerManager {
 
     fun getAllPlayersAsList() : List<Player> = players.values.toList()
 
+    // Status, ob das Spiel bereits beendet wurde
+    private var gameFinished = false
+
+    fun markGameFinished() {
+        gameFinished = true
+    }
+
+    fun isGameFinished(): Boolean = gameFinished
+
+    /**
+     * Prüft, ob ein oder alle Spieler auf dem Endfeld stehen
+     */
+    fun haveAllPlayersFinished(): Boolean {
+        val allPlayers = getAllPlayersAsList()
+
+        // Debug-Ausgabe
+        allPlayers.forEach {
+            Log.d("FinishCheck", "Spieler ${it.name} auf Feld ${it.currentFieldIndex}")
+        }
+
+        // Wenn nur 1 Spieler → genügt, wenn dieser auf einem Endfeld steht
+        if (allPlayers.size == 1) {
+            return allPlayers.first().currentFieldIndex in GameConstants.FINAL_FIELD_INDICES
+        }
+
+        // Sonst: alle müssen auf einem Endfeld sein
+        return allPlayers.all { it.currentFieldIndex in GameConstants.FINAL_FIELD_INDICES }
+    }
+
+
     fun clearPlayers(){
         _players.clear()
     }
