@@ -12,17 +12,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.board.Field
 import at.aau.serg.sdlapp.network.message.MoveMessage
+import at.aau.serg.sdlapp.ui.PlayerViewModel
 import at.aau.serg.sdlapp.ui.board.BoardFigureManager
 import at.aau.serg.sdlapp.ui.board.BoardMoveManager
 import at.aau.serg.sdlapp.ui.board.BoardNetworkManager
 import at.aau.serg.sdlapp.ui.board.BoardUIManager
 import com.otaliastudios.zoom.ZoomLayout
+
 
 /**
  * Die BoardActivity ist die Hauptaktivität des Spiels und verwaltet die
@@ -48,6 +51,8 @@ class BoardActivity : ComponentActivity(),
     private lateinit var figureManager: BoardFigureManager
     private lateinit var uiManager: BoardUIManager
     private lateinit var moveManager: BoardMoveManager
+    private val playerViewModel: PlayerViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_board)
@@ -473,26 +478,28 @@ class BoardActivity : ComponentActivity(),
             Log.d("BoardActivity", "Bewegung für Spieler ${move.playerName} (ID=${move.playerId}) zu Feld ${move.fieldIndex}")
             Log.d("BoardActivity", "Feldtyp: ${move.typeString}, Nächste Felder: ${move.nextPossibleFields}")
 
-            // Toast mit Info anzeigen
+            // Info-Toast
             Toast.makeText(this, "Bewegung für Spieler ${move.playerName} zu Feld ${move.fieldIndex}", Toast.LENGTH_SHORT).show()
 
-            // Verfügbarkeit des Zielfelds prüfen
+            // Prüfen, ob das Feld lokal vorhanden ist
             val fieldExists = at.aau.serg.sdlapp.model.board.BoardDataManager.fieldExists(move.fieldIndex)
             if (!fieldExists) {
                 Log.w("BoardActivity", "⚠️ Zielfeld ${move.fieldIndex} existiert nicht in lokalen BoardData")
                 Toast.makeText(this, "Warnung: Feld ${move.fieldIndex} nicht lokal vorhanden", Toast.LENGTH_LONG).show()
             }
 
-            // Bewegungsnachricht an Move-Manager übergeben
+            // Bewegung verarbeiten
             moveManager.handleMoveMessage(move, playerId, playerName, networkManager.getStompClient())
 
-            // ✅ NEU: Spielende prüfen
+            // 🟢 Spieler-Overlay aktualisieren nach Bewegung
+            playerViewModel.loadPlayer(move.playerId)
+
+            // ✅ Spielende prüfen
             if (PlayerManager.haveAllPlayersFinished() && !PlayerManager.isGameFinished()) {
                 Log.d("BoardActivity", "🎉 Alle Spieler haben das Ziel erreicht!")
                 PlayerManager.markGameFinished()
                 startEndscreen()
             }
-
 
         } catch (e: Exception) {
             Log.e("BoardActivity", "❌ Fehler bei der Verarbeitung einer Bewegungsnachricht: ${e.message}", e)
@@ -503,6 +510,7 @@ class BoardActivity : ComponentActivity(),
             }, 2000)
         }
     }
+
 
     override fun onStartFieldSelected(fieldIndex: Int) {
         moveManager.placePlayerAtStartField(
