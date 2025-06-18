@@ -51,7 +51,6 @@ class BoardActivity : ComponentActivity(),
     private lateinit var figureManager: BoardFigureManager
     private lateinit var uiManager: BoardUIManager
     private lateinit var moveManager: BoardMoveManager
-    private val playerViewModel: PlayerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -491,8 +490,9 @@ class BoardActivity : ComponentActivity(),
             // Bewegung verarbeiten
             moveManager.handleMoveMessage(move, playerId, playerName, networkManager.getStompClient())
 
-            // 🟢 Spieler-Overlay aktualisieren nach Bewegung
-            playerViewModel.loadPlayer(move.playerId)
+            // Lokale Daten reichen aus – keine API-Abfrage nötig
+            Log.d("BoardActivity", "📊 Spielerwerte nach Bewegung: ${PlayerManager.getPlayer(move.playerId)}")
+
 
             // ✅ Spielende prüfen
             if (PlayerManager.haveAllPlayersFinished() && !PlayerManager.isGameFinished()) {

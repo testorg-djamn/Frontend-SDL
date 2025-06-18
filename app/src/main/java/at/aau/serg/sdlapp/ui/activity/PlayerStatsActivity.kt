@@ -13,10 +13,10 @@ import androidx.compose.ui.unit.dp
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.ui.PlayerModell
 import at.aau.serg.sdlapp.ui.PlayerStatsOverlay
-import at.aau.serg.sdlapp.ui.PlayerViewModel
-
+import kotlinx.coroutines.delay
 
 class PlayerStatsActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -32,12 +32,14 @@ class PlayerStatsActivity : ComponentActivity() {
 
     @Composable
     fun StatsScreenWithCloseButton(playerId: String) {
-        val viewModel = remember {PlayerViewModel() }
-        val player = viewModel.player
+        var player by remember { mutableStateOf(PlayerManager.getPlayer(playerId)) }
 
-        // Spieler laden beim ersten Mal
+        // Regelmäßige Aktualisierung (zb. alle 2 Sekunden)
         LaunchedEffect(playerId) {
-            viewModel.loadPlayer(playerId)
+            while (true) {
+                player = PlayerManager.getPlayer(playerId)
+                delay(2000) // oder bei Bedarf kürzer/langsamer
+            }
         }
 
         Column(
@@ -46,9 +48,18 @@ class PlayerStatsActivity : ComponentActivity() {
                 .padding(16.dp)
         ) {
             if (player != null) {
-                PlayerStatsOverlay(player = player)
+                val playerModel = PlayerModell(
+                    id = player!!.id,
+                    money = player!!.money,
+                    children = player!!.children,
+                    education = player!!.hasEducation,
+                    investments = player!!.investments,
+                    salary = player!!.salary,
+                    relationship = player!!.relationship
+                )
+                PlayerStatsOverlay(player = playerModel)
             } else {
-                Text("⏳ Lade Spieler...", color = MaterialTheme.colorScheme.primary)
+                Text("⚠️ Spieler nicht gefunden", color = MaterialTheme.colorScheme.error)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
