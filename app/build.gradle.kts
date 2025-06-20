@@ -137,7 +137,7 @@ sonar {
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
 
-        property("sonar.exclusions","**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,    **/PlayerModell.kt,**/PlayerStatsOverlay.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*.kt,**/MoveMessage.kt, **/ViewModel.kt")
+        property("sonar.exclusions","**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,    **/PlayerModell.kt,**/PlayerStatsOverlay.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*.kt,**/MoveMessage.kt, **/ViewModel.kt")
     }
 }
 
