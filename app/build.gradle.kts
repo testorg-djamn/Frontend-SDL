@@ -176,24 +176,27 @@ dependencies {
     implementation(libs.google.accompanist.pager.indicators)
     implementation(libs.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.zoomlayout)
-    implementation(libs.material)
+    implementation (libs.zoomlayout)
+    implementation (libs.material)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.ui)
     implementation(libs.androidx.ui.viewbinding)
+    implementation(libs.krossbow.stomp.core)
+    implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.kotlinx.serialization.json)
+
+
 
     // --- Unit-Test Dependencies ---
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+    testImplementation(libs.junit)
     testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.core.ktx)
     testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(libs.androidx.arch.core.testing)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.arch.core.testing)
 
     // --- Instrumented/UI-Test Dependencies ---
@@ -204,11 +207,24 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.espresso.intents)
-    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.arch.core.testing)
 
-    // --- Debug Test Manifest ---
+
+    // Instrumentation Tests (Espresso + Intents)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.intents)//
+
+    // Compose Test
+    androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.test.manifest)
+    implementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter.api)
+    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
