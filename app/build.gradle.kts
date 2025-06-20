@@ -185,8 +185,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // --- Unit-Test Dependencies ---
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0") // ✅ JUnit 5 API
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0") // ✅ JUnit 5 Engine
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation(libs.mockito.core)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
@@ -207,6 +207,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.test.runner)
 
+    // --- Debug Test Manifest ---
     debugImplementation(libs.ui.test.manifest)
 }
 
