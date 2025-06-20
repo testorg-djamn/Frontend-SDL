@@ -10,21 +10,16 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
-
-
 jacoco {
     toolVersion = "0.8.8"
 }
 
 android {
-
     namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
 
-
     sourceSets.getByName("main").apply {
         java.srcDirs("src/main/java", "src/main/kotlin")
-        // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
     }
 
     packaging {
@@ -38,7 +33,6 @@ android {
             )
         }
     }
-
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -104,8 +98,29 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
-    val fileFilter = listOf<String>()
-
+    val fileFilter = listOf(
+        "**/*Activity*.class",
+        "**/*Color*.class",
+        "**/*Theme*.class",
+        "**/*Typ*.class",
+        "**/*Screen*.class",
+        "**/ActionCard.class",
+        "**/*ViewModel*.class",
+        "**/PlayerModell.class",
+        "**/BoardData.class",
+        "**/FieldTyp.class",
+        "**/FieldUI.class",
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/*_Factory.*",
+        "**/*_MembersInjector.*",
+        "**/*_Provide*Factory.*",
+        "**/*_ViewBinding.*"
+    )
 
     val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
         exclude(fileFilter)
@@ -126,6 +141,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 
 tasks.withType<Test> {
+    useJUnitPlatform() // ✅ JUnit 5 aktivieren!
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
@@ -136,8 +152,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-
-        property("sonar.exclusions","**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,    **/PlayerModell.kt,**/PlayerStatsOverlay.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*.kt,**/MoveMessage.kt, **/ViewModel.kt")
+        property("sonar.exclusions", "**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,**/PlayerModell.kt,**/BoardData.kt,**/FieldTyp.kt,**/FieldUI.kt")
     }
 }
 
@@ -161,26 +176,24 @@ dependencies {
     implementation(libs.google.accompanist.pager.indicators)
     implementation(libs.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation (libs.zoomlayout)
-    implementation (libs.material)
+    implementation(libs.zoomlayout)
+    implementation(libs.material)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.ui)
     implementation(libs.androidx.ui.viewbinding)
-    implementation(libs.krossbow.stomp.core)
-    implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.lifecycle.viewmodel.ktx)
-
+    implementation(libs.kotlinx.serialization.json)
 
     // --- Unit-Test Dependencies ---
-    testImplementation(libs.junit)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0") // ✅ JUnit 5 API
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0") // ✅ JUnit 5 Engine
     testImplementation(libs.mockito.core)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.core.ktx)
     testImplementation(libs.androidx.test.ext.junit)
-    testImplementation(libs.androidx.arch.core.testing)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.arch.core.testing)
 
     // --- Instrumented/UI-Test Dependencies ---
@@ -191,24 +204,10 @@ dependencies {
     androidTestImplementation(libs.mockk.android)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.arch.core.testing)
-
-
-    // Instrumentation Tests (Espresso + Intents)
+    androidTestImplementation(libs.androidx.espresso.intents)
     androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.espresso.intents)//
 
-    // Compose Test
-    androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.test.manifest)
-    implementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.junit)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
