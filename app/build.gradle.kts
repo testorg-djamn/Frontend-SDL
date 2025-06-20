@@ -104,12 +104,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
-    val fileFilter = listOf(
-        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*Test*.*", "android/**/*.*",
-        "**/di/**/*.*", "**/*_Factory.*", "**/*_MembersInjector.*",
-        "**/*_Provide*Factory.*", "**/*_ViewBinding.*", "**/*Activity.*", "**/*Message.*"
-    )
+    val fileFilter = listOf<String>()
+
 
     val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
         exclude(fileFilter)
@@ -140,7 +136,8 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions","**/StompConnectionManager,**/*Activity.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*/**/*,**/*board*.kt,**/MoveMessage.kt,**/StompConnectionManager.kt,**/BoardDataMessage.kt, **/LobbyViewModel.kt")
+
+        property("sonar.exclusions","**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,    **/PlayerModell.kt,**/PlayerStatsOverlay.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*.kt,**/MoveMessage.kt, **/ViewModel.kt")
     }
 }
 
@@ -172,7 +169,7 @@ dependencies {
     implementation(libs.krossbow.stomp.core)
     implementation(libs.krossbow.websocket.okhttp)
     implementation(libs.lifecycle.viewmodel.ktx)
-
+    implementation(libs.androidx.media3.common.ktx)
 
 
     // --- Unit-Test Dependencies ---
