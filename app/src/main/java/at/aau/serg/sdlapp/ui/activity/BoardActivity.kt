@@ -502,6 +502,11 @@ class BoardActivity : ComponentActivity(),
                 startEndscreen()
             }
 
+            if (move.typeString == "Zahltag") {
+                receiveSalaryFromBackend(move.playerId)
+            }
+
+
         } catch (e: Exception) {
             Log.e("BoardActivity", "❌ Fehler bei der Verarbeitung einer Bewegungsnachricht: ${e.message}", e)
             Toast.makeText(this, "Fehler bei der Verarbeitung der Bewegung: ${e.message}", Toast.LENGTH_LONG).show()
@@ -511,6 +516,27 @@ class BoardActivity : ComponentActivity(),
             }, 2000)
         }
     }
+
+    private fun receiveSalaryFromBackend(playerId: String) {
+        val url = "http://se2-demo.aau.at:53217/players/$playerId/money"
+
+        val request = StringRequest(
+            com.android.volley.Request.Method.PUT, url,
+            { response ->
+                Log.d("Zahltag", response)
+                Toast.makeText(this, response, Toast.LENGTH_SHORT).show()
+
+                // Aktualisiere danach den Kontostand
+                fetchAndUpdatePlayerMoney(playerId)
+            },
+            { error ->
+                Log.e("Zahltag", "Fehler bei Zahltag: ${error.message}")
+                Toast.makeText(this, "Zahltag fehlgeschlagen", Toast.LENGTH_SHORT).show()
+            }
+        )
+        Volley.newRequestQueue(this).add(request)
+    }
+
 
 
     override fun onStartFieldSelected(fieldIndex: Int) {
