@@ -18,6 +18,7 @@ import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.board.Field
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.message.MoveMessage
+import at.aau.serg.sdlapp.ui.PlayerViewModel
 import at.aau.serg.sdlapp.ui.board.BoardFigureManager
 import at.aau.serg.sdlapp.ui.board.BoardMoveManager
 import at.aau.serg.sdlapp.ui.board.BoardNetworkManager
@@ -26,6 +27,8 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.otaliastudios.zoom.ZoomLayout
 import org.json.JSONObject
+import androidx.activity.viewModels
+
 
 
 /**
@@ -44,6 +47,7 @@ class BoardActivity : ComponentActivity(),
     private lateinit var diceButton: ImageButton
     private lateinit var playerName: String
     private lateinit var statsButton: ImageButton
+    private val viewModel: PlayerViewModel by viewModels()
 
 
     // Manager für verschiedene Aspekte des Spiels
@@ -523,14 +527,11 @@ class BoardActivity : ComponentActivity(),
         val request = StringRequest(
             com.android.volley.Request.Method.PUT, url,
             { response ->
-                Log.d("Zahltag", response)
-                Toast.makeText(this, response, Toast.LENGTH_SHORT).show()
+                Log.d("Zahltag", "🎯 Antwort erhalten: $response")
 
-                // 💸 Overlay-Meldung anzeigen
-                uiManager.showStartMoneyOverlay(50000, "Zahltag")
-
-                // 💰 Kontostand aktualisieren
-                fetchAndUpdatePlayerMoney(playerId)
+                fetchAndUpdatePlayerMoney(playerId, showOverlay = true) {
+                    viewModel.loadPlayer(playerId)
+                }
             },
             { error ->
                 Log.e("Zahltag", "Fehler bei Zahltag: ${error.message}")
@@ -539,6 +540,8 @@ class BoardActivity : ComponentActivity(),
         )
         Volley.newRequestQueue(this).add(request)
     }
+
+
 
 
 
@@ -704,9 +707,12 @@ class BoardActivity : ComponentActivity(),
     /**
      * Ruft das aktuelle Geld vom Backend ab und aktualisiert den PlayerManager
      */
-    private fun fetchAndUpdatePlayerMoney(playerId: String) {
+    private fun fetchAndUpdatePlayerMoney(
+        playerId: String,
+        showOverlay: Boolean = false,
+        onMoneyFetched: (() -> Unit)? = null // <--- NEU!
+    ) {
         val url = "http://se2-demo.aau.at:53217/players/$playerId/money"
-
 
         val request = StringRequest(
             com.android.volley.Request.Method.GET, url,
@@ -718,7 +724,12 @@ class BoardActivity : ComponentActivity(),
                     if (player != null) {
                         player.money = money
                         Log.d("BoardActivity", "💰 Neues Geld für $playerId: $money")
-                        Toast.makeText(this, "💰 Aktuelles Geld: ${money}€", Toast.LENGTH_SHORT).show()
+
+                        if (showOverlay) {
+                            uiManager.showStartMoneyOverlay(money, "Zahltag 💸")
+                        }
+
+                        onMoneyFetched?.invoke() // <--- ruft ViewModel.loadPlayer() auf
                     }
                 } catch (e: Exception) {
                     Log.e("BoardActivity", "❌ Fehler beim Parsen des Geld-JSON: ${e.message}")
@@ -732,6 +743,8 @@ class BoardActivity : ComponentActivity(),
 
         Volley.newRequestQueue(this).add(request)
     }
+
+
 
 
     override fun onPlayerPositionsReceived(positions: Map<String, Int>) {
