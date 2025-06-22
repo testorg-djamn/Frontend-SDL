@@ -10,21 +10,16 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
-
-
 jacoco {
     toolVersion = "0.8.8"
 }
 
 android {
-
     namespace = "at.aau.serg.sdlapp"
     compileSdk = 35
 
-
     sourceSets.getByName("main").apply {
         java.srcDirs("src/main/java", "src/main/kotlin")
-        // Don't try to set `kotlin.srcDirs` here, it's not valid in the Kotlin Android plugin
     }
 
     packaging {
@@ -38,7 +33,6 @@ android {
             )
         }
     }
-
 
     defaultConfig {
         applicationId = "at.aau.serg.sdlapp"
@@ -105,10 +99,27 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     }
 
     val fileFilter = listOf(
-        "**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*",
-        "**/*Test*.*", "android/**/*.*",
-        "**/di/**/*.*", "**/*_Factory.*", "**/*_MembersInjector.*",
-        "**/*_Provide*Factory.*", "**/*_ViewBinding.*", "**/*Activity.*", "**/*Message.*"
+        "**/*Activity*.class",
+        "**/*Color*.class",
+        "**/*Theme*.class",
+        "**/*Typ*.class",
+        "**/*Screen*.class",
+        "**/ActionCard.class",
+        "**/*ViewModel*.class",
+        "**/PlayerModell.class",
+        "**/BoardData.class",
+        "**/FieldTyp.class",
+        "**/FieldUI.class",
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/*_Factory.*",
+        "**/*_MembersInjector.*",
+        "**/*_Provide*Factory.*",
+        "**/*_ViewBinding.*"
     )
 
     val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
@@ -130,6 +141,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 
 tasks.withType<Test> {
+    useJUnitPlatform() // ✅ JUnit 5 aktivieren!
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
@@ -140,7 +152,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions","**/StompConnectionManager,**/*Activity.kt,**/Color.kt,**/Theme.kt,**/Type.kt,**/ActionCard.kt,**/PlayerModell.kt,**/PlayerRepository.kt,**/PlayerStatsOverlay.kt,**/GameScreen.kt,**/BoardData.kt,**/Field.kt,**/FieldTyp.kt,**/Board.kt,**/JobMessage.kt,**/JobRequestMessage.kt,**/PlayerViewModel.kt,**/FieldUI.kt, **/PlayerStatsOverlayScreen.kt,**/AllPlayerStatsScreen.kt,**/*board*/**/*,**/*board*.kt,**/MoveMessage.kt,**/StompConnectionManager.kt,**/BoardDataMessage.kt, **/LobbyViewModel.kt")
+        property("sonar.exclusions", "**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,**/PlayerModell.kt,**/BoardData.kt,**/FieldTyp.kt,**/FieldUI.kt")
     }
 }
 
