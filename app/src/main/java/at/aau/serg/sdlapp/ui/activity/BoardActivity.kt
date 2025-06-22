@@ -11,10 +11,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
+import at.aau.serg.sdlapp.model.board.BoardData
 import at.aau.serg.sdlapp.model.board.Field
 import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.message.MoveMessage
@@ -27,7 +29,8 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.otaliastudios.zoom.ZoomLayout
 import org.json.JSONObject
-import androidx.activity.viewModels
+import at.aau.serg.sdlapp.model.board.FieldType
+
 
 
 
@@ -506,9 +509,17 @@ class BoardActivity : ComponentActivity(),
                 startEndscreen()
             }
 
-            if (move.typeString == "Zahltag") {
+            val paydayCrossed = move.passedFields.any { fieldIndex ->
+                val field = BoardData.board.find { it.index == fieldIndex }
+                field?.type?.name == "ZAHLTAG"
+            }
+
+
+            if (paydayCrossed || move.typeString == "ZAHLTAG") {
                 receiveSalaryFromBackend(move.playerId)
             }
+
+
 
 
         } catch (e: Exception) {
@@ -523,23 +534,25 @@ class BoardActivity : ComponentActivity(),
 
     private fun receiveSalaryFromBackend(playerId: String) {
         val url = "http://se2-demo.aau.at:53217/players/$playerId/salary"
+        Log.d("Zahltag", "📤 Sende Zahltag PUT für $playerId an $url")
 
         val request = StringRequest(
             com.android.volley.Request.Method.PUT, url,
             { response ->
                 Log.d("Zahltag", "🎯 Antwort erhalten: $response")
-
                 fetchAndUpdatePlayerMoney(playerId, showOverlay = true) {
+                    Log.d("Zahltag", "🔁 ViewModel wird geladen nach Zahltag")
                     viewModel.loadPlayer(playerId)
                 }
             },
             { error ->
-                Log.e("Zahltag", "Fehler bei Zahltag: ${error.message}")
+                Log.e("Zahltag", "❌ Fehler bei Zahltag: ${error.message}")
                 Toast.makeText(this, "Zahltag fehlgeschlagen", Toast.LENGTH_SHORT).show()
             }
         )
         Volley.newRequestQueue(this).add(request)
     }
+
 
 
 
@@ -710,9 +723,10 @@ class BoardActivity : ComponentActivity(),
     private fun fetchAndUpdatePlayerMoney(
         playerId: String,
         showOverlay: Boolean = false,
-        onMoneyFetched: (() -> Unit)? = null // <--- NEU!
+        onMoneyFetched: (() -> Unit)? = null
     ) {
         val url = "http://se2-demo.aau.at:53217/players/$playerId/money"
+        Log.d("Zahltag", "📞 fetchAndUpdatePlayerMoney AUFGERUFEN für $playerId")
 
         val request = StringRequest(
             com.android.volley.Request.Method.GET, url,
@@ -721,28 +735,34 @@ class BoardActivity : ComponentActivity(),
                     val json = JSONObject(response)
                     val money = json.getInt("money")
                     val player = PlayerManager.getPlayer(playerId)
+                    Log.d("Zahltag", "📦 Server-Antwort: Geld = $money")
+
                     if (player != null) {
                         player.money = money
-                        Log.d("BoardActivity", "💰 Neues Geld für $playerId: $money")
+                        Log.d("Zahltag", "💰 Neues Geld für $playerId: $money")
 
                         if (showOverlay) {
+                            println("🟢 Overlay anzeigen mit $money €")
                             uiManager.showStartMoneyOverlay(money, "Zahltag 💸")
                         }
 
-                        onMoneyFetched?.invoke() // <--- ruft ViewModel.loadPlayer() auf
+                        onMoneyFetched?.invoke()
+                    } else {
+                        Log.e("Zahltag", "❗ Spieler $playerId nicht gefunden im PlayerManager")
                     }
                 } catch (e: Exception) {
-                    Log.e("BoardActivity", "❌ Fehler beim Parsen des Geld-JSON: ${e.message}")
+                    Log.e("Zahltag", "❌ Fehler beim Parsen des Geld-JSON: ${e.message}")
                 }
             },
             { error ->
-                Log.e("BoardActivity", "❌ Fehler beim Abrufen des Geldes: ${error.message}")
+                Log.e("Zahltag", "❌ Fehler beim Abrufen des Geldes: ${error.message}")
                 Toast.makeText(this, "Fehler beim Abrufen des Geldes", Toast.LENGTH_SHORT).show()
             }
         )
-
         Volley.newRequestQueue(this).add(request)
     }
+
+
 
 
 
