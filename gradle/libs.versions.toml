@@ -31,6 +31,7 @@ uiTestManifest = "1.7.8"
 uiTooling = "1.7.8"
 uiToolingPreview = "1.7.8"
 uiViewbinding = "1.7.0"
+volley = "1.2.1"
 zoomlayout = "1.9.0"
 mockito = "5.7.0"
 robolectric = "4.11.1"
@@ -81,6 +82,7 @@ ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = 
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
 ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiTooling" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
+volley = { module = "com.android.volley:volley", version.ref = "volley" }
 zoomlayout = { group = "com.otaliastudios", name = "zoomlayout", version.ref = "zoomlayout" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }

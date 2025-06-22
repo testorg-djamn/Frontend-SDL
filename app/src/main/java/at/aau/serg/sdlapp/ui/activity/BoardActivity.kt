@@ -1,6 +1,5 @@
 package at.aau.serg.sdlapp.ui.activity
 
-import at.aau.serg.sdlapp.model.player.PlayerManager
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -12,19 +11,21 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import at.aau.serg.sdlapp.R
 import at.aau.serg.sdlapp.model.board.Field
+import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.network.message.MoveMessage
-import at.aau.serg.sdlapp.ui.PlayerViewModel
 import at.aau.serg.sdlapp.ui.board.BoardFigureManager
 import at.aau.serg.sdlapp.ui.board.BoardMoveManager
 import at.aau.serg.sdlapp.ui.board.BoardNetworkManager
 import at.aau.serg.sdlapp.ui.board.BoardUIManager
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.otaliastudios.zoom.ZoomLayout
+import org.json.JSONObject
 
 
 /**
@@ -669,7 +670,41 @@ class BoardActivity : ComponentActivity(),
             Log.e("BoardActivity", "❌ Fehler beim Neuladen der Daten: ${e.message}", e)
             Toast.makeText(this, "Fehler beim Neuladen: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-    }    override fun onPlayerPositionsReceived(positions: Map<String, Int>) {
+    }
+    /**
+     * Ruft das aktuelle Geld vom Backend ab und aktualisiert den PlayerManager
+     */
+    private fun fetchAndUpdatePlayerMoney(playerId: String) {
+        val url = "http://se2-demo.aau.at:53217/players/$playerId/money"
+
+
+        val request = StringRequest(
+            com.android.volley.Request.Method.GET, url,
+            { response ->
+                try {
+                    val json = JSONObject(response)
+                    val money = json.getInt("money")
+                    val player = PlayerManager.getPlayer(playerId)
+                    if (player != null) {
+                        player.money = money
+                        Log.d("BoardActivity", "💰 Neues Geld für $playerId: $money")
+                        Toast.makeText(this, "💰 Aktuelles Geld: ${money}€", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Log.e("BoardActivity", "❌ Fehler beim Parsen des Geld-JSON: ${e.message}")
+                }
+            },
+            { error ->
+                Log.e("BoardActivity", "❌ Fehler beim Abrufen des Geldes: ${error.message}")
+                Toast.makeText(this, "Fehler beim Abrufen des Geldes", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        Volley.newRequestQueue(this).add(request)
+    }
+
+
+    override fun onPlayerPositionsReceived(positions: Map<String, Int>) {
         Log.d("BoardActivity", "📍 Spielerpositionen vom Server empfangen: ${positions.size} Positionen")
 
         try {
