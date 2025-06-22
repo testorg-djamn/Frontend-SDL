@@ -518,7 +518,7 @@ class BoardActivity : ComponentActivity(),
     }
 
     private fun receiveSalaryFromBackend(playerId: String) {
-        val url = "http://se2-demo.aau.at:53217/players/$playerId/money"
+        val url = "http://se2-demo.aau.at:53217/players/$playerId/salary"
 
         val request = StringRequest(
             com.android.volley.Request.Method.PUT, url,
@@ -526,7 +526,10 @@ class BoardActivity : ComponentActivity(),
                 Log.d("Zahltag", response)
                 Toast.makeText(this, response, Toast.LENGTH_SHORT).show()
 
-                // Aktualisiere danach den Kontostand
+                // 💸 Overlay-Meldung anzeigen
+                uiManager.showStartMoneyOverlay(50000, "Zahltag")
+
+                // 💰 Kontostand aktualisieren
                 fetchAndUpdatePlayerMoney(playerId)
             },
             { error ->
@@ -536,6 +539,7 @@ class BoardActivity : ComponentActivity(),
         )
         Volley.newRequestQueue(this).add(request)
     }
+
 
 
 
