@@ -513,15 +513,6 @@ class BoardActivity : ComponentActivity(),
 
 
     override fun onStartFieldSelected(fieldIndex: Int) {
-        // 💰 Startgeld setzen je nach Startfeld
-        val player = PlayerManager.getPlayer(playerId)
-        if (player != null) {
-            val startgeld = if (fieldIndex == 3) 50_000 else 250_000
-            player.money = startgeld
-            Log.d("BoardActivity", "💰 Startgeld von ${startgeld / 1000}k € für Spieler $playerId vergeben")
-        } else {
-            Log.w("BoardActivity", "⚠️ Spieler $playerId nicht gefunden, kein Startgeld vergeben")
-        }
         moveManager.placePlayerAtStartField(
             playerId,
             fieldIndex,
