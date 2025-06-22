@@ -138,6 +138,14 @@ object PlayerManager {
         player.color = color
         println("🎨 Farbe für Spieler $playerId auf $colorName aktualisiert")
     }
+    //Setzt das Startgeld für einen Spieler
+    fun setStartMoneyForPlayer(playerId: String, viaUniversity: Boolean) {
+        val player = _players[playerId] ?: return
+
+        player.money = if (viaUniversity) 50_000 else 250_000
+        Log.d("PlayerManager", "💸 Startgeld für $playerId gesetzt: ${player.money} (${if (viaUniversity) "Studium" else "Karriere"})")
+    }
+
 
     fun getAllPlayersAsList() : List<Player> = players.values.toList()
 
@@ -169,6 +177,8 @@ object PlayerManager {
         // Sonst: alle müssen auf einem Endfeld sein
         return allPlayers.all { it.currentFieldIndex in GameConstants.FINAL_FIELD_INDICES }
     }
+
+
 
 
     fun clearPlayers(){
