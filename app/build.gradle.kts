@@ -120,7 +120,6 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform() // ✅ JUnit 5 aktivieren!
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
