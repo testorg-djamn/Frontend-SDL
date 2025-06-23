@@ -98,29 +98,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/jacocoTestReport/jacocoTestReport.xml"))
     }
 
-    val fileFilter = listOf(
-        "**/*Activity*.class",
-        "**/*Color*.class",
-        "**/*Theme*.class",
-        "**/*Typ*.class",
-        "**/*Screen*.class",
-        "**/ActionCard.class",
-        "**/*ViewModel*.class",
-        "**/PlayerModell.class",
-        "**/BoardData.class",
-        "**/FieldTyp.class",
-        "**/FieldUI.class",
-        "**/R.class",
-        "**/R$*.class",
-        "**/BuildConfig.*",
-        "**/Manifest*.*",
-        "**/*Test*.*",
-        "android/**/*.*",
-        "**/*_Factory.*",
-        "**/*_MembersInjector.*",
-        "**/*_Provide*Factory.*",
-        "**/*_ViewBinding.*"
-    )
+    val fileFilter = emptyList<String>()
+
 
     val debugTree = fileTree(layout.buildDirectory.dir("tmp/kotlin-classes/debug")) {
         exclude(fileFilter)
@@ -152,7 +131,7 @@ sonar {
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,**/PlayerModell.kt,**/BoardData.kt,**/FieldTyp.kt,**/FieldUI.kt")
+        //property("sonar.exclusions", "**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,**/PlayerModell.kt,**/BoardData.kt,**/FieldTyp.kt,**/FieldUI.kt")
     }
 }
 

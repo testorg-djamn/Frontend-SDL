@@ -3,6 +3,7 @@ package at.aau.serg.sdlapp.network.message.lobby
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
+
 class LobbyRequestMessageTest {
     @Test
     fun `constructor sets playerName correctly`() {
