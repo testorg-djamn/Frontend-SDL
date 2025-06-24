@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,13 +15,16 @@ import at.aau.serg.sdlapp.model.player.PlayerManager
 import at.aau.serg.sdlapp.ui.PlayerModell
 import at.aau.serg.sdlapp.ui.PlayerStatsOverlay
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PlayerStatsActivity : ComponentActivity() {
+
+    private lateinit var playerId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val playerId = intent.getStringExtra("playerId") ?: "1"
+        playerId = intent.getStringExtra("playerId") ?: "1"
         Log.d("PlayerStatsActivity", "Erhaltener Spieler-ID: $playerId")
 
         setContent {
@@ -34,11 +38,18 @@ class PlayerStatsActivity : ComponentActivity() {
     fun StatsScreenWithCloseButton(playerId: String) {
         var player by remember { mutableStateOf(PlayerManager.getPlayer(playerId)) }
 
-        // Regelmäßige Aktualisierung (zb. alle 2 Sekunden)
+        // 🔄 1x zu Beginn vom Server laden
+        LaunchedEffect(playerId) {
+            PlayerManager.syncPlayerWithServer(playerId)
+            player = PlayerManager.getPlayer(playerId)
+        }
+
+        // 🔁 Wiederholt synchronisieren (alle 2 Sekunden)
         LaunchedEffect(playerId) {
             while (true) {
+                PlayerManager.syncPlayerWithServer(playerId)
                 player = PlayerManager.getPlayer(playerId)
-                delay(2000) // oder bei Bedarf kürzer/langsamer
+                delay(2000)
             }
         }
 
