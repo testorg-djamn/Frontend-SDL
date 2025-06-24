@@ -113,10 +113,12 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     sourceDirectories.setFrom(files(mainSrc))
     classDirectories.setFrom(files(debugTree, javaDebugTree))
-    executionData.setFrom(files(
-        layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"),
-        layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
-    ))
+    executionData.setFrom(
+        files(
+            layout.buildDirectory.file("jacoco/testDebugUnitTest.exec"),
+            layout.buildDirectory.file("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
+        )
+    )
 }
 
 tasks.withType<Test> {
@@ -125,92 +127,97 @@ tasks.withType<Test> {
 
 sonar {
     properties {
-        property("sonar.projectKey", "SE2-SS25-SpielDesLebens_Frontend-SDL")
-        property("sonar.organization", "se2-ss25-spieldeslebens")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.java.coveragePlugin", "jacoco")
-        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
-        property("sonar.exclusions", "**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,**/PlayerModell.kt,**/BoardData.kt,**/FieldTyp.kt,**/FieldUI.kt")
+        properties {
+            property("sonar.projectKey", "testorg-djamn_Frontend-SDL")
+            property("sonar.organization", "testorg-djamn")
+            property("sonar.host.url", "https://sonarcloud.io")
+            property("sonar.java.coveragePlugin", "jacoco")
+            property(
+                "sonar.coverage.jacoco.xmlReportPaths",
+                "${layout.buildDirectory.get()}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+            )
+            property(
+                "sonar.exclusions",
+                "**/*Activity*.kt,**/*Color*.kt,**/*Theme*.kt,**/*Typ*.kt,**/*Screen*.kt,**/ActionCard.kt, **/*ViewModel*.kt,**/PlayerModell.kt,**/BoardData.kt,**/FieldTyp.kt,**/FieldUI.kt"
+            )
+        }
     }
-}
 
-dependencies {
-    // --- App Dependencies ---
-    implementation(libs.krossbow.websocket.okhttp)
-    implementation(libs.krossbow.stomp.core)
-    implementation(libs.krossbow.websocket.builtin)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.gson)
-    implementation(libs.accompanist.pager)
-    implementation(libs.google.accompanist.pager.indicators)
-    implementation(libs.material3)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation (libs.zoomlayout)
-    implementation (libs.material)
-    implementation(libs.androidx.core.splashscreen)
-    implementation(libs.ui)
-    implementation(libs.androidx.ui.viewbinding)
-    implementation(libs.krossbow.stomp.core)
-    implementation(libs.krossbow.websocket.okhttp)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.volley)
-
+    dependencies {
+        // --- App Dependencies ---
+        implementation(libs.krossbow.websocket.okhttp)
+        implementation(libs.krossbow.stomp.core)
+        implementation(libs.krossbow.websocket.builtin)
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.androidx.lifecycle.runtime.ktx)
+        implementation(libs.androidx.activity.compose)
+        implementation(platform(libs.androidx.compose.bom))
+        implementation(libs.androidx.ui)
+        implementation(libs.androidx.ui.graphics)
+        implementation(libs.androidx.ui.tooling.preview)
+        implementation(libs.androidx.material3)
+        implementation(libs.androidx.constraintlayout)
+        implementation(libs.androidx.recyclerview)
+        implementation(libs.gson)
+        implementation(libs.accompanist.pager)
+        implementation(libs.google.accompanist.pager.indicators)
+        implementation(libs.material3)
+        implementation(libs.androidx.lifecycle.viewmodel.compose)
+        implementation(libs.zoomlayout)
+        implementation(libs.material)
+        implementation(libs.androidx.core.splashscreen)
+        implementation(libs.ui)
+        implementation(libs.androidx.ui.viewbinding)
+        implementation(libs.krossbow.stomp.core)
+        implementation(libs.krossbow.websocket.okhttp)
+        implementation(libs.lifecycle.viewmodel.ktx)
+        implementation(libs.androidx.core.ktx)
+        implementation(libs.volley)
 
 
+        // --- Unit-Test Dependencies ---
+        testImplementation(libs.junit)
+        testImplementation(libs.mockito.core)
+        testImplementation(libs.robolectric)
+        testImplementation(libs.androidx.test.core)
+        testImplementation(libs.androidx.test.core.ktx)
+        testImplementation(libs.androidx.test.ext.junit)
+        testImplementation(libs.androidx.arch.core.testing)
+        testImplementation(libs.mockk)
+        testImplementation(libs.kotlinx.coroutines.test)
+        testImplementation(libs.androidx.arch.core.testing)
+
+        // --- Instrumented/UI-Test Dependencies ---
+        androidTestImplementation(libs.ui.test.junit4)
+        androidTestImplementation(libs.ui.tooling)
+        androidTestImplementation(libs.ui.tooling.preview)
+        androidTestImplementation(libs.ui.test.manifest)
+        androidTestImplementation(libs.mockk.android)
+        androidTestImplementation(libs.androidx.test.ext.junit)
+        androidTestImplementation(libs.androidx.espresso.core)
+        androidTestImplementation(libs.androidx.arch.core.testing)
 
 
-    // --- Unit-Test Dependencies ---
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.androidx.test.core)
-    testImplementation(libs.androidx.test.core.ktx)
-    testImplementation(libs.androidx.test.ext.junit)
-    testImplementation(libs.androidx.arch.core.testing)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.androidx.arch.core.testing)
+        // Instrumentation Tests (Espresso + Intents)
+        androidTestImplementation(libs.androidx.test.runner)
+        androidTestImplementation(libs.androidx.test.ext.junit)
+        androidTestImplementation(libs.androidx.espresso.core)
+        androidTestImplementation(libs.androidx.espresso.intents)//
 
-    // --- Instrumented/UI-Test Dependencies ---
-    androidTestImplementation(libs.ui.test.junit4)
-    androidTestImplementation(libs.ui.tooling)
-    androidTestImplementation(libs.ui.tooling.preview)
-    androidTestImplementation(libs.ui.test.manifest)
-    androidTestImplementation(libs.mockk.android)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.arch.core.testing)
+        // Compose Test
+        androidTestImplementation(libs.ui.test.junit4)
+        debugImplementation(libs.ui.test.manifest)
+        implementation(libs.kotlinx.serialization.json)
+        testImplementation(libs.junit)
+        testImplementation(libs.junit.jupiter.api)
+        testImplementation(libs.kotlinx.serialization.json)
+        testImplementation(libs.mockito.core)
+        testImplementation(libs.kotlinx.coroutines.test)
+    }
 
-
-    // Instrumentation Tests (Espresso + Intents)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.espresso.intents)//
-
-    // Compose Test
-    androidTestImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.test.manifest)
-    implementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.junit)
-    testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 }
