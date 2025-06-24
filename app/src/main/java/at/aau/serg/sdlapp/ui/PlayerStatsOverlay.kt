@@ -46,10 +46,11 @@ fun PlayerStatsOverlay(player: PlayerModell) {
                     fontSize = 18.sp
                 )
                 Text(
-                    text = "${player.money / 1000}k",
+                    text = "${player.money / 1000}k €",
                     color = Color.White,
                     fontSize = 22.sp
                 )
+
             }
 
             // Statussymbole

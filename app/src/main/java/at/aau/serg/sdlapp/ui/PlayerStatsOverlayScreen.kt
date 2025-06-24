@@ -21,13 +21,15 @@ fun PlayerStatsOverlayScreen(
     playerId: String,
     viewModel: PlayerViewModel = viewModel()
 ) {
+    // Trigger reload jedes Mal, wenn playerId oder triggerState sich ändern
     LaunchedEffect(playerId) {
-        println("PlayerStatsOverlayScreen gestartet mit ID: $playerId")
+        println("📡 Lade Player in PlayerStatsOverlayScreen mit ID: $playerId")
         viewModel.loadPlayer(playerId)
     }
 
+    // Zeige Overlay wenn Spieler geladen ist
     viewModel.player?.let { player ->
-        println("🎉 Spieler geladen: ${player.id}")
+        println("🎉 Spieler geladen: ${player.id} mit Geld: ${player.money}")
         PlayerStatsOverlay(player = player)
     } ?: Box(
         modifier = Modifier
@@ -39,8 +41,9 @@ fun PlayerStatsOverlayScreen(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator(modifier = Modifier.testTag("CircularProgressIndicator"))
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Aktueller Player: ${viewModel.player?.id ?: "NULL"}")
+            Text("Lade Spieler...")
         }
     }
 }
+
 

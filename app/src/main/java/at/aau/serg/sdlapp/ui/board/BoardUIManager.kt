@@ -102,6 +102,7 @@ class BoardUIManager(
                 val localPlayerId = playerManager.getLocalPlayer()?.id ?: ""
                 playerManager.setLocalPlayer(localPlayerId, selectedColor)
                 println("🎨 Farbe $selectedColor für Spieler $localPlayerId gesetzt")
+                PlayerManager.setStartMoneyForPlayer(localPlayerId, viaUniversity = false)
                 
                 // Sende Farbe an Backend
                 stompClient.sendColorSelection(playerName, selectedColor.name)
@@ -129,9 +130,15 @@ class BoardUIManager(
                 println("🎓 Uni-Start Button geklickt")
                 // Starte am Uni-Startfeld (Index 10)
                 val startFieldIndex = 10
-                
-                // Setze Farbe des Spielers
                 val localPlayerId = playerManager.getLocalPlayer()?.id ?: ""
+                val player = playerManager.getPlayer(localPlayerId)
+                    ?: playerManager.addPlayer(localPlayerId, "Spieler $localPlayerId")
+
+                player.startedWithUniversity = true
+
+                //Startgeld setzen
+                PlayerManager.setStartMoneyForPlayer(localPlayerId, viaUniversity = true)
+                // Setze Farbe des Spielers
                 playerManager.setLocalPlayer(localPlayerId, selectedColor)
                 println("🎨 Farbe $selectedColor für Spieler $localPlayerId gesetzt")
                 
@@ -284,6 +291,19 @@ class BoardUIManager(
         // Dialog anzeigen
         dialog.show()
     }
+
+    fun showStartMoneyOverlay(amount: Int, reason: String) {
+        Handler(Looper.getMainLooper()).post {
+            AlertDialog.Builder(context)
+                .setTitle("💸 Guthaben erhalten")
+                .setMessage("Du erhältst $amount€ durch $reason.")
+                .setPositiveButton("OK", null)
+                .create()
+                .show()
+        }
+    }
+
+
 
     /**
      * Aktualisiert den Status-Text mit der Anzahl der aktiven Spieler

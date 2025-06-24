@@ -9,7 +9,7 @@ import java.net.URL
 
 object PlayerRepository {
 
-    private const val BASE_URL = "http://143.205.193.86:8080/players"
+    private const val BASE_URL = "http://se2-demo.aau.at:53217/players"
 
     // ✅ JSON-Konfiguration: Unbekannte Keys ignorieren
     private val json = Json {
@@ -84,7 +84,9 @@ object PlayerRepository {
                 json.decodeFromString(it.readText())
             }
         }
-    }    // ✅ PUT-Endpunkte
+    }
+
+    // ✅ PUT-Endpunkte
     suspend fun marryPlayer(playerId: String) {
         makePutRequest("$BASE_URL/$playerId/marry")
     }
