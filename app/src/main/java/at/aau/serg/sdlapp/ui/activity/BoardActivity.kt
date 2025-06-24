@@ -511,9 +511,10 @@ class BoardActivity : ComponentActivity(),
                 field?.type?.name == "ZAHLTAG"
             }
 
-
+            Log.d("Zahltag", "🟡 paydayCrossed = $paydayCrossed")
             if (paydayCrossed || move.typeString == "ZAHLTAG") {
                 receiveSalaryFromBackend(move.playerId)
+                Log.d("Zahltag", "🏁 Zahltag erkannt für ${move.playerId}")
             }
 
 
