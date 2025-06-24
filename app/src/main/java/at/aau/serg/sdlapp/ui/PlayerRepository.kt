@@ -84,7 +84,9 @@ object PlayerRepository {
                 json.decodeFromString(it.readText())
             }
         }
-    }    // ✅ PUT-Endpunkte
+    }
+
+    // ✅ PUT-Endpunkte
     suspend fun marryPlayer(playerId: String) {
         makePutRequest("$BASE_URL/$playerId/marry")
     }

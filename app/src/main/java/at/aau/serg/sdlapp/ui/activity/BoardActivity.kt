@@ -506,10 +506,11 @@ class BoardActivity : ComponentActivity(),
                 startEndscreen()
             }
 
-            val paydayCrossed = move.passedFields.any { fieldIndex ->
+            val paydayCrossed = move.passedFields?.any { fieldIndex ->
                 val field = BoardData.board.find { it.index == fieldIndex }
                 field?.type?.name == "ZAHLTAG"
-            }
+            } == true
+
 
             Log.d("Zahltag", "🟡 paydayCrossed = $paydayCrossed")
             if (paydayCrossed || move.typeString == "ZAHLTAG") {
