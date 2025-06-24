@@ -2,6 +2,7 @@ package at.aau.serg.sdlapp.model.player
 
 import android.util.Log
 import at.aau.serg.sdlapp.model.game.GameConstants
+import at.aau.serg.sdlapp.ui.PlayerRepository
 
 /**
  * Verwaltet alle Spieler und ihre Positionen (Singleton)
@@ -177,6 +178,27 @@ object PlayerManager {
         // Sonst: alle müssen auf einem Endfeld sein
         return allPlayers.all { it.currentFieldIndex in GameConstants.FINAL_FIELD_INDICES }
     }
+
+
+
+    suspend fun syncPlayerWithServer(playerId: String) {
+        try {
+            val updatedPlayer = PlayerRepository.fetchPlayerById(playerId)
+            val player = _players[playerId] ?: addPlayer(playerId, updatedPlayer.id)
+
+            player.money = updatedPlayer.money
+            player.children = updatedPlayer.children
+            player.hasEducation = updatedPlayer.education
+            player.investments = updatedPlayer.investments
+            player.salary = updatedPlayer.salary
+            player.relationship = updatedPlayer.relationship
+
+            Log.d("PlayerManager", "🔄 Spieler $playerId mit Serverdaten synchronisiert.")
+        } catch (e: Exception) {
+            Log.e("PlayerManager", "❌ Fehler beim Synchronisieren von $playerId: ${e.message}")
+        }
+    }
+
 
 
 

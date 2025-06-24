@@ -29,9 +29,6 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.otaliastudios.zoom.ZoomLayout
 import org.json.JSONObject
-import at.aau.serg.sdlapp.model.board.FieldType
-
-
 
 
 /**
